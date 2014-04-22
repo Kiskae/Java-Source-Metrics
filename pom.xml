@@ -13,18 +13,12 @@
         <mainClass>nl.rug.jbi.jsm.Bootstrap</mainClass>
     </properties>
 
-    <developers>
-        <developer>
-            <id>jvleusen</id>
-            <name>David</name>
-            <email>jvleusen@gmail.com</email>
-            <roles>
-                <role>developer</role>
-                <role>architect</role>
-            </roles>
-            <timezone>Europe/Amsterdam</timezone>
-        </developer>
-    </developers>
+    <scm>
+        <connection>scm:git:git://bitbucket.org/kiskae/java-source-metrics.git</connection>
+        <developerConnection>scm:git:git://bitbucket.org/kiskae/java-source-metrics.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://bitbucket.org/kiskae/java-source-metrics/src/</url>
+    </scm>
 
     <dependencies>
         <dependency>
