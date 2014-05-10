@@ -1,6 +1,7 @@
 package nl.rug.jbi.jsm.bcel;
 
 import com.google.common.base.Preconditions;
+import nl.rug.jbi.jsm.core.EventBus;
 import org.apache.bcel.classfile.*;
 import org.apache.bcel.classfile.Deprecated;
 import org.apache.bcel.generic.ConstantPoolGen;
@@ -11,11 +12,13 @@ import org.apache.logging.log4j.Logger;
 public class ClassVisitor extends EmptyVisitor {
     private final static Logger logger = LogManager.getLogger(ClassVisitor.class);
 
-    private final JavaClass visitedClass;
+    private final org.apache.bcel.classfile.JavaClass visitedClass;
+    private final EventBus eBus;
     private final ConstantPoolGen cp;
 
-    public ClassVisitor(final JavaClass jc) {
+    public ClassVisitor(final org.apache.bcel.classfile.JavaClass jc, final EventBus eBus) {
         this.visitedClass = jc;
+        this.eBus = eBus;
         this.cp = new ConstantPoolGen(this.visitedClass.getConstantPool());
     }
 
@@ -124,10 +127,13 @@ public class ClassVisitor extends EmptyVisitor {
     }
 
     @Override
-    public void visitJavaClass(JavaClass jc) {
+    public void visitJavaClass(org.apache.bcel.classfile.JavaClass jc) {
         Preconditions.checkNotNull(jc);
 
-        //TODO: javaclass publish
+        logger.debug(jc);
+
+        if (this.eBus.hasListeners(JavaClass.class))
+            this.eBus.publish(new JavaClass(jc));
 
         for (final Field field : jc.getFields()) {
             field.accept(this);
@@ -162,10 +168,12 @@ public class ClassVisitor extends EmptyVisitor {
     public void visitMethod(final org.apache.bcel.classfile.Method method) {
         final MethodGen mg = new MethodGen(method, this.visitedClass.getClassName(), this.cp);
 
-        //TODO: publish
-        new Method(mg);
+        logger.debug(method);
 
-        final MethodVisitor mv = new MethodVisitor(mg);
+        if (this.eBus.hasListeners(Method.class))
+            this.eBus.publish(new Method(mg));
+
+        final MethodVisitor mv = new MethodVisitor(mg, this.eBus);
         mv.start(); //Run visitor for method instructions
     }
 

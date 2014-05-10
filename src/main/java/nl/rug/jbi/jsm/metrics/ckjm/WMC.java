@@ -1,9 +1,9 @@
 package nl.rug.jbi.jsm.metrics.ckjm;
 
-import nl.rug.jbi.jsm.metrics.IsolatedMetric;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.calculator.Subscribe;
+import nl.rug.jbi.jsm.metrics.IsolatedMetric;
 import nl.rug.jbi.jsm.util.DefaultValues;
 import org.apache.bcel.classfile.Method;
 
@@ -21,9 +21,15 @@ public class WMC implements IsolatedMetric<WMC.Result> {
     }
 
     public static class Result implements MetricResult {
+        private final Integer value;
 
-        public Result(int value) {
+        public Result(final Integer value) {
+            this.value = value;
+        }
 
+        @Override
+        public double getValue() {
+            return this.value.doubleValue();
         }
     }
 }

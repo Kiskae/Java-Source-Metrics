@@ -1,5 +1,6 @@
 package nl.rug.jbi.jsm.bcel;
 
+import nl.rug.jbi.jsm.core.EventBus;
 import org.apache.bcel.generic.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,7 +11,7 @@ public class MethodVisitor extends EmptyVisitor {
     private final MethodGen mg;
     private final ConstantPoolGen cp;
 
-    public MethodVisitor(final MethodGen mg) {
+    public MethodVisitor(final MethodGen mg, EventBus eBus) {
         this.mg = mg;
         this.cp = mg.getConstantPool();
     }

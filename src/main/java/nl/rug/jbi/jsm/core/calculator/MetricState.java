@@ -13,11 +13,11 @@ import java.util.Map;
 public class MetricState {
     private final Map<String, Object> stateMap = Maps.newHashMap();
     private final String className;
-    private final Class metricClass;
+    private final Class metricType;
 
-    public MetricState(final String className, final Class metricClass) {
+    public MetricState(final String className, final Class metricType) {
         this.className = className;
-        this.metricClass = metricClass;
+        this.metricType = metricType;
     }
 
     /**
@@ -77,7 +77,7 @@ public class MetricState {
         return Objects.toStringHelper(this)
                 .add("className", className)
                 .add("stateMap", stateMap)
-                .add("metricClass", metricClass)
+                .add("metricType", metricType)
                 .toString();
     }
 }

@@ -10,7 +10,7 @@ public class PF implements IsolatedMetric<MetricResult> {
 
     @Subscribe
     @UsingProducer(PackageProducer.class)
-    public void onPackage(final MetricState state, final Object pack) {
+    public void onPackage(final MetricState state, final Package pack) {
 
     }
 
