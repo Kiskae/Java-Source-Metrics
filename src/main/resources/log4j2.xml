@@ -9,5 +9,7 @@
         <Root level="trace">
             <AppenderRef ref="Console"/>
         </Root>
+        <Logger name="nl.rug.jbi.jsm.bcel" level="info">
+        </Logger>
     </Loggers>
 </Configuration>

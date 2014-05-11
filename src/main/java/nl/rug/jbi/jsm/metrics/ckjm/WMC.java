@@ -1,11 +1,11 @@
 package nl.rug.jbi.jsm.metrics.ckjm;
 
+import nl.rug.jbi.jsm.bcel.Method;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.calculator.Subscribe;
 import nl.rug.jbi.jsm.metrics.IsolatedMetric;
 import nl.rug.jbi.jsm.util.DefaultValues;
-import org.apache.bcel.classfile.Method;
 
 public class WMC implements IsolatedMetric<WMC.Result> {
 

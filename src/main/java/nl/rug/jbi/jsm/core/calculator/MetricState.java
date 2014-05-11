@@ -12,19 +12,21 @@ import java.util.Map;
  */
 public class MetricState {
     private final Map<String, Object> stateMap = Maps.newHashMap();
-    private final String className;
+    private final String identifier;
     private final Class metricType;
 
-    public MetricState(final String className, final Class metricType) {
-        this.className = className;
+    //TODO: flag for exception during execution
+
+    public MetricState(final String identifier, final Class metricType) {
+        this.identifier = identifier;
         this.metricType = metricType;
     }
 
     /**
      * @return
      */
-    public String getClassName() {
-        return this.className;
+    public String getIdentifier() {
+        return this.identifier;
     }
 
     /**
@@ -75,7 +77,7 @@ public class MetricState {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                .add("className", className)
+                .add("identifier", identifier)
                 .add("stateMap", stateMap)
                 .add("metricType", metricType)
                 .toString();

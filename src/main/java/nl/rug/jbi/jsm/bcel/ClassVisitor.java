@@ -28,109 +28,109 @@ public class ClassVisitor extends EmptyVisitor {
 
     @Override
     public void visitCode(Code obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitCodeException(CodeException obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitConstantClass(ConstantClass obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitConstantDouble(ConstantDouble obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitConstantFieldref(ConstantFieldref obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitConstantFloat(ConstantFloat obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitConstantInteger(ConstantInteger obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitConstantInterfaceMethodref(ConstantInterfaceMethodref obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitConstantLong(ConstantLong obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitConstantMethodref(ConstantMethodref obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitConstantNameAndType(ConstantNameAndType obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitConstantPool(ConstantPool obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitConstantString(ConstantString obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitConstantUtf8(ConstantUtf8 obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitConstantValue(ConstantValue obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitDeprecated(Deprecated obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitExceptionTable(ExceptionTable obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitField(Field obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitInnerClass(InnerClass obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitInnerClasses(InnerClasses obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitJavaClass(org.apache.bcel.classfile.JavaClass jc) {
         Preconditions.checkNotNull(jc);
 
-        logger.debug(jc);
+        logger.trace(jc);
 
         if (this.eBus.hasListeners(JavaClass.class))
             this.eBus.publish(new JavaClass(jc));
@@ -146,29 +146,29 @@ public class ClassVisitor extends EmptyVisitor {
 
     @Override
     public void visitLineNumber(LineNumber obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitLineNumberTable(LineNumberTable obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitLocalVariable(LocalVariable obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitLocalVariableTable(LocalVariableTable obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitMethod(final org.apache.bcel.classfile.Method method) {
         final MethodGen mg = new MethodGen(method, this.visitedClass.getClassName(), this.cp);
 
-        logger.debug(method);
+        logger.trace(method);
 
         if (this.eBus.hasListeners(Method.class))
             this.eBus.publish(new Method(mg));
@@ -179,31 +179,31 @@ public class ClassVisitor extends EmptyVisitor {
 
     @Override
     public void visitSignature(Signature obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitSourceFile(SourceFile obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitSynthetic(Synthetic obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitUnknown(Unknown obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitStackMap(StackMap obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 
     @Override
     public void visitStackMapEntry(StackMapEntry obj) {
-        logger.debug(obj);
+        logger.trace(obj);
     }
 }
