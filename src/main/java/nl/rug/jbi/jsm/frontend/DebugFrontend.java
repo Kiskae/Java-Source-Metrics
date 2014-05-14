@@ -1,13 +1,14 @@
 package nl.rug.jbi.jsm.frontend;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import nl.rug.jbi.jsm.core.JSMCore;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
+import nl.rug.jbi.jsm.util.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 
 public class DebugFrontend implements Frontend {
@@ -21,8 +22,11 @@ public class DebugFrontend implements Frontend {
     @Override
     public void init() {
         try {
-            this.core.process(this, ImmutableList.of("com.shaboozey.agon.Constants$1"), new File("agon-1.0-SNAPSHOT.jar").toURI().toURL());
+            final File file = new File("agon-1.0-SNAPSHOT.jar");
+            this.core.process(this, FileUtils.findClassNames(file), file.toURI().toURL());
         } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
