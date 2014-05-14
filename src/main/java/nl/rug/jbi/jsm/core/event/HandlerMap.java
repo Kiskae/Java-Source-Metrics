@@ -8,10 +8,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import nl.rug.jbi.jsm.bcel.JavaClass;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
-import nl.rug.jbi.jsm.core.calculator.Subscribe;
-import nl.rug.jbi.jsm.core.calculator.UsingProducer;
-import nl.rug.jbi.jsm.metrics.IsolatedMetric;
-import nl.rug.jbi.jsm.metrics.SharedMetric;
+import nl.rug.jbi.jsm.core.calculator.IsolatedMetric;
+import nl.rug.jbi.jsm.core.calculator.SharedMetric;
 
 import java.lang.reflect.Method;
 import java.util.List;

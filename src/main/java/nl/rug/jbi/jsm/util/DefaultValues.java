@@ -1,8 +1,10 @@
 package nl.rug.jbi.jsm.util;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Companion to the {@link nl.rug.jbi.jsm.util.DefaultValue} class, this class provides some generic default values for
@@ -40,5 +42,14 @@ public class DefaultValues {
 
     private DefaultValues() {
         throw new IllegalStateException("DefaultValues cannot be instantiated");
+    }
+
+    public static <T> DefaultValue<Set<T>> emptySet() {
+        return new DefaultValue<Set<T>>() {
+            @Override
+            public Set<T> getDefault() {
+                return Sets.newHashSet();
+            }
+        };
     }
 }

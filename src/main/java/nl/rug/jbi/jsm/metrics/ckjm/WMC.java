@@ -1,13 +1,13 @@
 package nl.rug.jbi.jsm.metrics.ckjm;
 
 import nl.rug.jbi.jsm.bcel.Method;
+import nl.rug.jbi.jsm.core.calculator.IsolatedMetric;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
-import nl.rug.jbi.jsm.core.calculator.Subscribe;
-import nl.rug.jbi.jsm.metrics.IsolatedMetric;
+import nl.rug.jbi.jsm.core.event.Subscribe;
 import nl.rug.jbi.jsm.util.DefaultValues;
 
-public class WMC implements IsolatedMetric<WMC.Result> {
+public class WMC extends IsolatedMetric<WMC.Result> {
 
     @Subscribe
     public void methodListener(final MetricState state, final Method ignored) {

@@ -1,4 +1,6 @@
-package nl.rug.jbi.jsm.core.calculator;
+package nl.rug.jbi.jsm.core.event;
+
+import nl.rug.jbi.jsm.core.calculator.ProducerMetric;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,5 +9,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Subscribe {
+public @interface UsingProducer {
+
+    public Class<? extends ProducerMetric> value();
 }

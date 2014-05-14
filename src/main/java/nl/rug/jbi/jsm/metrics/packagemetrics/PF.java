@@ -1,12 +1,13 @@
 package nl.rug.jbi.jsm.metrics.packagemetrics;
 
-import nl.rug.jbi.jsm.core.calculator.MetricResult;
-import nl.rug.jbi.jsm.core.calculator.MetricState;
-import nl.rug.jbi.jsm.core.calculator.Subscribe;
-import nl.rug.jbi.jsm.core.calculator.UsingProducer;
-import nl.rug.jbi.jsm.metrics.IsolatedMetric;
+import nl.rug.jbi.jsm.core.calculator.*;
+import nl.rug.jbi.jsm.core.event.Subscribe;
+import nl.rug.jbi.jsm.core.event.UsingProducer;
 
-public class PF implements IsolatedMetric<MetricResult> {
+import java.util.List;
+import java.util.Map;
+
+public class PF extends SharedMetric<MetricResult> {
 
     @Subscribe
     @UsingProducer(PackageProducer.class)
@@ -15,7 +16,7 @@ public class PF implements IsolatedMetric<MetricResult> {
     }
 
     @Override
-    public MetricResult getResult(final MetricState state) {
+    public List<MetricResult> getResults(Map<String, MetricState> states) {
         return null;
     }
 }

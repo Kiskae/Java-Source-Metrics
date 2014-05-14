@@ -15,11 +15,23 @@ public class MetricState {
     private final String identifier;
     private final Class metricType;
 
-    //TODO: flag for exception during execution
+    private Exception executionException = null;
 
     public MetricState(final String identifier, final Class metricType) {
         this.identifier = identifier;
         this.metricType = metricType;
+    }
+
+    public boolean isValid() {
+        return this.executionException == null;
+    }
+
+    public Exception getExecutionException() {
+        return this.executionException;
+    }
+
+    public void invalidate(final Exception ex) {
+        this.executionException = ex;
     }
 
     /**
@@ -80,6 +92,7 @@ public class MetricState {
                 .add("identifier", identifier)
                 .add("stateMap", stateMap)
                 .add("metricType", metricType)
+                .add("executionException", executionException)
                 .toString();
     }
 }

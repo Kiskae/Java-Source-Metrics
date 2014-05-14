@@ -1,7 +1,11 @@
 package nl.rug.jbi.jsm;
 
+import nl.rug.jbi.jsm.core.JSMCore;
+import nl.rug.jbi.jsm.frontend.DebugFrontend;
 import nl.rug.jbi.jsm.frontend.Frontend;
-import nl.rug.jbi.jsm.frontend.GUIFrontend;
+import nl.rug.jbi.jsm.metrics.ckjm.WMC;
+import nl.rug.jbi.jsm.metrics.packagemetrics.IIPU;
+import nl.rug.jbi.jsm.metrics.packagemetrics.PF;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,7 +33,13 @@ public class Bootstrap {
         //TODO: parse arguments
 
         //TODO: potentially init core?
-        final Frontend frontend = new GUIFrontend();
+        final JSMCore core = new JSMCore();
+
+        core.registerMetric(new WMC());
+        core.registerMetric(new PF());
+        core.registerMetric(new IIPU());
+
+        final Frontend frontend = new DebugFrontend(core);
         frontend.init();
 
         logger.trace("Startup finished");
