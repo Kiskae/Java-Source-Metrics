@@ -8,11 +8,21 @@ import java.util.Map;
 /**
  * @param <P>
  */
-public interface ProducerMetric<P> {
+public abstract class ProducerMetric<P> extends BaseMetric {
+    private final MetricScope produceScope;
 
-    public List<Produce<P>> getProduce(final Map<String, MetricState> states);
+    public ProducerMetric(final MetricScope dataScope, final MetricScope produceScope) {
+        super(dataScope);
+        this.produceScope = Preconditions.checkNotNull(produceScope);
+    }
 
-    public Class<P> getProducedClass();
+    public abstract List<Produce<P>> getProduce(final Map<String, MetricState> states);
+
+    public abstract Class<P> getProducedClass();
+
+    public MetricScope getProduceScope() {
+        return this.produceScope;
+    }
 
     public static class Produce<P> {
         private final String target;

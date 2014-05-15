@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 public class BaseMetric {
     private final MetricScope scope;
 
-    public BaseMetric(final MetricScope scope) {
+    BaseMetric(final MetricScope scope) {
         this.scope = Preconditions.checkNotNull(scope);
     }
 

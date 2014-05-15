@@ -3,6 +3,7 @@ package nl.rug.jbi.jsm.metrics.packagemetrics;
 import com.google.common.collect.ImmutableList;
 import nl.rug.jbi.jsm.bcel.JavaClassData;
 import nl.rug.jbi.jsm.bcel.MethodData;
+import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.calculator.ProducerMetric;
 import nl.rug.jbi.jsm.core.event.Subscribe;
@@ -10,7 +11,12 @@ import nl.rug.jbi.jsm.core.event.Subscribe;
 import java.util.List;
 import java.util.Map;
 
-public class PackageProducer implements ProducerMetric<Package> {
+public class PackageProducer extends ProducerMetric<Package> {
+
+    public PackageProducer() {
+        //    Data Scope         Produce Scope
+        super(MetricScope.CLASS, MetricScope.PACKAGE);
+    }
 
     @Subscribe
     public void onClass(final MetricState state, final JavaClassData c) {
