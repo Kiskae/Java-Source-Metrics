@@ -2,10 +2,10 @@ package nl.rug.jbi.jsm.bcel;
 
 import org.apache.bcel.generic.MethodGen;
 
-public class Method {
+public class MethodData {
     private final MethodGen mg;
 
-    public Method(MethodGen mg) {
+    public MethodData(MethodGen mg) {
         this.mg = mg;
     }
 

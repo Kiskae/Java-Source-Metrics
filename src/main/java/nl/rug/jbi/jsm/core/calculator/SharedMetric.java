@@ -6,10 +6,10 @@ import java.util.Map;
 /**
  * @param <R>
  */
-public abstract class SharedMetric<R extends MetricResult> extends BaseMetric<R> {
+public abstract class SharedMetric<R extends MetricResult> extends BaseMetric {
 
-    public SharedMetric() {
-        super();
+    public SharedMetric(final MetricScope scope) {
+        super(scope);
     }
 
     public abstract List<R> getResults(final Map<String, MetricState> states);

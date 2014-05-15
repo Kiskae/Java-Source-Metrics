@@ -1,8 +1,9 @@
-package nl.rug.jbi.jsm.core.event;
+package nl.rug.jbi.jsm.core.pipeline;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
+import nl.rug.jbi.jsm.core.event.MetricExecutionException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

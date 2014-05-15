@@ -4,11 +4,11 @@ package nl.rug.jbi.jsm.core.calculator;
 /**
  * @param <R>
  */
-public abstract class IsolatedMetric<R extends MetricResult> extends BaseMetric<R> {
+public abstract class IsolatedMetric<R extends MetricResult> extends BaseMetric {
 
-    public IsolatedMetric() {
-        super();
+    public IsolatedMetric(final MetricScope scope) {
+        super(scope);
     }
 
-    public abstract R getResult(final MetricState state);
+    public abstract R getResult(final String identifier, final MetricState state);
 }

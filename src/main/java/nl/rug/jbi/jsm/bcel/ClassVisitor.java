@@ -1,7 +1,7 @@
 package nl.rug.jbi.jsm.bcel;
 
 import com.google.common.base.Preconditions;
-import nl.rug.jbi.jsm.core.EventBus;
+import nl.rug.jbi.jsm.core.event.EventBus;
 import org.apache.bcel.classfile.*;
 import org.apache.bcel.classfile.Deprecated;
 import org.apache.bcel.generic.ConstantPoolGen;
@@ -12,11 +12,11 @@ import org.apache.logging.log4j.Logger;
 public class ClassVisitor extends EmptyVisitor {
     private final static Logger logger = LogManager.getLogger(ClassVisitor.class);
 
-    private final org.apache.bcel.classfile.JavaClass visitedClass;
+    private final JavaClass visitedClass;
     private final EventBus eBus;
     private final ConstantPoolGen cp;
 
-    public ClassVisitor(final org.apache.bcel.classfile.JavaClass jc, final EventBus eBus) {
+    public ClassVisitor(final JavaClass jc, final EventBus eBus) {
         this.visitedClass = jc;
         this.eBus = eBus;
         this.cp = new ConstantPoolGen(this.visitedClass.getConstantPool());
@@ -114,6 +114,10 @@ public class ClassVisitor extends EmptyVisitor {
     @Override
     public void visitField(Field obj) {
         logger.trace(obj);
+
+        if (this.eBus.hasListeners(FieldData.class)) {
+            this.eBus.publish(new FieldData(obj));
+        }
     }
 
     @Override
@@ -127,19 +131,20 @@ public class ClassVisitor extends EmptyVisitor {
     }
 
     @Override
-    public void visitJavaClass(org.apache.bcel.classfile.JavaClass jc) {
+    public void visitJavaClass(JavaClass jc) {
         Preconditions.checkNotNull(jc);
 
         logger.trace(jc);
 
-        if (this.eBus.hasListeners(JavaClass.class))
-            this.eBus.publish(new JavaClass(jc));
+        if (this.eBus.hasListeners(JavaClassData.class)) {
+            this.eBus.publish(new JavaClassData(jc));
+        }
 
         for (final Field field : jc.getFields()) {
             field.accept(this);
         }
 
-        for (final org.apache.bcel.classfile.Method method : jc.getMethods()) {
+        for (final Method method : jc.getMethods()) {
             method.accept(this);
         }
     }
@@ -165,13 +170,13 @@ public class ClassVisitor extends EmptyVisitor {
     }
 
     @Override
-    public void visitMethod(final org.apache.bcel.classfile.Method method) {
+    public void visitMethod(final Method method) {
         final MethodGen mg = new MethodGen(method, this.visitedClass.getClassName(), this.cp);
 
         logger.trace(method);
 
-        if (this.eBus.hasListeners(Method.class))
-            this.eBus.publish(new Method(mg));
+        if (this.eBus.hasListeners(MethodData.class))
+            this.eBus.publish(new MethodData(mg));
 
         final MethodVisitor mv = new MethodVisitor(mg, this.eBus);
         mv.start(); //Run visitor for method instructions

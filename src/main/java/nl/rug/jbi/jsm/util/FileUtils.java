@@ -10,9 +10,17 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+/**
+ *
+ */
 public class FileUtils {
 
-
+    /**
+     *
+     * @param file
+     * @return
+     * @throws IOException
+     */
     public static List<String> findClassNames(final File file) throws IOException {
         if (file.getName().endsWith(".jar")) {
             return findClassNamesJar(file);

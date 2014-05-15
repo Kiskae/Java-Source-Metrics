@@ -1,18 +1,22 @@
 package nl.rug.jbi.jsm.bcel;
 
-import nl.rug.jbi.jsm.core.EventBus;
+import nl.rug.jbi.jsm.core.event.EventBus;
 import org.apache.bcel.generic.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Arrays;
 
 public class MethodVisitor extends EmptyVisitor {
     private final static Logger logger = LogManager.getLogger(MethodVisitor.class);
 
     private final MethodGen mg;
+    private final EventBus eBus;
     private final ConstantPoolGen cp;
 
     public MethodVisitor(final MethodGen mg, EventBus eBus) {
         this.mg = mg;
+        this.eBus = eBus;
         this.cp = mg.getConstantPool();
     }
 
@@ -26,6 +30,19 @@ public class MethodVisitor extends EmptyVisitor {
 
                 ih = ih.getNext();
             }
+
+            handleExceptionHandlers();
+        }
+    }
+
+    private void handleExceptionHandlers() {
+        final CodeExceptionGen[] cegs = mg.getExceptionHandlers();
+        logger.trace(Arrays.asList(cegs));
+
+        if (!this.eBus.hasListeners(ExceptionHandlerData.class)) return;
+
+        for (int i = 0; i < cegs.length; ++i) {
+            this.eBus.publish(new ExceptionHandlerData(cegs[i]));
         }
     }
 
@@ -37,6 +54,13 @@ public class MethodVisitor extends EmptyVisitor {
     @Override
     public void visitLocalVariableInstruction(LocalVariableInstruction obj) {
         logger.trace(obj);
+
+        /** Local variable use. */
+        /*
+        TODO: CKJM
+        if(i.getOpcode() != Constants.IINC)
+	        cv.registerCoupling(i.getType(cp));
+         */
     }
 
     @Override
@@ -52,6 +76,13 @@ public class MethodVisitor extends EmptyVisitor {
     @Override
     public void visitFieldInstruction(FieldInstruction obj) {
         logger.trace(obj);
+
+        /** Field access. */
+        /*
+        TODO: CKJM
+        cv.registerFieldAccess(i.getClassName(cp), i.getFieldName(cp));
+	    cv.registerCoupling(i.getFieldType(cp));
+         */
     }
 
     @Override
@@ -117,11 +148,28 @@ public class MethodVisitor extends EmptyVisitor {
     @Override
     public void visitInvokeInstruction(InvokeInstruction obj) {
         logger.trace(obj);
+
+        /** Method invocation. */
+        /*
+        TODO: CKJM
+        Type[] argTypes   = i.getArgumentTypes(cp);
+        for (int j = 0; j < argTypes.length; j++)
+            cv.registerCoupling(argTypes[j]);
+        cv.registerCoupling(i.getReturnType(cp));
+        // Measuring decision: measure overloaded methods separately
+        cv.registerMethodInvocation(i.getClassName(cp), i.getMethodName(cp), argTypes);
+         */
     }
 
     @Override
     public void visitArrayInstruction(ArrayInstruction obj) {
         logger.trace(obj);
+
+        /** Array use. */
+        /*
+        TODO: CKJM
+        cv.registerCoupling(i.getType(cp));
+         */
     }
 
     @Override
@@ -132,6 +180,12 @@ public class MethodVisitor extends EmptyVisitor {
     @Override
     public void visitReturnInstruction(ReturnInstruction obj) {
         logger.trace(obj);
+
+        /** Visit return instruction. */
+        /*
+        TODO: CKJM
+        cv.registerCoupling(i.getType(cp));
+         */
     }
 
     @Override
@@ -217,6 +271,12 @@ public class MethodVisitor extends EmptyVisitor {
     @Override
     public void visitCHECKCAST(CHECKCAST obj) {
         logger.trace(obj);
+
+        /** Visit checkcast instruction. */
+        /*
+        TODO: CKJM
+        cv.registerCoupling(i.getType(cp));
+         */
     }
 
     @Override
@@ -632,6 +692,12 @@ public class MethodVisitor extends EmptyVisitor {
     @Override
     public void visitINSTANCEOF(INSTANCEOF obj) {
         logger.trace(obj);
+
+        /** Visit an instanceof instruction. */
+        /*
+        TODO: CKJM
+        cv.registerCoupling(i.getType(cp));
+         */
     }
 
     @Override

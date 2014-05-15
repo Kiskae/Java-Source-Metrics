@@ -1,6 +1,7 @@
 package nl.rug.jbi.jsm.frontend;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 import nl.rug.jbi.jsm.core.JSMCore;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.util.FileUtils;
@@ -23,7 +24,7 @@ public class DebugFrontend implements Frontend {
     public void init() {
         try {
             final File file = new File("agon-1.0-SNAPSHOT.jar");
-            this.core.process(this, FileUtils.findClassNames(file), file.toURI().toURL());
+            this.core.process(this, Sets.newHashSet(FileUtils.findClassNames(file)), file.toURI().toURL());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {

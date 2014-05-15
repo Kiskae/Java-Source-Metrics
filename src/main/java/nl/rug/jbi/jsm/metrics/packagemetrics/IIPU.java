@@ -2,7 +2,10 @@ package nl.rug.jbi.jsm.metrics.packagemetrics;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import nl.rug.jbi.jsm.core.calculator.*;
+import nl.rug.jbi.jsm.core.calculator.MetricResult;
+import nl.rug.jbi.jsm.core.calculator.MetricScope;
+import nl.rug.jbi.jsm.core.calculator.MetricState;
+import nl.rug.jbi.jsm.core.calculator.SharedMetric;
 import nl.rug.jbi.jsm.core.event.Subscribe;
 import nl.rug.jbi.jsm.core.event.UsingProducer;
 import nl.rug.jbi.jsm.util.DefaultValues;
@@ -15,6 +18,10 @@ import java.util.Set;
  * Calculates the Index of Inter-Package Usage (IIPU) for all packages
  */
 public class IIPU extends SharedMetric<MetricResult> {
+
+    public IIPU() {
+        super(MetricScope.PACKAGE);
+    }
 
     @Subscribe
     @UsingProducer(PackageProducer.class)

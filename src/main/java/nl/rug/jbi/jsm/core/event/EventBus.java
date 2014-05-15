@@ -1,12 +1,11 @@
-package nl.rug.jbi.jsm.core;
+package nl.rug.jbi.jsm.core.event;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
-import nl.rug.jbi.jsm.core.event.HandlerExecutor;
-import nl.rug.jbi.jsm.core.event.HandlerMap;
-import nl.rug.jbi.jsm.core.event.MetricExecutionException;
+import nl.rug.jbi.jsm.core.pipeline.HandlerExecutor;
+import nl.rug.jbi.jsm.core.pipeline.HandlerMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
