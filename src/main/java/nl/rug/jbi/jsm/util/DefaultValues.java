@@ -25,6 +25,10 @@ public class DefaultValues {
         }
     };
 
+    private DefaultValues() {
+        throw new IllegalStateException("DefaultValues cannot be instantiated");
+    }
+
     /**
      * Provides a default value for an empty list with a certain generic type.
      *
@@ -38,10 +42,6 @@ public class DefaultValues {
                 return Lists.newLinkedList();
             }
         };
-    }
-
-    private DefaultValues() {
-        throw new IllegalStateException("DefaultValues cannot be instantiated");
     }
 
     public static <T> DefaultValue<Set<T>> emptySet() {

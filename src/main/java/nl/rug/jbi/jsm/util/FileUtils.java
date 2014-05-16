@@ -16,7 +16,6 @@ import java.util.zip.ZipFile;
 public class FileUtils {
 
     /**
-     *
      * @param file
      * @return
      * @throws IOException

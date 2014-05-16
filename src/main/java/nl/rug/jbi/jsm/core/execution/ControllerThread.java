@@ -1,5 +1,6 @@
 package nl.rug.jbi.jsm.core.execution;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.event.EventBus;
@@ -8,6 +9,8 @@ import nl.rug.jbi.jsm.core.pipeline.PipelineFrame;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.*;
@@ -16,13 +19,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 class ControllerThread extends Thread {
     private final static Logger logger = LogManager.getLogger(ControllerThread.class);
     private final static AtomicInteger UNIQUE_EXECUTION_ID = new AtomicInteger(0);
-    private final static MetricScope SCOPE_EXECUTION_ORDER[] = new MetricScope[]{
+    private final static List<MetricScope> SCOPE_EXECUTION_ORDER = Lists.newArrayList(
             MetricScope.CLASS,
             MetricScope.PACKAGE,
             MetricScope.COLLECTION
-    };
+    );
 
-    private final PipelineExecutor executorData;
+    private final PipelineExecutor executionPlan;
     private final ExecutorService executorPool = Executors.newFixedThreadPool(6, new ThreadFactory() {
         private final AtomicInteger executionId = new AtomicInteger(0);
 
@@ -33,21 +36,27 @@ class ControllerThread extends Thread {
     });
     private final Map<String, EventBus> stateContainers = Maps.newHashMap();
 
-    public ControllerThread(final PipelineExecutor executorData, final Set<String> classNames) {
+    public ControllerThread(final PipelineExecutor executionPlan, final Set<String> classNames) {
         super(String.format("JSM Controller Thread #%d", ControllerThread.UNIQUE_EXECUTION_ID.getAndIncrement()));
-        this.executorData = executorData;
+        this.executionPlan = executionPlan;
 
-        final HandlerMap classHandlerMap = this.executorData.getHandlerMap(MetricScope.CLASS);
+        final HandlerMap classHandlerMap = this.executionPlan.getHandlerMap(MetricScope.CLASS);
         for (final String className : classNames) {
             final EventBus eBus = new EventBus(className, classHandlerMap);
             stateContainers.put(className, eBus);
         }
     }
 
+    private static CountDownLatch createCountdownLatch(final int childTaskNum) {
+        return new CountDownLatch(childTaskNum);
+    }
+
     @Override
     public void run() {
-        int currentScope = 0;
-        PipelineFrame currentFrame = executorData.getPipelineFrame(SCOPE_EXECUTION_ORDER[currentScope]);
+        final Iterator<MetricScope> scopeIterator = SCOPE_EXECUTION_ORDER.iterator();
+
+        MetricScope currentScope = scopeIterator.next();
+        PipelineFrame currentFrame = executionPlan.getPipelineFrame(currentScope);
 
         //TODO:
         //- Execute data distribution runnables left by the previous frame (class visitors or data distributors)
@@ -66,8 +75,9 @@ class ControllerThread extends Thread {
             //TODO: prepare producer data for next frame
 
             currentFrame = currentFrame.getNextFrame();
-            if (currentFrame == null && (++currentScope) < SCOPE_EXECUTION_ORDER.length) {
-                currentFrame = executorData.getPipelineFrame(SCOPE_EXECUTION_ORDER[currentScope]);
+            if (currentFrame == null && scopeIterator.hasNext()) {
+                currentScope = scopeIterator.next();
+                currentFrame = executionPlan.getPipelineFrame(currentScope);
                 //TODO: process stored produced data and prepare new EventBusses
             }
         }
@@ -80,10 +90,6 @@ class ControllerThread extends Thread {
             logger.debug(e);
         }
 
-        executorData.onFinish();
-    }
-
-    private static CountDownLatch createCountdownLatch(final int childTaskNum) {
-        return new CountDownLatch(childTaskNum);
+        executionPlan.onFinish();
     }
 }

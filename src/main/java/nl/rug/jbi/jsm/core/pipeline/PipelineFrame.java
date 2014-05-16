@@ -13,11 +13,10 @@ import java.util.Set;
 public class PipelineFrame {
     private final MetricScope scope;
     private final Set<Class> availableData = Sets.newHashSet();
-    private PipelineFrame nextFrame = null;
-
     private final List<IsolatedMetric> isolatedMetrics = Lists.newLinkedList();
     private final List<SharedMetric> sharedMetrics = Lists.newLinkedList();
     private final List<ProducerMetric> producerMetrics = Lists.newLinkedList();
+    private PipelineFrame nextFrame = null;
 
     public PipelineFrame(final MetricScope scope) {
         this.scope = Preconditions.checkNotNull(scope);
@@ -55,6 +54,10 @@ public class PipelineFrame {
         return this.nextFrame;
     }
 
+    private void setNextFrame(final PipelineFrame nextFrame) {
+        this.nextFrame = nextFrame;
+    }
+
     public List<IsolatedMetric> getIsolatedMetrics() {
         return Collections.unmodifiableList(this.isolatedMetrics);
     }
@@ -89,9 +92,5 @@ public class PipelineFrame {
                 .add("sharedMetrics", sharedMetrics)
                 .add("producerMetrics", producerMetrics)
                 .toString();
-    }
-
-    private void setNextFrame(final PipelineFrame nextFrame) {
-        this.nextFrame = nextFrame;
     }
 }

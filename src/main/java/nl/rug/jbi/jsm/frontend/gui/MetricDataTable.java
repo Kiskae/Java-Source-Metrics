@@ -53,6 +53,7 @@ public class MetricDataTable extends AbstractTableModel {
         final String indentifier = result.getIdentifier();
         final int index = this.identifierLookup.indexOf(indentifier);
         final int columnIndex = this.metricClasses.indexOf(result.getMetricClass());
+        Preconditions.checkState(columnIndex != -1, "Unknown metric class: %s", result);
         if (index == -1) {
             this.identifierLookup.add(indentifier);
 

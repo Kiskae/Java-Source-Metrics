@@ -50,10 +50,6 @@ public class PipelineExecutor {
         return this.frameMap.get(Preconditions.checkNotNull(scope));
     }
 
-    public void setClassVisitorFactory(final ClassVisitorFactory cvFactory) {
-        this.cvFactory = Preconditions.checkNotNull(cvFactory);
-    }
-
     public void setFinishCallback(final Runnable finishCallback) {
         this.finishCallback = finishCallback;
     }
@@ -65,6 +61,10 @@ public class PipelineExecutor {
 
     ClassVisitorFactory getClassVisitorFactory() {
         return this.cvFactory;
+    }
+
+    public void setClassVisitorFactory(final ClassVisitorFactory cvFactory) {
+        this.cvFactory = Preconditions.checkNotNull(cvFactory);
     }
 
     Repository getRepository() {
