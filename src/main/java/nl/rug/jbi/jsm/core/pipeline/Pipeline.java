@@ -188,4 +188,23 @@ public class Pipeline {
         frame.addDataClass(pm.getProducedClass());
         this.registeredProducers.put(pm.getClass(), pm);
     }
+
+    public List<Class> getMetricsForScope(final MetricScope scope) {
+        final List<Class> ret = Lists.newLinkedList();
+        final Function<BaseMetric, Class> extractor = new Function<BaseMetric, Class>() {
+            @Override
+            public Class apply(final BaseMetric metric) {
+                return metric.getClass();
+            }
+        };
+
+        PipelineFrame currentFrame = this.frameMap.get(Preconditions.checkNotNull(scope));
+        while (currentFrame != null) {
+            ret.addAll(Lists.transform(currentFrame.getIsolatedMetrics(), extractor));
+            ret.addAll(Lists.transform(currentFrame.getSharedMetrics(), extractor));
+            currentFrame = currentFrame.getNextFrame();
+        }
+
+        return ret;
+    }
 }
