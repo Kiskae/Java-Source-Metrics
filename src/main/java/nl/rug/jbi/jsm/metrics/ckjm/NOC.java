@@ -13,7 +13,7 @@ import nl.rug.jbi.jsm.util.DoubleResult;
 import java.util.List;
 import java.util.Map;
 
-public class NOC extends SharedMetric<MetricResult> {
+public class NOC extends SharedMetric {
 
     public NOC() {
         super(MetricScope.CLASS);

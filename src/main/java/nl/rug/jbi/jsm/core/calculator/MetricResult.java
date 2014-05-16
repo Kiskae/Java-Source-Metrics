@@ -2,7 +2,7 @@ package nl.rug.jbi.jsm.core.calculator;
 
 import com.google.common.base.Preconditions;
 
-public abstract class MetricResult {
+public abstract class MetricResult<R> {
     private final String identifier;
     private final Class<? extends BaseMetric> metricClass;
     private final MetricScope scope;
@@ -29,5 +29,5 @@ public abstract class MetricResult {
         return this.scope;
     }
 
-    public abstract double getValue();
+    public abstract R getValue();
 }

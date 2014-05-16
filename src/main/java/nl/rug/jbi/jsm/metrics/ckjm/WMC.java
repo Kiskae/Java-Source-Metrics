@@ -9,7 +9,7 @@ import nl.rug.jbi.jsm.core.event.Subscribe;
 import nl.rug.jbi.jsm.util.DefaultValues;
 import nl.rug.jbi.jsm.util.DoubleResult;
 
-public class WMC extends IsolatedMetric<MetricResult> {
+public class WMC extends IsolatedMetric {
 
     public WMC() {
         super(MetricScope.CLASS);

@@ -67,6 +67,31 @@ public class EventBus {
         return Collections.unmodifiableMap(this.stateMap);
     }
 
+    public String getIdentifier() {
+        return this.identifier;
+    }
+
+    /**
+     * Destructive extraction of a subset of data, erases the state within this object and returns the references.
+     *
+     * @param keys Classes for which the data should be extracted.
+     * @return
+     */
+    public Map<Class, MetricState> extractData(final List<Class> keys) {
+        final Map<Class, MetricState> ret = Maps.newHashMap();
+
+        for (final Class key : keys) {
+            final MetricState state = this.stateMap.remove(key);
+            if (state != null) {
+                ret.put(key, state);
+            } else {
+                ret.put(key, new MetricState(this.identifier, key));
+            }
+        }
+
+        return ret;
+    }
+
     private MetricState getState(final Class metricClass) {
         MetricState state = this.stateMap.get(metricClass);
         if (state == null) {

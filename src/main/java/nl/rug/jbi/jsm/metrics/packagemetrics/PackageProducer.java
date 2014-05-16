@@ -11,7 +11,7 @@ import nl.rug.jbi.jsm.core.event.Subscribe;
 import java.util.List;
 import java.util.Map;
 
-public class PackageProducer extends ProducerMetric<Package> {
+public class PackageProducer extends ProducerMetric {
 
     public PackageProducer() {
         //    Data Scope         Produce Scope
@@ -29,12 +29,12 @@ public class PackageProducer extends ProducerMetric<Package> {
     }
 
     @Override
-    public List<Produce<Package>> getProduce(Map<String, MetricState> states) {
+    public List<Produce> getProduce(Map<String, MetricState> states) {
         return ImmutableList.of();
     }
 
     @Override
-    public Class<Package> getProducedClass() {
+    public Class getProducedClass() {
         return Package.class;
     }
 }

@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * Calculates the Index of Inter-Package Usage (IIPU) for all packages
  */
-public class IIPU extends SharedMetric<MetricResult> {
+public class IIPU extends SharedMetric {
 
     public IIPU() {
         super(MetricScope.PACKAGE);

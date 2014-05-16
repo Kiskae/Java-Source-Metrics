@@ -5,10 +5,7 @@ import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @param <P>
- */
-public abstract class ProducerMetric<P> extends BaseMetric {
+public abstract class ProducerMetric extends BaseMetric {
     private final MetricScope produceScope;
 
     public ProducerMetric(final MetricScope dataScope, final MetricScope produceScope) {
@@ -16,21 +13,25 @@ public abstract class ProducerMetric<P> extends BaseMetric {
         this.produceScope = Preconditions.checkNotNull(produceScope);
     }
 
-    public abstract List<Produce<P>> getProduce(final Map<String, MetricState> states);
+    public abstract List<Produce> getProduce(final Map<String, MetricState> states);
 
-    public abstract Class<P> getProducedClass();
+    public abstract Class getProducedClass();
 
     public MetricScope getProduceScope() {
         return this.produceScope;
     }
 
-    public static class Produce<P> {
+    public class Produce<P> {
         private final String target;
         private final P produce;
 
         public Produce(final String target, final P produce) {
             this.target = Preconditions.checkNotNull(target);
             this.produce = Preconditions.checkNotNull(produce);
+        }
+
+        public MetricScope getScope() {
+            return ProducerMetric.this.getProduceScope();
         }
 
         public String getTarget() {
