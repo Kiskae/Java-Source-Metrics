@@ -1,27 +1,26 @@
 package nl.rug.jbi.jsm.frontend;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import nl.rug.jbi.jsm.core.JSMCore;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
+import nl.rug.jbi.jsm.core.calculator.MetricScope;
+import nl.rug.jbi.jsm.frontend.gui.MetricDataTable;
+import nl.rug.jbi.jsm.frontend.gui.SelectableList;
 import nl.rug.jbi.jsm.util.CSVExporter;
 import nl.rug.jbi.jsm.util.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.AbstractTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public class GUIFrontend implements Frontend {
     private final static Logger logger = LogManager.getLogger(GUIFrontend.class);
@@ -32,6 +31,10 @@ public class GUIFrontend implements Frontend {
 
     public GUIFrontend(final JSMCore core) {
         this.core = Preconditions.checkNotNull(core);
+
+        this.classData.setMetricClasses(this.core.getMetricsForScope(MetricScope.CLASS));
+        this.packageData.setMetricClasses(this.core.getMetricsForScope(MetricScope.PACKAGE));
+        this.collectionData.setMetricClasses(this.core.getMetricsForScope(MetricScope.COLLECTION));
     }
 
     @Override
@@ -54,38 +57,148 @@ public class GUIFrontend implements Frontend {
     }
 
     @Override
-    public void processResult(final MetricResult result) {
+    public void processResult(final List<MetricResult> resultList) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                switch (result.getScope()) {
-                    case CLASS:
-                        classData.processResult(result);
-                        return;
-                    case PACKAGE:
-                        packageData.processResult(result);
-                        return;
-                    case COLLECTION:
-                        collectionData.processResult(result);
-                        return;
-                    default:
-                        throw new IllegalStateException("Unknown scope: " + result.getScope());
+                for (final MetricResult result : resultList) {
+                    switch (result.getScope()) {
+                        case CLASS:
+                            classData.processResult(result);
+                            return;
+                        case PACKAGE:
+                            packageData.processResult(result);
+                            return;
+                        case COLLECTION:
+                            collectionData.processResult(result);
+                            return;
+                        default:
+                            throw new IllegalStateException("Unknown scope: " + result.getScope());
+                    }
                 }
             }
         });
+    }
+
+    @Override
+    public void signalDone() {
+        //TODO: buttonz
+        logger.debug("Done.");
     }
 
     private void initWindow() {
         final JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         final JPanel panel = new JPanel();
+        final GridBagLayout layout = new GridBagLayout();
+        panel.setLayout(layout);
 
-        panel.add(createTabbedDataTable());
-        panel.add(createControlPanel());
+        final GridBagConstraints c = new GridBagConstraints();
+
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridwidth = 2;
+        c.gridheight = 3;
+        panel.add(createTabbedDataTable(), c);
+
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        c.gridx = 2;
+        panel.add(createSourceSelectionPanel("Input Sources", new SelectableList()), c);
+
+        c.gridy = 1;
+        panel.add(createSourceSelectionPanel("Library Sources", new SelectableList()), c);
+
+        c.gridy = 2;
+        panel.add(createControlPanel(), c);
 
         frame.setContentPane(panel);
         frame.pack();
         frame.setVisible(true);
+    }
+
+    private JComponent createSourceSelectionPanel(String panelName, final SelectableList target) {
+        final JPanel root = new JPanel();
+        final GridBagLayout layout = new GridBagLayout();
+        final GridBagConstraints c = new GridBagConstraints();
+        root.setLayout(layout);
+        root.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder(panelName),
+                BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
+
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridwidth = 2;
+        final JScrollPane sPane = new JScrollPane(target);
+        sPane.setPreferredSize(new Dimension(250, 80));
+        root.add(sPane, c);
+
+        //Define Remove button so the adding button can enable it!
+        final JButton removeButton = new JButton();
+
+        c.gridy = 1;
+        c.gridwidth = 1;
+        root.add(new JButton(new AbstractAction("Add Directory/JAR") {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                final File workingDir = new File(".");
+                final JFileChooser fc = new JFileChooser();
+                fc.setFileFilter(new FileFilter() {
+                    @Override
+                    public boolean accept(File f) {
+                        if (f.isDirectory()) {
+                            return true;
+                        } else {
+                            final String name = f.getName();
+                            return name.endsWith(".jar");
+                        }
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "Directories or JAR archives.";
+                    }
+                });
+                fc.setAcceptAllFileFilterUsed(false);
+                fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+                fc.setMultiSelectionEnabled(false);
+                fc.setCurrentDirectory(workingDir);
+
+                int ret = fc.showDialog(root, "Select");
+
+                if (ret == JFileChooser.APPROVE_OPTION) {
+                    final File selectedFile = fc.getSelectedFile();
+
+                    final String relativePath = workingDir
+                            .toURI()
+                            .relativize(
+                                    selectedFile.toURI()
+                            ).getPath();
+
+                    target.addOption(relativePath);
+
+                    removeButton.setEnabled(true);
+                }
+            }
+        }), c);
+
+        c.gridx = 1;
+        removeButton.setAction(new AbstractAction("Remove Selection") {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                final int left = target.removeSelection();
+                if (left == 0) {
+                    removeButton.setEnabled(false);
+                }
+            }
+        });
+        removeButton.setEnabled(false);
+        root.add(removeButton, c);
+
+        return root;
     }
 
     private JComponent createControlPanel() {
@@ -143,6 +256,9 @@ public class GUIFrontend implements Frontend {
         final JComponent packageResults = createResultTable(this.packageData);
         tabContainer.addTab("Package", packageResults);
 
+        final JComponent collectionResults = createResultTable(this.collectionData);
+        tabContainer.addTab("Collection", collectionResults);
+
         return tabContainer;
     }
 
@@ -150,110 +266,5 @@ public class GUIFrontend implements Frontend {
         final JTable table = new JTable(data);
         table.getTableHeader().setReorderingAllowed(false);
         return new JScrollPane(table);
-    }
-
-    private static class MetricDataTable extends AbstractTableModel {
-        private final String identifierName;
-        private final List<Class> metricClasses = Lists.newLinkedList();
-        private final List<String> identifierLookup = Lists.newArrayList();
-        private final Map<String, ResultSet> results = Maps.newHashMap();
-
-        public MetricDataTable(final String identifierName) {
-            this.identifierName = Preconditions.checkNotNull(identifierName);
-        }
-
-        @Override
-        public int getRowCount() {
-            return this.identifierLookup.size();
-        }
-
-        @Override
-        public int getColumnCount() {
-            return this.metricClasses.size() + 1;
-        }
-
-        @Override
-        public boolean isCellEditable(int rowIndex, int columnIndex) {
-            return false;
-        }
-
-        @Override
-        public String getColumnName(int column) {
-            return column == 0 ? "" : this.metricClasses.get(column - 1).getSimpleName();
-        }
-
-        @Override
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            final String className = this.identifierLookup.get(rowIndex);
-            return this.results.get(className).getResult(columnIndex);
-        }
-
-        public void processResult(final MetricResult result) {
-            final String indentifier = result.getIdentifier();
-            final int index = this.identifierLookup.indexOf(indentifier);
-            final int columnIndex = this.metricClasses.indexOf(result.getMetricClass());
-            if (index == -1) {
-                this.identifierLookup.add(indentifier);
-
-                final ResultSet results = new ResultSet(indentifier, this.metricClasses.size());
-                results.setResult(columnIndex, result.getValue());
-                this.results.put(indentifier, results);
-
-                final int size = this.identifierLookup.size();
-                this.fireTableRowsInserted(size - 1, size - 1);
-            } else {
-                this.results.get(indentifier).setResult(columnIndex, result.getValue());
-                this.fireTableCellUpdated(index, columnIndex + 1);
-            }
-        }
-
-        public void setMetricClasses(final List<Class> metricClasses) {
-            this.metricClasses.clear();
-            this.metricClasses.addAll(metricClasses);
-            this.identifierLookup.clear();
-            this.results.clear();
-            this.fireTableStructureChanged();
-        }
-
-        public void export(final CSVExporter export) {
-            final List<String> headers = Lists.newLinkedList();
-            headers.add(this.identifierName);
-            headers.addAll(Collections2.transform(this.metricClasses, new Function<Class, String>() {
-                @Override
-                public String apply(Class aClass) {
-                    return aClass.getSimpleName();
-                }
-            }));
-            export.writeDataRow(headers);
-
-            for (final Map.Entry<String, ResultSet> entry : this.results.entrySet()) {
-                final List<Object> row = Lists.newLinkedList();
-                row.add(entry.getKey());
-                row.addAll(Arrays.asList(entry.getValue().getObjects()));
-                export.writeDataRow(row);
-            }
-        }
-    }
-
-    private static class ResultSet {
-        private final Object[] results;
-        private final String identifier;
-
-        public ResultSet(final String identifier, final int setSize) {
-            this.identifier = identifier;
-            this.results = new Object[setSize];
-        }
-
-        public Object[] getObjects() {
-            return this.results;
-        }
-
-        public void setResult(final int index, final Object result) {
-            this.results[index] = result;
-        }
-
-        public Object getResult(final int index) {
-            return index == 0 ? this.identifier : this.results[index - 1];
-        }
     }
 }

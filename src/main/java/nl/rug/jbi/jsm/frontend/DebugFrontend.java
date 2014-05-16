@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.List;
 
 public class DebugFrontend implements Frontend {
     private final static Logger logger = LogManager.getLogger(DebugFrontend.class);
@@ -33,7 +34,12 @@ public class DebugFrontend implements Frontend {
     }
 
     @Override
-    public void processResult(final MetricResult result) {
-        logger.debug(result);
+    public void processResult(final List<MetricResult> resultList) {
+        logger.debug(resultList);
+    }
+
+    @Override
+    public void signalDone() {
+        logger.trace("Execution finished.");
     }
 }
