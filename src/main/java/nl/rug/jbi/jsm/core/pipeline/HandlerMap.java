@@ -13,7 +13,8 @@ public class HandlerMap {
     private final Map<Class, List<HandlerExecutor>> handlers = Maps.newIdentityHashMap();
 
     public List<HandlerExecutor> getHandlers(final Class dataType) {
-        return this.handlers.getOrDefault(dataType, EMPTY_LIST);
+        final List<HandlerExecutor> ret = this.handlers.get(dataType);
+        return ret != null ? ret : EMPTY_LIST;
     }
 
     void addHandler(final Class identifierClass, final HandlerExecutor executor) {
