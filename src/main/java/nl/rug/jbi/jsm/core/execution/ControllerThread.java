@@ -200,6 +200,7 @@ class ControllerThread extends Thread {
     ) {
         for (final Map.Entry<String, List> entry : executionData.entrySet()) {
             final EventBus eBus = this.stateContainers.get(entry.getKey());
+            //TODO: if eBus == null, try to fix it....
             taskQueue.add(new Pair<EventBus, Runnable>(eBus, new DataListDispatcher(eBus, entry.getValue())));
         }
     }

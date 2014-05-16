@@ -4,7 +4,7 @@ import nl.rug.jbi.jsm.core.event.EventBus;
 
 import java.util.List;
 
-public class DataListDispatcher implements Runnable {
+class DataListDispatcher implements Runnable {
     private final EventBus eBus;
     private final List objectList;
 
