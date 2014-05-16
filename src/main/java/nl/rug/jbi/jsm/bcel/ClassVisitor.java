@@ -22,6 +22,10 @@ public class ClassVisitor extends EmptyVisitor {
         this.cp = new ConstantPoolGen(this.visitedClass.getConstantPool());
     }
 
+    protected EventBus getEventBus() {
+        return this.eBus;
+    }
+
     public void start() {
         this.visitJavaClass(this.visitedClass);
     }
@@ -115,8 +119,8 @@ public class ClassVisitor extends EmptyVisitor {
     public void visitField(Field obj) {
         logger.trace(obj);
 
-        if (this.eBus.hasListeners(FieldData.class)) {
-            this.eBus.publish(new FieldData(obj));
+        if (this.getEventBus().hasListeners(FieldData.class)) {
+            this.getEventBus().publish(new FieldData(obj));
         }
     }
 
@@ -136,8 +140,8 @@ public class ClassVisitor extends EmptyVisitor {
 
         logger.trace(jc);
 
-        if (this.eBus.hasListeners(JavaClassData.class)) {
-            this.eBus.publish(new JavaClassData(jc));
+        if (this.getEventBus().hasListeners(JavaClassData.class)) {
+            this.getEventBus().publish(new JavaClassData(jc));
         }
 
         for (final Field field : jc.getFields()) {
@@ -175,10 +179,10 @@ public class ClassVisitor extends EmptyVisitor {
 
         logger.trace(method);
 
-        if (this.eBus.hasListeners(MethodData.class))
-            this.eBus.publish(new MethodData(mg));
+        if (this.getEventBus().hasListeners(MethodData.class))
+            this.getEventBus().publish(new MethodData(mg));
 
-        final MethodVisitor mv = new MethodVisitor(mg, this.eBus);
+        final MethodVisitor mv = new MethodVisitor(mg, this.getEventBus());
         mv.start(); //Run visitor for method instructions
     }
 
