@@ -9,6 +9,7 @@ import nl.rug.jbi.jsm.frontend.gui.MetricDataTable;
 import nl.rug.jbi.jsm.frontend.gui.SelectableList;
 import nl.rug.jbi.jsm.util.CSVExporter;
 import nl.rug.jbi.jsm.util.FileUtils;
+import org.apache.bcel.classfile.JavaClass;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -65,13 +66,13 @@ public class GUIFrontend implements Frontend {
                     switch (result.getScope()) {
                         case CLASS:
                             classData.processResult(result);
-                            return;
+                            break;
                         case PACKAGE:
                             packageData.processResult(result);
-                            return;
+                            break;
                         case COLLECTION:
                             collectionData.processResult(result);
-                            return;
+                            break;
                         default:
                             throw new IllegalStateException("Unknown scope: " + result.getScope());
                     }
@@ -90,32 +91,26 @@ public class GUIFrontend implements Frontend {
         final JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         final JPanel panel = new JPanel();
-        final GridBagLayout layout = new GridBagLayout();
-        panel.setLayout(layout);
+        panel.setLayout(new BorderLayout());
 
-        final GridBagConstraints c = new GridBagConstraints();
-
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 0;
-        c.gridy = 0;
-        c.gridwidth = 2;
-        c.gridheight = 3;
-        panel.add(createTabbedDataTable(), c);
-
-        c.gridwidth = 1;
-        c.gridheight = 1;
-        c.gridx = 2;
-        panel.add(createSourceSelectionPanel("Input Sources", new SelectableList()), c);
-
-        c.gridy = 1;
-        panel.add(createSourceSelectionPanel("Library Sources", new SelectableList()), c);
-
-        c.gridy = 2;
-        panel.add(createControlPanel(), c);
+        panel.add(createTabbedDataTable(), BorderLayout.CENTER);
+        panel.add(createControlPanel(), BorderLayout.EAST);
 
         frame.setContentPane(panel);
         frame.pack();
         frame.setVisible(true);
+    }
+
+    private JComponent createControlPanel() {
+        final JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+
+        panel.add(createSourceSelectionPanel("Input Sources", new SelectableList()));
+        panel.add(createSourceSelectionPanel("Library Sources", new SelectableList()));
+        panel.add(createCoreControls());
+        panel.add(Box.createGlue());
+
+        return panel;
     }
 
     private JComponent createSourceSelectionPanel(String panelName, final SelectableList target) {
@@ -198,10 +193,12 @@ public class GUIFrontend implements Frontend {
         removeButton.setEnabled(false);
         root.add(removeButton, c);
 
+        root.setMaximumSize(root.getPreferredSize());
+
         return root;
     }
 
-    private JComponent createControlPanel() {
+    private JComponent createCoreControls() {
         final JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
@@ -228,7 +225,7 @@ public class GUIFrontend implements Frontend {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    final File file = new File("agon-1.0-SNAPSHOT.jar");
+                    final File file = new File("target/jsm-1.0-SNAPSHOT.jar");
                     core.process(GUIFrontend.this, Sets.newHashSet(FileUtils.findClassNames(file)), file.toURI().toURL());
                     export.setEnabled(true);
                 } catch (MalformedURLException ex) {
