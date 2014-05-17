@@ -10,6 +10,7 @@ import nl.rug.jbi.jsm.core.calculator.*;
 import nl.rug.jbi.jsm.core.event.EventBus;
 import nl.rug.jbi.jsm.core.pipeline.HandlerMap;
 import nl.rug.jbi.jsm.core.pipeline.PipelineFrame;
+import nl.rug.jbi.jsm.metrics.ClassSourceProducer;
 import nl.rug.jbi.jsm.util.Pair;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.util.Repository;
@@ -35,14 +36,17 @@ class ControllerThread extends Thread {
         }
     };
     private final PipelineExecutor executionPlan;
-    private final ExecutorService executorPool = Executors.newFixedThreadPool(12, new ThreadFactory() {
-        private final AtomicInteger executionId = new AtomicInteger(0);
+    private final ExecutorService executorPool = Executors.newFixedThreadPool(
+            Runtime.getRuntime().availableProcessors(),
+            new ThreadFactory() {
+                private final AtomicInteger executionId = new AtomicInteger(0);
 
-        @Override
-        public Thread newThread(Runnable r) {
-            return new Thread(r, String.format("JSM Execution Thread #%d", executionId.getAndIncrement()));
-        }
-    });
+                @Override
+                public Thread newThread(Runnable r) {
+                    return new Thread(r, String.format("JSM Execution Thread #%d", executionId.getAndIncrement()));
+                }
+            }
+    );
     private final Map<String, EventBus> stateContainers = Maps.newHashMap();
     private final Map<String, List> dataForFutureScope = Maps.newHashMap();
     private final Predicate<List<MetricResult>> resultsCallback = new Predicate<List<MetricResult>>() {
@@ -102,6 +106,7 @@ class ControllerThread extends Thread {
 
     @Override
     public void run() {
+        ClassSourceProducer.setCBCL(this.executionPlan.getDataSource());
         final Iterator<MetricScope> scopeIterator = SCOPE_EXECUTION_ORDER.iterator();
 
         MetricScope currentScope = scopeIterator.next();

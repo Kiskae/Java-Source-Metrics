@@ -5,6 +5,7 @@ import nl.rug.jbi.jsm.core.pipeline.MetricPreparationException;
 import nl.rug.jbi.jsm.frontend.DebugFrontend;
 import nl.rug.jbi.jsm.frontend.Frontend;
 import nl.rug.jbi.jsm.frontend.GUIFrontend;
+import nl.rug.jbi.jsm.metrics.ckjm.DIT;
 import nl.rug.jbi.jsm.metrics.ckjm.NOC;
 import nl.rug.jbi.jsm.metrics.ckjm.WMC;
 import nl.rug.jbi.jsm.metrics.packagemetrics.IIPU;
@@ -24,6 +25,7 @@ public class Bootstrap {
 
         core.registerMetric(new WMC());
         core.registerMetric(new NOC());
+        core.registerMetric(new DIT());
         core.registerMetric(new PF());
         core.registerMetric(new IIPU());
 

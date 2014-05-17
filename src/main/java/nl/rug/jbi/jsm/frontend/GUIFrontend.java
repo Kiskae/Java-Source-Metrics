@@ -225,7 +225,7 @@ public class GUIFrontend implements Frontend {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    final File file = new File("target/jsm-1.0-SNAPSHOT.jar");
+                    final File file = new File("target/original-jsm-1.0-SNAPSHOT.jar");
                     core.process(GUIFrontend.this, Sets.newHashSet(FileUtils.findClassNames(file)), file.toURI().toURL());
                     export.setEnabled(true);
                 } catch (MalformedURLException ex) {
@@ -262,6 +262,7 @@ public class GUIFrontend implements Frontend {
     private JComponent createResultTable(final AbstractTableModel data) {
         final JTable table = new JTable(data);
         table.getTableHeader().setReorderingAllowed(false);
+        table.setAutoCreateRowSorter(true);
         return new JScrollPane(table);
     }
 }
