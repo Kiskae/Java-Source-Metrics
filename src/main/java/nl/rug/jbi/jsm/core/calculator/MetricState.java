@@ -67,6 +67,26 @@ public class MetricState {
     }
 
     /**
+     *
+     * @param key
+     * @param def
+     * @param <T>
+     * @return
+     */
+    public <T> T getValueOrCreate(final String key, final DefaultValue<T> def) {
+        Preconditions.checkNotNull(key, "Key cannot be NULL");
+        Preconditions.checkNotNull(def, "The default producer cannot be NULL");
+
+        if (this.stateMap.containsKey(key)) {
+            return (T) this.stateMap.get(key);
+        } else {
+            final T newObj = def.getDefault();
+            this.stateMap.put(key, newObj);
+            return newObj;
+        }
+    }
+
+    /**
      * @param key
      * @param obj
      */

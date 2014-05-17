@@ -2,7 +2,7 @@ package nl.rug.jbi.jsm.metrics;
 
 import com.google.common.collect.Lists;
 import nl.rug.jbi.jsm.bcel.CompositeBCELClassLoader;
-import nl.rug.jbi.jsm.bcel.JavaClassData;
+import nl.rug.jbi.jsm.bcel.JavaClassDefinition;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.calculator.ProducerMetric;
@@ -27,7 +27,7 @@ public class ClassSourceProducer extends ProducerMetric {
     }
 
     @Subscribe
-    public void onClass(final MetricState state, final JavaClassData ignored) {
+    public void onClass(final MetricState state, final JavaClassDefinition ignored) {
         final CompositeBCELClassLoader CBCL = this.cLoaderCopy.get();
         if (CBCL != null) {
             state.setValue("source", CBCL.getSource(state.getIdentifier()));

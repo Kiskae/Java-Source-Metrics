@@ -1,6 +1,6 @@
 package nl.rug.jbi.jsm.metrics.ckjm;
 
-import nl.rug.jbi.jsm.bcel.MethodData;
+import nl.rug.jbi.jsm.bcel.MethodDefinition;
 import nl.rug.jbi.jsm.core.calculator.IsolatedMetric;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
@@ -16,7 +16,7 @@ public class WMC extends IsolatedMetric {
     }
 
     @Subscribe
-    public void onMethod(final MetricState state, final MethodData ignored) {
+    public void onMethod(final MetricState state, final MethodDefinition ignored) {
         final int val = state.getValue("method-num", DefaultValues.ZERO_INT);
         state.setValue("method-num", val + 1);
     }

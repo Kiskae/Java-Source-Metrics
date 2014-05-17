@@ -7,11 +7,11 @@ import org.apache.bcel.classfile.JavaClass;
 import java.util.Arrays;
 import java.util.List;
 
-public class JavaClassData {
+public class JavaClassDefinition {
 
     private final JavaClass jc;
 
-    public JavaClassData(final JavaClass jc) {
+    public JavaClassDefinition(final JavaClass jc) {
         this.jc = jc;
     }
 

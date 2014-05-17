@@ -5,6 +5,7 @@ import nl.rug.jbi.jsm.core.event.EventBus;
 import org.apache.bcel.classfile.*;
 import org.apache.bcel.classfile.Deprecated;
 import org.apache.bcel.generic.ConstantPoolGen;
+import org.apache.bcel.generic.LocalVariableGen;
 import org.apache.bcel.generic.MethodGen;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -119,8 +120,8 @@ public class ClassVisitor extends EmptyVisitor {
     public void visitField(Field obj) {
         logger.trace(obj);
 
-        if (this.getEventBus().hasListeners(FieldData.class)) {
-            this.getEventBus().publish(new FieldData(obj));
+        if (this.getEventBus().hasListeners(FieldDefinition.class)) {
+            this.getEventBus().publish(new FieldDefinition(obj));
         }
     }
 
@@ -140,8 +141,8 @@ public class ClassVisitor extends EmptyVisitor {
 
         logger.trace(jc);
 
-        if (this.getEventBus().hasListeners(JavaClassData.class)) {
-            this.getEventBus().publish(new JavaClassData(jc));
+        if (this.getEventBus().hasListeners(JavaClassDefinition.class)) {
+            this.getEventBus().publish(new JavaClassDefinition(jc));
         }
 
         for (final Field field : jc.getFields()) {
@@ -166,11 +167,18 @@ public class ClassVisitor extends EmptyVisitor {
     @Override
     public void visitLocalVariable(LocalVariable obj) {
         logger.trace(obj);
+
+        //TODO: replace MethodVisitor.visitLocalVariableInstruction/visitArrayInstruction
+        logger.warn("{} = {}", obj.getName(), obj.getSignature());
     }
 
     @Override
     public void visitLocalVariableTable(LocalVariableTable obj) {
         logger.trace(obj);
+
+        for (final LocalVariable lVar : obj.getLocalVariableTable()) {
+            lVar.accept(this);
+        }
     }
 
     @Override
@@ -179,8 +187,11 @@ public class ClassVisitor extends EmptyVisitor {
 
         logger.trace(method);
 
-        if (this.getEventBus().hasListeners(MethodData.class))
-            this.getEventBus().publish(new MethodData(mg));
+        if (this.getEventBus().hasListeners(MethodDefinition.class))
+            this.getEventBus().publish(new MethodDefinition(mg));
+
+        //Visit localvars
+        method.getLocalVariableTable().accept(this);
 
         final MethodVisitor mv = new MethodVisitor(mg, this.getEventBus());
         mv.start(); //Run visitor for method instructions

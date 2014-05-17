@@ -2,10 +2,10 @@ package nl.rug.jbi.jsm.bcel;
 
 import org.apache.bcel.generic.MethodGen;
 
-public class MethodData {
+public class MethodDefinition {
     private final MethodGen mg;
 
-    public MethodData(MethodGen mg) {
+    public MethodDefinition(MethodGen mg) {
         this.mg = mg;
     }
 
@@ -27,5 +27,21 @@ public class MethodData {
 
     public String[] getArgumentTypes() {
         return mg.getArgumentNames();
+    }
+
+    public boolean isPublic() {
+        return mg.isPublic();
+    }
+
+    public boolean isProtected() {
+        return mg.isProtected();
+    }
+
+    public boolean isAbstract() {
+        return mg.isAbstract();
+    }
+
+    public boolean isPrivate() {
+        return mg.isPrivate();
     }
 }

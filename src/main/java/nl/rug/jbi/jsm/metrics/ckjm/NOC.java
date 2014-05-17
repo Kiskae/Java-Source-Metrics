@@ -2,7 +2,7 @@ package nl.rug.jbi.jsm.metrics.ckjm;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import nl.rug.jbi.jsm.bcel.JavaClassData;
+import nl.rug.jbi.jsm.bcel.JavaClassDefinition;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
@@ -20,7 +20,7 @@ public class NOC extends SharedMetric {
     }
 
     @Subscribe
-    public void onClass(final MetricState state, final JavaClassData jc) {
+    public void onClass(final MetricState state, final JavaClassDefinition jc) {
         state.setValue("superclass", jc.getSuperClass());
     }
 

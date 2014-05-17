@@ -7,7 +7,6 @@ import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.calculator.SharedMetric;
 import nl.rug.jbi.jsm.core.event.Subscribe;
 import nl.rug.jbi.jsm.core.event.UsingProducer;
-import nl.rug.jbi.jsm.util.DoubleResult;
 
 import java.util.List;
 import java.util.Map;
@@ -26,6 +25,6 @@ public class PF extends SharedMetric {
 
     @Override
     public List<MetricResult> getResults(Map<String, MetricState> states) {
-        return ImmutableList.<MetricResult>of(new DoubleResult("test", this, 1));
+        return ImmutableList.of();
     }
 }

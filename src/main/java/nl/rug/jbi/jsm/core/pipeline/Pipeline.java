@@ -6,9 +6,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import nl.rug.jbi.jsm.bcel.FieldData;
-import nl.rug.jbi.jsm.bcel.JavaClassData;
-import nl.rug.jbi.jsm.bcel.MethodData;
+import nl.rug.jbi.jsm.bcel.*;
 import nl.rug.jbi.jsm.core.calculator.BaseMetric;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
@@ -28,9 +26,13 @@ import java.util.Set;
 
 public class Pipeline {
     private final static List<Class> BASE_DATA_CLASSES = Lists.<Class>newArrayList(
-            JavaClassData.class,
-            MethodData.class,
-            FieldData.class
+            JavaClassDefinition.class,
+            MethodDefinition.class,
+            FieldDefinition.class,
+            ExceptionHandlerDefinition.class,
+            FieldAccessInstr.class,
+            InvokeMethodInstr.class,
+            TypeUseInstruction.class
     );
     private final static Logger logger = LogManager.getLogger(Pipeline.class);
 

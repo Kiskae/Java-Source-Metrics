@@ -39,10 +39,10 @@ public class MethodVisitor extends EmptyVisitor {
         final CodeExceptionGen[] cegs = mg.getExceptionHandlers();
         logger.trace(Arrays.asList(cegs));
 
-        if (!this.eBus.hasListeners(ExceptionHandlerData.class)) return;
+        if (!this.eBus.hasListeners(ExceptionHandlerDefinition.class)) return;
 
         for (int i = 0; i < cegs.length; ++i) {
-            this.eBus.publish(new ExceptionHandlerData(cegs[i]));
+            this.eBus.publish(new ExceptionHandlerDefinition(cegs[i]));
         }
     }
 
@@ -56,11 +56,10 @@ public class MethodVisitor extends EmptyVisitor {
         logger.trace(obj);
 
         /** Local variable use. */
-        /*
-        TODO: CKJM
-        if(i.getOpcode() != Constants.IINC)
-	        cv.registerCoupling(i.getType(cp));
-         */
+        //TODO: dangerously generic, perhaps look into subtypes?
+        if (this.eBus.hasListeners(TypeUseInstruction.class)) {
+            this.eBus.publish(new TypeUseInstruction(obj.getType(this.cp)));
+        }
     }
 
     @Override
@@ -78,11 +77,9 @@ public class MethodVisitor extends EmptyVisitor {
         logger.trace(obj);
 
         /** Field access. */
-        /*
-        TODO: CKJM
-        cv.registerFieldAccess(i.getClassName(cp), i.getFieldName(cp));
-	    cv.registerCoupling(i.getFieldType(cp));
-         */
+        if (this.eBus.hasListeners(FieldAccessInstr.class)) {
+            this.eBus.publish(new FieldAccessInstr(obj, this.cp));
+        }
     }
 
     @Override
@@ -150,15 +147,9 @@ public class MethodVisitor extends EmptyVisitor {
         logger.trace(obj);
 
         /** Method invocation. */
-        /*
-        TODO: CKJM
-        Type[] argTypes   = i.getArgumentTypes(cp);
-        for (int j = 0; j < argTypes.length; j++)
-            cv.registerCoupling(argTypes[j]);
-        cv.registerCoupling(i.getReturnType(cp));
-        // Measuring decision: measure overloaded methods separately
-        cv.registerMethodInvocation(i.getClassName(cp), i.getMethodName(cp), argTypes);
-         */
+        if (this.eBus.hasListeners(InvokeMethodInstr.class)) {
+            this.eBus.publish(new InvokeMethodInstr(obj, this.cp));
+        }
     }
 
     @Override
@@ -166,10 +157,9 @@ public class MethodVisitor extends EmptyVisitor {
         logger.trace(obj);
 
         /** Array use. */
-        /*
-        TODO: CKJM
-        cv.registerCoupling(i.getType(cp));
-         */
+        if (this.eBus.hasListeners(TypeUseInstruction.class)) {
+            this.eBus.publish(new TypeUseInstruction(obj.getType(this.cp)));
+        }
     }
 
     @Override
@@ -182,10 +172,9 @@ public class MethodVisitor extends EmptyVisitor {
         logger.trace(obj);
 
         /** Visit return instruction. */
-        /*
-        TODO: CKJM
-        cv.registerCoupling(i.getType(cp));
-         */
+        if (this.eBus.hasListeners(TypeUseInstruction.class)) {
+            this.eBus.publish(new TypeUseInstruction(obj.getType(this.cp)));
+        }
     }
 
     @Override
@@ -273,10 +262,9 @@ public class MethodVisitor extends EmptyVisitor {
         logger.trace(obj);
 
         /** Visit checkcast instruction. */
-        /*
-        TODO: CKJM
-        cv.registerCoupling(i.getType(cp));
-         */
+        if (this.eBus.hasListeners(TypeUseInstruction.class)) {
+            this.eBus.publish(new TypeUseInstruction(obj.getType(this.cp)));
+        }
     }
 
     @Override
@@ -694,10 +682,9 @@ public class MethodVisitor extends EmptyVisitor {
         logger.trace(obj);
 
         /** Visit an instanceof instruction. */
-        /*
-        TODO: CKJM
-        cv.registerCoupling(i.getType(cp));
-         */
+        if (this.eBus.hasListeners(TypeUseInstruction.class)) {
+            this.eBus.publish(new TypeUseInstruction(obj.getType(this.cp)));
+        }
     }
 
     @Override

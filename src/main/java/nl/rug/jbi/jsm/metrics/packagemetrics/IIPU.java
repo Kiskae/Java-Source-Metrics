@@ -2,6 +2,7 @@ package nl.rug.jbi.jsm.metrics.packagemetrics;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
@@ -39,6 +40,6 @@ public class IIPU extends SharedMetric {
 
     @Override
     public List<MetricResult> getResults(Map<String, MetricState> states) {
-        return null;
+        return ImmutableList.of();
     }
 }

@@ -2,10 +2,10 @@ package nl.rug.jbi.jsm.bcel;
 
 import org.apache.bcel.classfile.Field;
 
-public class FieldData {
+public class FieldDefinition {
     private final Field field;
 
-    public FieldData(final Field field) {
+    public FieldDefinition(final Field field) {
         this.field = field;
     }
 

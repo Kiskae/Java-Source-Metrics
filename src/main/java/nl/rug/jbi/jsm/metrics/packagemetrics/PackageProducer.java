@@ -1,8 +1,8 @@
 package nl.rug.jbi.jsm.metrics.packagemetrics;
 
 import com.google.common.collect.ImmutableList;
-import nl.rug.jbi.jsm.bcel.JavaClassData;
-import nl.rug.jbi.jsm.bcel.MethodData;
+import nl.rug.jbi.jsm.bcel.JavaClassDefinition;
+import nl.rug.jbi.jsm.bcel.MethodDefinition;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.calculator.ProducerMetric;
@@ -19,12 +19,12 @@ public class PackageProducer extends ProducerMetric {
     }
 
     @Subscribe
-    public void onClass(final MetricState state, final JavaClassData c) {
+    public void onClass(final MetricState state, final JavaClassDefinition c) {
         state.setValue("extends-class", c.getSuperClass());
     }
 
     @Subscribe
-    public void onMethod(final MetricState state, final MethodData m) {
+    public void onMethod(final MetricState state, final MethodDefinition m) {
 
     }
 

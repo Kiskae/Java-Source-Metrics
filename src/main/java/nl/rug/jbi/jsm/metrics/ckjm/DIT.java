@@ -1,6 +1,6 @@
 package nl.rug.jbi.jsm.metrics.ckjm;
 
-import nl.rug.jbi.jsm.bcel.JavaClassData;
+import nl.rug.jbi.jsm.bcel.JavaClassDefinition;
 import nl.rug.jbi.jsm.core.calculator.IsolatedMetric;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
@@ -15,7 +15,7 @@ public class DIT extends IsolatedMetric {
     }
 
     @Subscribe
-    public void onClass(final MetricState state, final JavaClassData clazz) {
+    public void onClass(final MetricState state, final JavaClassDefinition clazz) {
         state.setValue("dit-depth", clazz.getSuperClasses().size());
     }
 
