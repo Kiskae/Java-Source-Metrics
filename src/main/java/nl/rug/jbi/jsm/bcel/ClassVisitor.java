@@ -167,18 +167,11 @@ public class ClassVisitor extends EmptyVisitor {
     @Override
     public void visitLocalVariable(LocalVariable obj) {
         logger.trace(obj);
-
-        //TODO: replace MethodVisitor.visitLocalVariableInstruction/visitArrayInstruction
-        logger.warn("{} = {}", obj.getName(), obj.getSignature());
     }
 
     @Override
     public void visitLocalVariableTable(LocalVariableTable obj) {
         logger.trace(obj);
-
-        for (final LocalVariable lVar : obj.getLocalVariableTable()) {
-            lVar.accept(this);
-        }
     }
 
     @Override
@@ -189,9 +182,6 @@ public class ClassVisitor extends EmptyVisitor {
 
         if (this.getEventBus().hasListeners(MethodDefinition.class))
             this.getEventBus().publish(new MethodDefinition(mg));
-
-        //Visit localvars
-        method.getLocalVariableTable().accept(this);
 
         final MethodVisitor mv = new MethodVisitor(mg, this.getEventBus());
         mv.start(); //Run visitor for method instructions

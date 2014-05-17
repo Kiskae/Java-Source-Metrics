@@ -31,7 +31,20 @@ public class MethodVisitor extends EmptyVisitor {
                 ih = ih.getNext();
             }
 
+            handleLocalVariables();
             handleExceptionHandlers();
+        }
+    }
+
+    private void handleLocalVariables() {
+        final LocalVariableGen[] lVarGens = mg.getLocalVariables();
+        logger.trace(Arrays.asList(lVarGens));
+
+        //TODO: create localvariable representation
+        if (!this.eBus.hasListeners(Object.class)) return;
+
+        for (int i = 0; i < lVarGens.length; ++i) {
+            //TODO: publish
         }
     }
 
