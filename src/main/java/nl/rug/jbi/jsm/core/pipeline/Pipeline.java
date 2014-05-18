@@ -32,7 +32,8 @@ public class Pipeline {
             ExceptionHandlerDefinition.class,
             FieldAccessInstr.class,
             InvokeMethodInstr.class,
-            TypeUseInstruction.class
+            TypeUseInstruction.class,
+            LocalVariableDefinition.class
     );
     private final static Logger logger = LogManager.getLogger(Pipeline.class);
 

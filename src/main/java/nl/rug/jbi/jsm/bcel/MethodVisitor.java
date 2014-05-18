@@ -40,11 +40,10 @@ public class MethodVisitor extends EmptyVisitor {
         final LocalVariableGen[] lVarGens = mg.getLocalVariables();
         logger.trace(Arrays.asList(lVarGens));
 
-        //TODO: create localvariable representation
-        if (!this.eBus.hasListeners(Object.class)) return;
+        if (!this.eBus.hasListeners(LocalVariableDefinition.class)) return;
 
-        for (int i = 0; i < lVarGens.length; ++i) {
-            //TODO: publish
+        for (final LocalVariableGen lVarGen : lVarGens) {
+            this.eBus.publish(new LocalVariableDefinition(lVarGen));
         }
     }
 
@@ -54,8 +53,8 @@ public class MethodVisitor extends EmptyVisitor {
 
         if (!this.eBus.hasListeners(ExceptionHandlerDefinition.class)) return;
 
-        for (int i = 0; i < cegs.length; ++i) {
-            this.eBus.publish(new ExceptionHandlerDefinition(cegs[i]));
+        for (final CodeExceptionGen ceg : cegs) {
+            this.eBus.publish(new ExceptionHandlerDefinition(ceg));
         }
     }
 
@@ -68,11 +67,7 @@ public class MethodVisitor extends EmptyVisitor {
     public void visitLocalVariableInstruction(LocalVariableInstruction obj) {
         logger.trace(obj);
 
-        /** Local variable use. */
-        //TODO: dangerously generic, perhaps look into subtypes?
-        if (this.eBus.hasListeners(TypeUseInstruction.class)) {
-            this.eBus.publish(new TypeUseInstruction(obj.getType(this.cp)));
-        }
+        /* Used in CKJM, replaced by LocalVariable iteration */
     }
 
     @Override
@@ -169,10 +164,7 @@ public class MethodVisitor extends EmptyVisitor {
     public void visitArrayInstruction(ArrayInstruction obj) {
         logger.trace(obj);
 
-        /** Array use. */
-        if (this.eBus.hasListeners(TypeUseInstruction.class)) {
-            this.eBus.publish(new TypeUseInstruction(obj.getType(this.cp)));
-        }
+        /* Used in CKJM, replaced by LocalVariable iteration */
     }
 
     @Override
