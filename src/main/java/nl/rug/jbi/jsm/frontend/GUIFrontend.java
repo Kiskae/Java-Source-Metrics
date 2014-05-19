@@ -1,7 +1,10 @@
 package nl.rug.jbi.jsm.frontend;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import nl.rug.jbi.jsm.core.JSMCore;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
@@ -20,6 +23,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,6 +33,7 @@ public class GUIFrontend implements Frontend {
     private final MetricDataTable classData = new MetricDataTable("Class Name");
     private final MetricDataTable packageData = new MetricDataTable("Package Name");
     private final MetricDataTable collectionData = new MetricDataTable("Collection Name");
+    private final SelectableList inputSources = new SelectableList();
 
     public GUIFrontend(final JSMCore core) {
         this.core = Preconditions.checkNotNull(core);
@@ -105,7 +110,7 @@ public class GUIFrontend implements Frontend {
         final JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
-        panel.add(createSourceSelectionPanel("Input Sources", new SelectableList()));
+        panel.add(createSourceSelectionPanel("Input Sources", this.inputSources));
         panel.add(createSourceSelectionPanel("Library Sources", new SelectableList()));
         panel.add(createCoreControls());
         panel.add(Box.createGlue());
@@ -229,21 +234,58 @@ public class GUIFrontend implements Frontend {
         start.setAction(new AbstractAction("Start Calculation") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    final File file = new File("target/jsm-1.0-SNAPSHOT.jar");
-                    core.process(GUIFrontend.this, Sets.newHashSet(FileUtils.findClassNames(file)), file.toURI().toURL());
-                    export.setEnabled(true);
-                } catch (MalformedURLException ex) {
-                    ex.printStackTrace();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+                classData.clear();
+                packageData.clear();
+                collectionData.clear();
+
+                final FluentIterable<File> files = FluentIterable.from(inputSources.getOptions())
+                        .transform(new Function<String, File>() {
+                            @Override
+                            public File apply(String s) {
+                                return new File(s);
+                            }
+                        })
+                        .filter(new Predicate<File>() {
+                            @Override
+                            public boolean apply(File file) {
+                                return file.exists();
+                            }
+                        });
+
+                core.process(
+                        GUIFrontend.this,
+                        files.transformAndConcat(new Function<File, Iterable<String>>() {
+                            @Override
+                            public Iterable<String> apply(File file) {
+                                try {
+                                    return FileUtils.findClassNames(file);
+                                } catch (IOException e1) {
+                                    return ImmutableList.of();
+                                }
+                            }
+                        }).toSet(),
+                        files.transform(new Function<File, URL>() {
+                            @Override
+                            public URL apply(File file) {
+                                try {
+                                    return file.toURI().toURL();
+                                } catch (MalformedURLException e1) {
+                                    return null;
+                                }
+                            }
+                        }).filter(new Predicate<URL>() {
+                            @Override
+                            public boolean apply(URL url) {
+                                return url != null;
+                            }
+                        }).toArray(URL.class)
+                );
+                export.setEnabled(true);
             }
         });
 
         final JProgressBar progressBar = new JProgressBar();
         progressBar.setIndeterminate(true);
-        progressBar.setString("Derp");
         panel.add(progressBar);
 
         return panel;

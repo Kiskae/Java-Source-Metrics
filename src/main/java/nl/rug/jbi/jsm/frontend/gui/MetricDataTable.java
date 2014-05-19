@@ -96,6 +96,12 @@ public class MetricDataTable extends AbstractTableModel {
         }
     }
 
+    public void clear() {
+        this.results.clear();
+        this.identifierLookup.clear();
+        this.fireTableDataChanged();
+    }
+
     private static class ResultSet {
         private final Object[] results;
         private final String identifier;

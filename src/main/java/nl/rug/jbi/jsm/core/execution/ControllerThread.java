@@ -129,8 +129,10 @@ class ControllerThread extends Thread {
             }
         }
 
-        while (currentFrame != null) {
+        while (currentFrame != null && !taskQueue.isEmpty()) {
             logger.debug("Processing frame {}", currentFrame);
+
+            logger.debug("Elements in Task Queue: {}", taskQueue.size());
 
             //Calculation Stage
             try {
@@ -165,6 +167,8 @@ class ControllerThread extends Thread {
             prepareProduceForNextFrame(nextFrameExecutionData, produceList, currentScope);
 
             logger.debug("Produce partitioned.");
+
+            logger.debug("End of frame calculation: tasks - {}, data sets waiting - {}", taskQueue.size(), this.dataForFutureScope.size());
 
             currentFrame = currentFrame.getNextFrame();
             if (currentFrame == null && scopeIterator.hasNext()) {
