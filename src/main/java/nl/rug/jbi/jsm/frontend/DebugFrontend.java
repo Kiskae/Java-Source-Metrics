@@ -16,15 +16,17 @@ import java.util.List;
 public class DebugFrontend implements Frontend {
     private final static Logger logger = LogManager.getLogger(DebugFrontend.class);
     private final JSMCore core;
+    private final String target;
 
-    public DebugFrontend(final JSMCore core) {
+    public DebugFrontend(final JSMCore core, final String target) {
+        this.target = target;
         this.core = Preconditions.checkNotNull(core);
     }
 
     @Override
     public void init() {
         try {
-            final File file = new File("agon-1.0-SNAPSHOT.jar");
+            final File file = new File(this.target);
             this.core.process(this, Sets.newHashSet(FileUtils.findClassNames(file)), file.toURI().toURL());
         } catch (MalformedURLException e) {
             e.printStackTrace();

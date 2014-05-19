@@ -2,6 +2,7 @@ package nl.rug.jbi.jsm.metrics;
 
 import nl.rug.jbi.jsm.bcel.FieldAccessInstr;
 import nl.rug.jbi.jsm.bcel.InvokeMethodInstr;
+import nl.rug.jbi.jsm.bcel.LocalVariableDefinition;
 import nl.rug.jbi.jsm.bcel.TypeUseInstruction;
 import nl.rug.jbi.jsm.core.calculator.IsolatedMetric;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
@@ -42,6 +43,11 @@ public class TestMetric extends IsolatedMetric {
                 instruction.getArgumentTypes(),
                 instruction.getReturnType()
         );
+    }
+
+    @Subscribe
+    public void onLocalVar(final MetricState state, final LocalVariableDefinition lVar) {
+        logger.debug("Local var '{}' ({})", lVar.getName(), lVar.getType());
     }
 
     @Override

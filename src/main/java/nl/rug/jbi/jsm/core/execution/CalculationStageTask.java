@@ -57,12 +57,14 @@ class CalculationStageTask implements Runnable {
                 if (state.isValid()) {
                     results.add(m.getResult(this.dataStore.getIdentifier(), state));
                 } else {
-                    //TODO: invalid result callback!
+                    //TODO: properly log this
+                    results.add(new InvalidResult(this.dataStore.getIdentifier(), m, "Error during calculation"));
                 }
             }
 
             //Deliver Results
-            this.resultCallback.apply(results);
+            if (!results.isEmpty())
+                this.resultCallback.apply(results);
 
             //It will now return, at which point shared/producer metrics will be calculated and the pipeline
             //will advance.

@@ -51,6 +51,11 @@ public class Pipeline {
         this.frameMap.put(MetricScope.COLLECTION, new PipelineFrame(MetricScope.COLLECTION));
     }
 
+    public static void registerNewBaseData(final Class dataType) {
+        if (!BASE_DATA_CLASSES.contains(dataType))
+            BASE_DATA_CLASSES.add(dataType);
+    }
+
     public void registerMetric(final BaseMetric metric) throws MetricPreparationException {
         final List<Pair<Class, HandlerExecutor>> executors = Lists.newLinkedList();
 

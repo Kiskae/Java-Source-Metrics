@@ -1,6 +1,14 @@
 package nl.rug.jbi.jsm.bcel;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import org.apache.bcel.generic.MethodGen;
+import org.apache.bcel.generic.Type;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static nl.rug.jbi.jsm.bcel.BCELTools.type2className;
 
 public class MethodDefinition {
     private final MethodGen mg;
@@ -25,8 +33,13 @@ public class MethodDefinition {
         return mg.getExceptions();
     }
 
-    public String[] getArgumentTypes() {
-        return mg.getArgumentNames();
+    public List<String> getArgumentTypes() {
+        return Lists.transform(Arrays.asList(this.mg.getArgumentTypes()), new Function<Type, String>() {
+            @Override
+            public String apply(final Type type) {
+                return type2className(type);
+            }
+        });
     }
 
     public boolean isPublic() {

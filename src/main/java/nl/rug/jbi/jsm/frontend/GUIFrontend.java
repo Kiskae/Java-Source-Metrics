@@ -9,7 +9,6 @@ import nl.rug.jbi.jsm.frontend.gui.MetricDataTable;
 import nl.rug.jbi.jsm.frontend.gui.SelectableList;
 import nl.rug.jbi.jsm.util.CSVExporter;
 import nl.rug.jbi.jsm.util.FileUtils;
-import org.apache.bcel.classfile.JavaClass;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,6 +20,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Collections;
 import java.util.List;
 
 public class GUIFrontend implements Frontend {
@@ -212,6 +212,11 @@ public class GUIFrontend implements Frontend {
                 try {
                     final CSVExporter exporter = new CSVExporter(new File("test.csv"));
                     classData.export(exporter);
+                    exporter.writeDataRow(Collections.EMPTY_LIST);
+                    packageData.export(exporter);
+                    exporter.writeDataRow(Collections.EMPTY_LIST);
+                    collectionData.export(exporter);
+
                     exporter.close();
                 } catch (IOException e1) {
                     logger.debug(e1);
@@ -225,7 +230,7 @@ public class GUIFrontend implements Frontend {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    final File file = new File("target/original-jsm-1.0-SNAPSHOT.jar");
+                    final File file = new File("target/jsm-1.0-SNAPSHOT.jar");
                     core.process(GUIFrontend.this, Sets.newHashSet(FileUtils.findClassNames(file)), file.toURI().toURL());
                     export.setEnabled(true);
                 } catch (MalformedURLException ex) {

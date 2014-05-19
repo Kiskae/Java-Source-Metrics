@@ -269,7 +269,7 @@ class ControllerThread extends Thread {
                     results.addAll(resList);
             } catch (ExecutionException e) {
                 //TODO: how to handle errors here (do they even happen?)
-                logger.warn(e);
+                logger.warn("Exception getting results", e);
             }
         }
 
@@ -286,7 +286,7 @@ class ControllerThread extends Thread {
                 }
             } catch (ExecutionException e) {
                 //TODO: how to handle errors here (do they even happen?)
-                logger.warn(e);
+                logger.warn("Exception getting results", e);
             }
         }
     }

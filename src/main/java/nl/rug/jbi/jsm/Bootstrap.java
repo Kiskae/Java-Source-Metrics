@@ -5,14 +5,12 @@ import nl.rug.jbi.jsm.core.pipeline.MetricPreparationException;
 import nl.rug.jbi.jsm.frontend.DebugFrontend;
 import nl.rug.jbi.jsm.frontend.Frontend;
 import nl.rug.jbi.jsm.frontend.GUIFrontend;
-import nl.rug.jbi.jsm.metrics.TestMetric;
-import nl.rug.jbi.jsm.metrics.ckjm.DIT;
-import nl.rug.jbi.jsm.metrics.ckjm.NOC;
-import nl.rug.jbi.jsm.metrics.ckjm.WMC;
-import nl.rug.jbi.jsm.metrics.packagemetrics.IIPU;
-import nl.rug.jbi.jsm.metrics.packagemetrics.PF;
+import nl.rug.jbi.jsm.metrics.ckjm.*;
+import nl.rug.jbi.jsm.metrics.packagemetrics.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Arrays;
 
 public class Bootstrap {
     private static final Logger logger = LogManager.getLogger(Bootstrap.class);
@@ -24,14 +22,30 @@ public class Bootstrap {
 
         final JSMCore core = new JSMCore();
 
-        core.registerMetric(new TestMetric());
+        //CKJM
         core.registerMetric(new WMC());
         core.registerMetric(new NOC());
         core.registerMetric(new DIT());
+        core.registerMetric(new NPM());
+        core.registerMetric(new RFC());
+        core.registerMetric(new LCOM());
+        core.registerMetric(new CBO());
+        core.registerMetric(new CA());
+
+        //Package metrics
         core.registerMetric(new PF());
         core.registerMetric(new IIPU());
+        core.registerMetric(new IIPE());
+        core.registerMetric(new IPCI());
+        core.registerMetric(new IIPUD());
+        core.registerMetric(new IIPED());
+        core.registerMetric(new IPSC());
 
-        final Frontend frontend = new GUIFrontend(core);
+        final Frontend frontend;
+        if (Arrays.asList(args).contains("--nogui") && args.length > 1)
+            frontend = new DebugFrontend(core, args[1]);
+        else
+            frontend = new GUIFrontend(core);
         frontend.init();
 
         logger.trace("Startup finished");

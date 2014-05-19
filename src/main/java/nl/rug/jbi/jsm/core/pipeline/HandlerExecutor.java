@@ -33,7 +33,7 @@ public class HandlerExecutor {
         } catch (IllegalAccessException e) {
             throw new MetricExecutionException("Event handler method set to private", e);
         } catch (InvocationTargetException e) {
-            throw new MetricExecutionException("Exception executing metric calculator", e.getTargetException());
+            throw new MetricExecutionException("Exception executing metric calculator", e.getCause());
         }
     }
 

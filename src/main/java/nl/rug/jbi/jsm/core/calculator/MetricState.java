@@ -67,7 +67,6 @@ public class MetricState {
     }
 
     /**
-     *
      * @param key
      * @param def
      * @param <T>

@@ -15,7 +15,7 @@ public class BCELTools {
      * @param t
      * @return
      * @see <a href="https://github.com/dspinellis/ckjm/blob/master/src/gr/spinellis/ckjm/ClassVisitor.java#L180">
-     *     Original Implementation</a>
+     * Original Implementation</a>
      */
     public static String type2className(final Type t) {
         final String className = t.toString();

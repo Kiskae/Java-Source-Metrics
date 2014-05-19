@@ -30,15 +30,6 @@ class CollectionStageTask<M, R> implements Callable<List<R>> {
         this.latch = latch;
     }
 
-    @Override
-    public List<R> call() throws Exception {
-        try {
-            return this.converter.apply(this.metric, this.data);
-        } finally {
-            latch.countDown();
-        }
-    }
-
     public static CollectionStageTask<ProducerMetric, ProducerMetric.Produce> forProducer(
             final ProducerMetric producer,
             final Map<String, MetricState> data,
@@ -73,5 +64,14 @@ class CollectionStageTask<M, R> implements Callable<List<R>> {
                 },
                 latch
         );
+    }
+
+    @Override
+    public List<R> call() throws Exception {
+        try {
+            return this.converter.apply(this.metric, this.data);
+        } finally {
+            latch.countDown();
+        }
     }
 }

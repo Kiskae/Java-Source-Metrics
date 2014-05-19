@@ -5,7 +5,6 @@ import nl.rug.jbi.jsm.core.event.EventBus;
 import org.apache.bcel.classfile.*;
 import org.apache.bcel.classfile.Deprecated;
 import org.apache.bcel.generic.ConstantPoolGen;
-import org.apache.bcel.generic.LocalVariableGen;
 import org.apache.bcel.generic.MethodGen;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
