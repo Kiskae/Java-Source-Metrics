@@ -14,21 +14,18 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class ClassSourceProducer extends ProducerMetric {
     private static AtomicReference<CompositeBCELClassLoader> CLOADER = new AtomicReference<CompositeBCELClassLoader>(null);
-    private final AtomicReference<CompositeBCELClassLoader> cLoaderCopy;
 
     public ClassSourceProducer() {
         super(MetricScope.CLASS, MetricScope.CLASS);
-        this.cLoaderCopy = CLOADER;
     }
 
     public static void setCBCL(final CompositeBCELClassLoader cLoader) {
-        CLOADER.set(cLoader);
-        CLOADER = new AtomicReference<CompositeBCELClassLoader>(null);
+        CLOADER = new AtomicReference<CompositeBCELClassLoader>(cLoader);
     }
 
     @Subscribe
     public void onClass(final MetricState state, final JavaClassDefinition ignored) {
-        final CompositeBCELClassLoader CBCL = this.cLoaderCopy.get();
+        final CompositeBCELClassLoader CBCL = CLOADER.get();
         if (CBCL != null) {
             state.setValue("source", CBCL.getSource(state.getIdentifier()));
         }

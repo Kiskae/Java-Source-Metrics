@@ -132,7 +132,7 @@ class ControllerThread extends Thread {
         while (currentFrame != null && !taskQueue.isEmpty()) {
             logger.debug("Processing frame {}", currentFrame);
 
-            logger.debug("Elements in Task Queue: {}", taskQueue.size());
+            logger.debug("Elements in Task Queue: {}, Data waiting for next frame: {}", taskQueue.size(), this.dataForFutureScope.size());
 
             //Calculation Stage
             try {
@@ -160,15 +160,13 @@ class ControllerThread extends Thread {
                 break;
             }
 
-            logger.debug("Finished collection phase");
+            logger.debug("Finished collection phase, produce created: {}", produceList.size());
 
             //Partition produce for next frame or next scope, depending on the produce
             final Map<String, List> nextFrameExecutionData = Maps.newHashMap();
             prepareProduceForNextFrame(nextFrameExecutionData, produceList, currentScope);
 
             logger.debug("Produce partitioned.");
-
-            logger.debug("End of frame calculation: tasks - {}, data sets waiting - {}", taskQueue.size(), this.dataForFutureScope.size());
 
             currentFrame = currentFrame.getNextFrame();
             if (currentFrame == null && scopeIterator.hasNext()) {
