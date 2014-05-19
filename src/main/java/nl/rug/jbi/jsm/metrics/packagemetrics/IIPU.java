@@ -1,24 +1,19 @@
 package nl.rug.jbi.jsm.metrics.packagemetrics;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
+import nl.rug.jbi.jsm.core.calculator.IsolatedMetric;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
-import nl.rug.jbi.jsm.core.calculator.SharedMetric;
 import nl.rug.jbi.jsm.core.event.Subscribe;
 import nl.rug.jbi.jsm.core.event.UsingProducer;
-import nl.rug.jbi.jsm.util.DefaultValues;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import nl.rug.jbi.jsm.core.execution.InvalidResult;
+import nl.rug.jbi.jsm.metrics.packagemetrics.resource.PackageProducer;
+import nl.rug.jbi.jsm.metrics.packagemetrics.resource.PackageUnit;
 
 /**
  * Calculates the Index of Inter-Package Usage (IIPU) for all packages
  */
-public class IIPU extends SharedMetric {
+public class IIPU extends IsolatedMetric {
 
     public IIPU() {
         super(MetricScope.PACKAGE);
@@ -26,20 +21,11 @@ public class IIPU extends SharedMetric {
 
     @Subscribe
     @UsingProducer(PackageProducer.class)
-    public void onPackage(final MetricState state, final Package pack) {
-        final Set<String> externalClasses = state.getValue("ExternalClasses", DefaultValues.<String>emptySet());
-        final int packageNameLen = pack.getPackageName().length() + 1;
-        externalClasses.addAll(Collections2.filter(pack.getUsedClasses(), new Predicate<String>() {
-            @Override
-            public boolean apply(final String className) {
-                return className.length() > packageNameLen && Character.isUpperCase(className.codePointAt(packageNameLen));
-            }
-        }));
-        state.setValue("ExternalClasses", externalClasses);
+    public void onPackage(final MetricState state, final PackageUnit pack) {
     }
 
     @Override
-    public List<MetricResult> getResults(Map<String, MetricState> states) {
-        return ImmutableList.of();
+    public MetricResult getResult(String identifier, MetricState state) {
+        return new InvalidResult(identifier, this, "NYI, Collect");
     }
 }

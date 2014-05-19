@@ -25,8 +25,7 @@ public class WMC extends IsolatedMetric {
     public MetricResult getResult(final String identifier, final MetricState state) {
         return new DoubleResult(
                 identifier,
-                WMC.class,
-                MetricScope.CLASS,
+                this,
                 state.getValue("method-num", DefaultValues.ZERO_INT)
         );
     }
