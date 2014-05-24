@@ -13,6 +13,8 @@ import nl.rug.jbi.jsm.core.event.Subscribe;
 import nl.rug.jbi.jsm.core.event.UsingProducer;
 import nl.rug.jbi.jsm.metrics.packagemetrics.resource.PackageProducer;
 import nl.rug.jbi.jsm.metrics.packagemetrics.resource.PackageUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -26,6 +28,7 @@ import java.util.Set;
  * @since 1.0
  */
 public class IPSC extends SharedMetric {
+    private final static Logger logger = LogManager.getLogger(IPSC.class);
 
     public IPSC() {
         super(MetricScope.PACKAGE);
@@ -40,6 +43,7 @@ public class IPSC extends SharedMetric {
         for (final String packageName : packs) {
             acc += CScohesion(pack, pack.getPackageByName(packageName));
         }
+        state.setValue("Collection", pack.getSourceIdentifier());
         state.setValue("IPSC-p", pSize != 0 ? acc / pSize : 1.0);
     }
 
@@ -68,7 +72,12 @@ public class IPSC extends SharedMetric {
 
     @Override
     public List<MetricResult> getResults(Map<String, MetricState> states, int invalidMembers) {
-        //TODO: check invalidMembers, output warning if != 0
+        if (invalidMembers != 0) {
+            logger.warn(
+                    "IPSC: Unsuccessful calculation for {} package(s), collection results might be inaccurate.",
+                    invalidMembers
+            );
+        }
 
         final List<MetricResult> results = Lists.newLinkedList();
 

@@ -11,6 +11,8 @@ import nl.rug.jbi.jsm.core.event.Subscribe;
 import nl.rug.jbi.jsm.core.event.UsingProducer;
 import nl.rug.jbi.jsm.metrics.packagemetrics.resource.PackageProducer;
 import nl.rug.jbi.jsm.metrics.packagemetrics.resource.PackageUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.Set;
  * @since 1.0
  */
 public class IIPU extends SharedMetric {
+    private final static Logger logger = LogManager.getLogger(IIPU.class);
 
     public IIPU() {
         super(MetricScope.PACKAGE);
@@ -44,7 +47,12 @@ public class IIPU extends SharedMetric {
 
     @Override
     public List<MetricResult> getResults(Map<String, MetricState> states, int invalidMembers) {
-        //TODO: check invalidMembers, output warning if != 0
+        if (invalidMembers != 0) {
+            logger.warn(
+                    "IIPU: Unsuccessful calculation for {} package(s), collection results might be inaccurate.",
+                    invalidMembers
+            );
+        }
 
         final double packageUses = FluentIterable.from(states.values())
                 .transformAndConcat(new Function<MetricState, Iterable<String>>() {
