@@ -132,7 +132,7 @@ public class Pipeline {
                 .transform(new Function<Pair<Class, HandlerExecutor>, Class>() {
                     @Override
                     public Class apply(Pair<Class, HandlerExecutor> classHandlerExecutorPair) {
-                        return classHandlerExecutorPair.getFirst();
+                        return classHandlerExecutorPair.first;
                     }
                 })
                 .toSet();
@@ -152,7 +152,7 @@ public class Pipeline {
             //Add handlers to the HandlerMap
             final HandlerMap hMap = this.handlerMaps.get(metric.getScope());
             for (final Pair<Class, HandlerExecutor> pair : executors) {
-                hMap.addHandler(pair.getFirst(), pair.getSecond());
+                hMap.addHandler(pair.first, pair.second);
             }
 
             logger.debug("{} registered.", metric.getClass());

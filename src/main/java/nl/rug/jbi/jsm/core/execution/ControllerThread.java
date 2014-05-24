@@ -22,14 +22,16 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.google.common.base.Preconditions.checkState;
+
 class ControllerThread extends Thread {
     private final static Logger logger = LogManager.getLogger(ControllerThread.class);
     private final static AtomicInteger UNIQUE_EXECUTION_ID = new AtomicInteger(0);
     private final static List<MetricScope> SCOPE_EXECUTION_ORDER =
             ImmutableList.of(MetricScope.CLASS, MetricScope.PACKAGE, MetricScope.COLLECTION);
-    private final static Function<BaseMetric, Class> CLASS_TRANSFORM = new Function<BaseMetric, Class>() {
+    private final static Function<Object, Class> OBJECT_GETCLASS = new Function<Object, Class>() {
         @Override
-        public Class apply(BaseMetric metric) {
+        public Class apply(Object metric) {
             return metric.getClass();
         }
     };
@@ -127,6 +129,8 @@ class ControllerThread extends Thread {
             }
         }
 
+        //TODO: at the moment the PACKAGE step cannot be skipped, but it is feasible that this could happen.
+        //CLASS->COLLECTION producers
         while (currentFrame != null && !taskQueue.isEmpty()) {
             logger.debug("Processing frame {}", currentFrame);
 
@@ -162,6 +166,8 @@ class ControllerThread extends Thread {
 
             //Partition produce for next frame or next scope, depending on the produce
             final Map<String, List> nextFrameExecutionData = Maps.newHashMap();
+
+            //TODO: split scope?
             prepareProduceForNextFrame(nextFrameExecutionData, produceList, currentScope);
 
             logger.debug("Produce partitioned.");
@@ -171,13 +177,14 @@ class ControllerThread extends Thread {
                 currentScope = scopeIterator.next();
                 currentFrame = executionPlan.getPipelineFrame(currentScope);
 
-                Preconditions.checkState(
+                checkState(
                         nextFrameExecutionData.isEmpty(),
                         "No produce should go directly cross-scope, but '%s' did.",
                         nextFrameExecutionData
                 );
 
                 //Prepare the containers and task set for the next scope.
+                //TODO: only use the correct scope.
                 prepareEventBuses(
                         this.dataForFutureScope.keySet(),
                         executionPlan.getHandlerMap(currentScope),
@@ -244,6 +251,8 @@ class ControllerThread extends Thread {
         final List<ProducerMetric> producerMetrics = currentFrame.getProducerMetrics();
 
         final CountDownLatch latch = createCountdownLatch(sharedMetrics.size() + producerMetrics.size());
+
+        //TODO: use Pair to link Futures to the metrics, for logging purposes
         final List<Future<List<MetricResult>>> futureResults = Lists.newLinkedList();
         final List<Future<List<ProducerMetric.Produce>>> futureProduce = Lists.newLinkedList();
 
@@ -265,8 +274,11 @@ class ControllerThread extends Thread {
         for (final Future<List<MetricResult>> fResult : futureResults) {
             try {
                 final List<MetricResult> resList = fResult.get();
-                if (resList != null)
+                if (resList != null) {
                     results.addAll(resList);
+                } else {
+                    //TODO: log invalid metric
+                }
             } catch (ExecutionException e) {
                 //TODO: how to handle errors here (do they even happen?)
                 logger.warn("Exception getting results", e);
@@ -283,6 +295,8 @@ class ControllerThread extends Thread {
                 final List<ProducerMetric.Produce> prodList = fProduce.get();
                 if (prodList != null) {
                     produceOutput.addAll(prodList);
+                } else {
+                    //TODO: log invalid metric
                 }
             } catch (ExecutionException e) {
                 //TODO: how to handle errors here (do they even happen?)
@@ -298,8 +312,8 @@ class ControllerThread extends Thread {
         final Map<String, Map<Class, MetricState>> dataTmp = Maps.newHashMap();
 
         final List<Class> classFilter = Lists.newLinkedList();
-        classFilter.addAll(Lists.transform(currentFrame.getSharedMetrics(), CLASS_TRANSFORM));
-        classFilter.addAll(Lists.transform(currentFrame.getProducerMetrics(), CLASS_TRANSFORM));
+        classFilter.addAll(Lists.transform(currentFrame.getSharedMetrics(), OBJECT_GETCLASS));
+        classFilter.addAll(Lists.transform(currentFrame.getProducerMetrics(), OBJECT_GETCLASS));
 
         if (classFilter.isEmpty()) return; //No shared/producer metrics in this frame.
 
@@ -322,8 +336,8 @@ class ControllerThread extends Thread {
             final Pair<EventBus, Runnable> task = taskQueue.poll();
             this.executorPool.submit(new CalculationStageTask(
                     calculationStageLatch,
-                    task.getSecond(),
-                    task.getFirst(),
+                    task.second,
+                    task.first,
                     isolatedMetrics,
                     this.resultsCallback
             ));
