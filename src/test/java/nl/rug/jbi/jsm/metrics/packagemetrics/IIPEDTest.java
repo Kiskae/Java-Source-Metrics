@@ -170,6 +170,6 @@ public class IIPEDTest {
 
         //IIPED(extX) = 1 (Because ExtC(extX) = 0)
         //IIPED(M) = (1 + 5) / 6
-        assertEquals(1.0 , collectionResult, 0.001);
+        assertEquals(1.0, collectionResult, 0.001);
     }
 }

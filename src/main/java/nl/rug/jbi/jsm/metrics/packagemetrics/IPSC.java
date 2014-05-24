@@ -1,7 +1,5 @@
 package nl.rug.jbi.jsm.metrics.packagemetrics;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AtomicDouble;
