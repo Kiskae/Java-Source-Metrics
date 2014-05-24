@@ -1,40 +1,72 @@
 package nl.rug.jbi.jsm.core.calculator;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 
-public abstract class MetricResult<R> {
+import static com.google.common.base.Preconditions.checkNotNull;
+
+/**
+ * TODO: documentation
+ */
+public class MetricResult {
     private final String identifier;
-    private final Class<? extends BaseMetric> metricClass;
+    private final Class metricClass;
     private final MetricScope scope;
+    private final Object value;
 
+    /**
+     * @param identifier
+     * @param metricClass
+     * @param scope
+     * @param value
+     */
     public MetricResult(
             final String identifier,
             final Class<? extends BaseMetric> metricClass,
-            final MetricScope scope
+            final MetricScope scope,
+            final Object value
     ) {
-        this.metricClass = Preconditions.checkNotNull(metricClass);
-        this.identifier = Preconditions.checkNotNull(identifier);
-        this.scope = Preconditions.checkNotNull(scope);
+        this.value = value;
+        this.metricClass = checkNotNull(metricClass);
+        this.identifier = checkNotNull(identifier);
+        this.scope = checkNotNull(scope);
     }
 
-    public MetricResult(final String identifier, final BaseMetric metric) {
-        this(identifier, metric.getClass(), metric.getScope());
+    /**
+     * @param identifier
+     * @param metric
+     * @param value
+     */
+    public MetricResult(final String identifier, final BaseMetric metric, final Object value) {
+        this(identifier, metric.getClass(), metric.getScope(), value);
     }
 
-    public final Class<? extends BaseMetric> getMetricClass() {
+    /**
+     * @return
+     */
+    public final Class getMetricClass() {
         return this.metricClass;
     }
 
+    /**
+     * @return
+     */
     public String getIdentifier() {
         return this.identifier;
     }
 
+    /**
+     * @return
+     */
     public MetricScope getScope() {
         return this.scope;
     }
 
-    public abstract R getValue();
+    /**
+     * @return
+     */
+    public Object getValue() {
+        return this.value;
+    }
 
     @Override
     public String toString() {

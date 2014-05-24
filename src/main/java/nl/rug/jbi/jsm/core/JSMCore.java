@@ -3,6 +3,7 @@ package nl.rug.jbi.jsm.core;
 import com.google.common.base.Preconditions;
 import nl.rug.jbi.jsm.bcel.CompositeBCELClassLoader;
 import nl.rug.jbi.jsm.core.calculator.BaseMetric;
+import nl.rug.jbi.jsm.core.calculator.MetricCollection;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.execution.PipelineExecutor;
 import nl.rug.jbi.jsm.core.pipeline.MetricPreparationException;
@@ -23,6 +24,12 @@ public class JSMCore {
     public void registerMetric(final BaseMetric metric) throws MetricPreparationException {
         Preconditions.checkState(!this.running, "Cannot register new metrics while the core is already executing.");
         this.pipe.registerMetric(metric);
+    }
+
+    public void registerMetricCollection(final MetricCollection collection) throws MetricPreparationException {
+        for (final BaseMetric metric : collection.getMetrics()) {
+            this.registerMetric(metric);
+        }
     }
 
     public List<Class> getMetricsForScope(final MetricScope scope) {

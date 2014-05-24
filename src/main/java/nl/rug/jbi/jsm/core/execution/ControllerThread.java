@@ -3,6 +3,7 @@ package nl.rug.jbi.jsm.core.execution;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
@@ -24,11 +25,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 class ControllerThread extends Thread {
     private final static Logger logger = LogManager.getLogger(ControllerThread.class);
     private final static AtomicInteger UNIQUE_EXECUTION_ID = new AtomicInteger(0);
-    private final static List<MetricScope> SCOPE_EXECUTION_ORDER = Lists.newArrayList(
-            MetricScope.CLASS,
-            MetricScope.PACKAGE,
-            MetricScope.COLLECTION
-    );
+    private final static List<MetricScope> SCOPE_EXECUTION_ORDER =
+            ImmutableList.of(MetricScope.CLASS, MetricScope.PACKAGE, MetricScope.COLLECTION);
     private final static Function<BaseMetric, Class> CLASS_TRANSFORM = new Function<BaseMetric, Class>() {
         @Override
         public Class apply(BaseMetric metric) {

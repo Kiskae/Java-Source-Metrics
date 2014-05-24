@@ -2,10 +2,8 @@ package nl.rug.jbi.jsm.core.pipeline;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.base.Predicate;
+import com.google.common.collect.*;
 import nl.rug.jbi.jsm.bcel.*;
 import nl.rug.jbi.jsm.core.calculator.BaseMetric;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
@@ -19,23 +17,36 @@ import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+/**
+ *
+ */
 public class Pipeline {
-    private final static List<Class> BASE_DATA_CLASSES = Lists.<Class>newArrayList(
-            JavaClassDefinition.class,
-            MethodDefinition.class,
-            FieldDefinition.class,
-            ExceptionHandlerDefinition.class,
-            FieldAccessInstr.class,
-            InvokeMethodInstr.class,
-            TypeUseInstruction.class,
-            LocalVariableDefinition.class
-    );
     private final static Logger logger = LogManager.getLogger(Pipeline.class);
+
+    //This set contains all types of data that get produces for the first CLASS frame.
+    private final static Set<Class> BASE_DATA_CLASSES = Sets.newTreeSet(new Comparator<Class>() {
+        @Override
+        public int compare(Class o1, Class o2) {
+            return o1.getName().compareTo(o2.getName());
+        }
+    });
+
+    static {
+        //Register the basic types produced by the BCELClassVisitor
+        registerNewBaseData(JavaClassDefinition.class);
+        registerNewBaseData(MethodDefinition.class);
+        registerNewBaseData(FieldDefinition.class);
+        registerNewBaseData(ExceptionHandlerDefinition.class);
+        registerNewBaseData(FieldAccessInstr.class);
+        registerNewBaseData(InvokeMethodInstr.class);
+        registerNewBaseData(TypeUseInstruction.class);
+        registerNewBaseData(LocalVariableDefinition.class);
+    }
 
     private final Map<MetricScope, HandlerMap> handlerMaps = Maps.newEnumMap(MetricScope.class);
     private final Map<MetricScope, PipelineFrame> frameMap = Maps.newEnumMap(MetricScope.class);
@@ -52,66 +63,81 @@ public class Pipeline {
     }
 
     public static void registerNewBaseData(final Class dataType) {
-        if (!BASE_DATA_CLASSES.contains(dataType))
-            BASE_DATA_CLASSES.add(dataType);
+        Pipeline.BASE_DATA_CLASSES.add(dataType);
+    }
+
+    private Pair<Class, HandlerExecutor> processMethod(final Method listener, final BaseMetric metric)
+            throws MetricPreparationException {
+        final Class<?>[] params = listener.getParameterTypes();
+
+        //Listener methods always have 2 parameters
+        if (params.length != 2) {
+            throw new MetricPreparationException(String.format(
+                    "'%s' has more than 2 parameters.",
+                    listener
+            ));
+        }
+
+        //The first parameter is always of type MetricState
+        if (!MetricState.class.equals(params[0])) {
+            throw new MetricPreparationException(String.format(
+                    "The first parameter of '%s' isn't MetricState",
+                    listener
+            ));
+        }
+
+        if (listener.isAnnotationPresent(UsingProducer.class)) {
+            final ProducerMetric producer = loadProducer(listener.getAnnotation(UsingProducer.class).value());
+
+            //Ensure the producer produces for the current scope
+            if (!producer.getProduceScope().equals(metric.getScope())) {
+                throw new MetricPreparationException(String.format(
+                        "'%s' operates on a different scope than '%s'",
+                        producer.getClass().getName(),
+                        listener.getClass().getName()
+                ));
+            }
+
+            //Ensure the method expects the same type of data that the producer produces.
+            if (!producer.getProducedClass().equals(params[1])) {
+                throw new MetricPreparationException(String.format(
+                        "Produce '%s' doesn't match the requested Class '%s' in '%s'",
+                        producer.getProducedClass().getName(),
+                        params[1].getName(),
+                        listener
+                ));
+            }
+        }
+
+        return new Pair<Class, HandlerExecutor>(params[1], new HandlerExecutor(listener, metric));
     }
 
     public void registerMetric(final BaseMetric metric) throws MetricPreparationException {
         final List<Pair<Class, HandlerExecutor>> executors = Lists.newLinkedList();
 
+        for (final MetricScope resultScope : metric.getResultScopes()) {
+            if (!metric.getScope().isValidNextScope(resultScope))
+                throw new MetricPreparationException(
+                        "A metric cannot produce results for scopes prior to its execution scope."
+                );
+        }
+
         for (final Method m : metric.getClass().getDeclaredMethods()) {
             if (m.isAnnotationPresent(Subscribe.class)) {
-                try {
-                    final Class<?>[] params = m.getParameterTypes();
-
-                    //Listener methods always have 2 parameters
-                    Preconditions.checkState(params.length == 2, "'%s' has more than 2 parameters", m);
-
-                    //The first parameter is always of type MetricState
-                    Preconditions.checkState(
-                            MetricState.class.equals(params[0]),
-                            "The first parameter of '%s' isn't MetricState",
-                            m
-                    );
-
-                    if (m.isAnnotationPresent(UsingProducer.class)) {
-                        final ProducerMetric producer = loadProducer(m.getAnnotation(UsingProducer.class).value());
-
-                        //Ensure the producer produces for the current scope
-                        Preconditions.checkState(
-                                producer.getProduceScope().equals(metric.getScope()),
-                                "'%s' operates on a different scope than '%s'",
-                                producer.getClass().getName(),
-                                metric.getClass().getName()
-                        );
-
-                        //Ensure the Producer produces the right type of data
-                        Preconditions.checkState(
-                                producer.getProducedClass().equals(params[1]),
-                                "Produce '%s' doesn't match the requested Class '%s' in '%s'",
-                                producer.getProducedClass().getName(),
-                                params[1].getName(),
-                                m
-                        );
-                    }
-
-                    executors.add(new Pair<Class, HandlerExecutor>(params[1], new HandlerExecutor(m, metric)));
-                } catch (IllegalStateException e) {
-                    throw new MetricPreparationException("Exception in method definition: " + m, e);
-                }
+                executors.add(processMethod(m, metric));
             }
         }
 
-        final Set<Class> usedData = Sets.newHashSet(
-                Lists.transform(executors, new Function<Pair<Class, HandlerExecutor>, Class>() {
+        final Set<Class> usedData = FluentIterable.from(executors)
+                .transform(new Function<Pair<Class, HandlerExecutor>, Class>() {
                     @Override
                     public Class apply(Pair<Class, HandlerExecutor> classHandlerExecutorPair) {
                         return classHandlerExecutorPair.getFirst();
                     }
                 })
-        );
+                .toSet();
 
-        PipelineFrame frame = Preconditions.checkNotNull(this.frameMap.get(metric.getScope()), "Undefined MetricScope");
+        PipelineFrame frame = checkNotNull(this.frameMap.get(metric.getScope()), "Undefined MetricScope");
 
         while (frame != null) {
             if (frame.checkAvailableData(usedData)) {
@@ -132,8 +158,7 @@ public class Pipeline {
             logger.debug("{} registered.", metric.getClass());
         } else {
             throw new MetricPreparationException(
-                    "Unable to resolve data for metric, the required data might not have a single MetricScope",
-                    null
+                    "Unable to resolve data for metric, the required data might not have the same MetricScope"
             );
         }
     }
@@ -165,16 +190,19 @@ public class Pipeline {
                 this.addProducer(pm);
                 return pm;
             } catch (InvocationTargetException e) {
-                throw new MetricPreparationException("Exception creating producer: " + producerClass.getName(), e.getTargetException());
+                throw new MetricPreparationException(
+                        "Exception creating producer: " + producerClass.getName(),
+                        e.getTargetException()
+                );
             } catch (NoSuchMethodException e) {
-                throw new MetricPreparationException("Producers require a zero-argument constructor.", null);
+                throw new MetricPreparationException("Producers require a zero-argument constructor.");
             } catch (ReflectiveOperationException e) {
                 throw new MetricPreparationException("Exception in producer creation through reflection", e);
             }
         }
     }
 
-    private void addProducer(final ProducerMetric pm) {
+    private void addProducer(final ProducerMetric pm) throws MetricPreparationException {
         PipelineFrame frame = this.frameMap.get(pm.getProduceScope());
         if (pm.getScope() == pm.getProduceScope()) {
             //Scope X -> X, so data available in the frame after the metric has been calculated.
@@ -191,28 +219,56 @@ public class Pipeline {
             }
         } else {
             //Scope X -> Y, data available in first frame of Y
+            if (!pm.getScope().isValidNextScope(pm.getProduceScope())) {
+                throw new MetricPreparationException(String.format(
+                        "Producer %s is trying to create produce in a scope that is executed before the producer can be run.",
+                        pm.getClass().getName()
+                ));
+            }
         }
 
         frame.addDataClass(pm.getProducedClass());
         this.registeredProducers.put(pm.getClass(), pm);
     }
 
+    /**
+     * Get a list of metrics that produce results for the given scope, it does this by iterating over all registered
+     * metrics and using {@link nl.rug.jbi.jsm.core.calculator.BaseMetric#getResultScopes()} to check if it produces for
+     * the requested scope.
+     *
+     * @param scope The scope for which to find a list of metrics
+     * @return A list of classes representing all metrics that produce results for the given scope.
+     */
     public List<Class> getMetricsForScope(final MetricScope scope) {
-        final List<Class> ret = Lists.newLinkedList();
-        final Function<BaseMetric, Class> extractor = new Function<BaseMetric, Class>() {
-            @Override
-            public Class apply(final BaseMetric metric) {
-                return metric.getClass();
-            }
-        };
+        checkArgument(scope != null, "Scope cannot be NULL");
 
-        PipelineFrame currentFrame = this.frameMap.get(Preconditions.checkNotNull(scope));
-        while (currentFrame != null) {
-            ret.addAll(Lists.transform(currentFrame.getIsolatedMetrics(), extractor));
-            ret.addAll(Lists.transform(currentFrame.getSharedMetrics(), extractor));
-            currentFrame = currentFrame.getNextFrame();
-        }
+        return FluentIterable.from(this.frameMap.values())
+                .transformAndConcat(new Function<PipelineFrame, Iterable<BaseMetric>>() {
+                    @Override
+                    public Iterable<BaseMetric> apply(PipelineFrame frame) {
+                        final List<Iterable<? extends BaseMetric>> metrics = Lists.newLinkedList();
 
-        return ret;
+                        PipelineFrame currentFrame = frame;
+                        while (currentFrame != null) {
+                            metrics.add(currentFrame.getIsolatedMetrics());
+                            metrics.add(currentFrame.getSharedMetrics());
+                            currentFrame = currentFrame.getNextFrame();
+                        }
+
+                        return Iterables.concat(metrics);
+                    }
+                })
+                .filter(new Predicate<BaseMetric>() {
+                    @Override
+                    public boolean apply(BaseMetric metric) {
+                        return metric.getResultScopes().contains(scope);
+                    }
+                })
+                .transform(new Function<BaseMetric, Class>() {
+                    @Override
+                    public Class apply(final BaseMetric metric) {
+                        return metric.getClass();
+                    }
+                }).toList();
     }
 }

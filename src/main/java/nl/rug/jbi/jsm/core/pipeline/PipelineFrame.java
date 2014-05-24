@@ -1,7 +1,6 @@
 package nl.rug.jbi.jsm.core.pipeline;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import nl.rug.jbi.jsm.core.calculator.*;
@@ -9,6 +8,8 @@ import nl.rug.jbi.jsm.core.calculator.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class PipelineFrame {
     private final MetricScope scope;
@@ -19,18 +20,18 @@ public class PipelineFrame {
     private PipelineFrame nextFrame = null;
 
     public PipelineFrame(final MetricScope scope) {
-        this.scope = Preconditions.checkNotNull(scope);
+        this.scope = checkNotNull(scope);
     }
 
-    public PipelineFrame(final MetricScope scope, final List<Class> initData) {
+    public PipelineFrame(final MetricScope scope, final Set<Class> initData) {
         this(scope);
         this.availableData.addAll(
-                Preconditions.checkNotNull(initData)
+                checkNotNull(initData)
         );
     }
 
     public PipelineFrame(final PipelineFrame previousFrame) {
-        this(Preconditions.checkNotNull(previousFrame).getScope());
+        this(checkNotNull(previousFrame).getScope());
         this.availableData.addAll(previousFrame.availableData);
         previousFrame.setNextFrame(this);
     }

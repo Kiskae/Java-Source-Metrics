@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import nl.rug.jbi.jsm.core.JSMCore;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
@@ -26,6 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public class GUIFrontend implements Frontend {
     private final static Logger logger = LogManager.getLogger(GUIFrontend.class);
@@ -34,6 +36,7 @@ public class GUIFrontend implements Frontend {
     private final MetricDataTable packageData = new MetricDataTable("Package Name");
     private final MetricDataTable collectionData = new MetricDataTable("Collection Name");
     private final SelectableList inputSources = new SelectableList();
+    private final SelectableList librarySources = new SelectableList();
 
     public GUIFrontend(final JSMCore core) {
         this.core = Preconditions.checkNotNull(core);
@@ -111,7 +114,7 @@ public class GUIFrontend implements Frontend {
         panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
         panel.add(createSourceSelectionPanel("Input Sources", this.inputSources));
-        panel.add(createSourceSelectionPanel("Library Sources", new SelectableList()));
+        panel.add(createSourceSelectionPanel("Library Sources", this.librarySources));
         panel.add(createCoreControls());
         panel.add(Box.createGlue());
 
@@ -238,7 +241,7 @@ public class GUIFrontend implements Frontend {
                 packageData.clear();
                 collectionData.clear();
 
-                final FluentIterable<File> files = FluentIterable.from(inputSources.getOptions())
+                final Set<String> targetClasses = FluentIterable.from(inputSources.getOptions())
                         .transform(new Function<String, File>() {
                             @Override
                             public File apply(String s) {
@@ -250,11 +253,8 @@ public class GUIFrontend implements Frontend {
                             public boolean apply(File file) {
                                 return file.exists();
                             }
-                        });
-
-                core.process(
-                        GUIFrontend.this,
-                        files.transformAndConcat(new Function<File, Iterable<String>>() {
+                        })
+                        .transformAndConcat(new Function<File, Iterable<String>>() {
                             @Override
                             public Iterable<String> apply(File file) {
                                 try {
@@ -263,8 +263,26 @@ public class GUIFrontend implements Frontend {
                                     return ImmutableList.of();
                                 }
                             }
-                        }).toSet(),
-                        files.transform(new Function<File, URL>() {
+                        }).toSet();
+
+                final URL[] dataSources = FluentIterable
+                        .from(Sets.union(
+                                Sets.newHashSet(inputSources.getOptions()),
+                                Sets.newHashSet(librarySources.getOptions())
+                        ))
+                        .transform(new Function<String, File>() {
+                            @Override
+                            public File apply(String fileName) {
+                                return new File(fileName);
+                            }
+                        })
+                        .filter(new Predicate<File>() {
+                            @Override
+                            public boolean apply(File file) {
+                                return file.exists();
+                            }
+                        })
+                        .transform(new Function<File, URL>() {
                             @Override
                             public URL apply(File file) {
                                 try {
@@ -278,7 +296,12 @@ public class GUIFrontend implements Frontend {
                             public boolean apply(URL url) {
                                 return url != null;
                             }
-                        }).toArray(URL.class)
+                        }).toArray(URL.class);
+
+                core.process(
+                        GUIFrontend.this,
+                        targetClasses,
+                        dataSources
                 );
                 export.setEnabled(true);
             }
