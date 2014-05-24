@@ -13,7 +13,6 @@ import nl.rug.jbi.jsm.core.calculator.SharedMetric;
 import nl.rug.jbi.jsm.core.event.Subscribe;
 import nl.rug.jbi.jsm.util.DefaultValue;
 import nl.rug.jbi.jsm.util.DefaultValues;
-import nl.rug.jbi.jsm.util.DoubleResult;
 
 import java.util.List;
 import java.util.Map;
@@ -145,7 +144,7 @@ public class CA extends SharedMetric {
         return FluentIterable.from(reverseMap.entrySet()).transform(new Function<Map.Entry<String, List<String>>, MetricResult>() {
             @Override
             public MetricResult apply(Map.Entry<String, List<String>> entry) {
-                return new DoubleResult(entry.getKey(), CA.this, entry.getValue().size());
+                return new MetricResult(entry.getKey(), CA.this, entry.getValue().size());
             }
         }).toList();
     }

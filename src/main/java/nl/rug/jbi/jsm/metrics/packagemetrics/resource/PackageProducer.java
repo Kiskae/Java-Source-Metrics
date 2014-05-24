@@ -22,6 +22,13 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
+/**
+ * Producer object for the packagemetrics package.
+ *
+ * @author David van Leusen
+ * @see nl.rug.jbi.jsm.metrics.packagemetrics.resource.PackageUnit
+ * @since 1.0
+ */
 public class PackageProducer extends ProducerMetric {
     private final static Logger logger = LogManager.getLogger(PackageProducer.class);
 
@@ -105,20 +112,6 @@ public class PackageProducer extends ProducerMetric {
         return packageDataMap;
     }
 
-    /*
-
-    @Subscribe
-    public void onMethod(final MetricState state, final MethodDefinition method) {
-
-    }
-
-    @Subscribe
-    public void onFieldDefinition(final MetricState state, final FieldDefinition field) {
-
-    }
-
-    */
-
     @Subscribe
     public void onClass(final MetricState state, final JavaClassDefinition clazz) {
         final Set<String> extendsSet = getExtendsSet(state);
@@ -134,25 +127,6 @@ public class PackageProducer extends ProducerMetric {
         state.setValue("className", clazz.getClassName());
         state.setValue("packageName", clazz.getPackageName());
     }
-
-    /*
-
-    @Subscribe
-    public void onLocalVariable(final MetricState state, final LocalVariableDefinition lVar) {
-
-    }
-
-    @Subscribe
-    public void onTypeUse(final MetricState state, final TypeUseInstruction instr) {
-
-    }
-
-    @Subscribe
-    public void onExceptionHandler(final MetricState state, final ExceptionHandlerDefinition def) {
-
-    }
-
-    */
 
     @Subscribe
     @UsingProducer(ClassSourceProducer.class)
@@ -201,7 +175,7 @@ public class PackageProducer extends ProducerMetric {
         return FluentIterable.from(packageDataMap.entrySet()).transform(new Function<Map.Entry<String, PackageData>, Produce>() {
             @Override
             public Produce<PackageUnit> apply(Map.Entry<String, PackageData> entry) {
-                return new Produce<PackageUnit>(entry.getKey(), new PackageUnit(packageDataMap, classDataMap, entry.getValue()));
+                return new Produce<PackageUnit>(entry.getKey(), new PackageUnit(packageDataMap, entry.getValue()));
             }
         }).toList();
     }

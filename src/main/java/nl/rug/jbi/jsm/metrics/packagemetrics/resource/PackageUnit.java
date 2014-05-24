@@ -1,48 +1,63 @@
 package nl.rug.jbi.jsm.metrics.packagemetrics.resource;
 
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * PackageUnit presents all the relationship data between the various inspected packages as specified in the paper
+ * "Modularization Metrics: Assessing Package Organization in Legacy Large Object-Oriented Software"
+ *
+ * @author David van Leusen
+ * @see nl.rug.jbi.jsm.metrics.packagemetrics.resource.PackageProducer
+ * @since 1.0
+ */
 public class PackageUnit {
     private final Map<String, PackageData> packagedata;
-    private final Map<String, ClassData> classData;
     private final PackageData data;
 
     PackageUnit(
             final Map<String, PackageData> packagedata,
-            final Map<String, ClassData> classData,
             final PackageData data
     ) {
         this.packagedata = Collections.unmodifiableMap(packagedata);
-        this.classData = Collections.unmodifiableMap(classData);
         this.data = data;
     }
 
+    /**
+     * @return The uniquely identifying name of this package.
+     */
     public String getName() {
         return this.data.getPackageName();
     }
 
+    @Deprecated
     public int getPackageCount() {
         return this.packagedata.size();
     }
 
-    public int getClassCount() {
-        return this.classData.size();
+    /**
+     * Retrieve a specific PackageUnit by identifier, it can return NULL if that package isn't within the scope of this
+     * execution.
+     *
+     * @param packageIdentifier Identifier of the package to retrieve
+     * @return The PackageUnit if it exists, otherwise NULL.
+     */
+    public PackageUnit getPackageByName(final String packageIdentifier) {
+        return new PackageUnit(packagedata, this.packagedata.get(packageIdentifier));
     }
 
-    public Set<String> getAllPackageNames() {
-        return Collections.unmodifiableSet(this.packagedata.keySet());
-    }
-
-    public Set<String> getAllClassNames() {
-        return Collections.unmodifiableSet(this.classData.keySet());
-    }
-
-    public PackageUnit getPackageByName(final String packageName) {
-        return new PackageUnit(packagedata, classData, this.packagedata.get(packageName));
+    /**
+     * @return The collection that contains this package, for ease of representation it picks the collection that the
+     * first class added to the internal data set belongs to.
+     */
+    public String getSourceIdentifier() {
+        return this.data.getPackageSource();
     }
 
     /**
@@ -60,7 +75,7 @@ public class PackageUnit {
      * @return Set of all classes in this package which uses classes in other packages.
      */
     public Set<String> OutInt() {
-        throw new UnsupportedOperationException("Not Yet Implemented");
+        return Collections.unmodifiableSet(this.data.getOutClasses().keySet());
     }
 
     /**
@@ -69,8 +84,7 @@ public class PackageUnit {
      * @return Set of all classes in this package which are used by other packages.
      */
     public Set<String> InInt() {
-        //TODO: requires all classes TARGETTTED
-        throw new UnsupportedOperationException("Not Yet Implemented");
+        return Collections.unmodifiableSet(this.data.getInClasses().keySet());
     }
 
     /**
@@ -102,7 +116,14 @@ public class PackageUnit {
      * @return Set of all packages that use c
      */
     public Set<String> ClientsP(final String className) {
-        throw new UnsupportedOperationException("Not Yet Implemented");
+        final ClassData cData = this.data.getMemberClasses().get(className);
+        return FluentIterable.from(Iterables.concat(cData.getExtendedByMap().values(), cData.getUsedByMap().values()))
+                .transform(new Function<ClassData, String>() {
+                    @Override
+                    public String apply(ClassData classData) {
+                        return classData.getPackageName();
+                    }
+                }).toSet();
     }
 
     /**
@@ -112,7 +133,14 @@ public class PackageUnit {
      * @return Set of all packages that get used by c
      */
     public Set<String> ProvidersP(final String className) {
-        throw new UnsupportedOperationException("Not Yet Implemented");
+        final ClassData cData = this.data.getMemberClasses().get(className);
+        return FluentIterable.from(Iterables.concat(cData.getExtendsMap().values(), cData.getUsesMap().values()))
+                .transform(new Function<ClassData, String>() {
+                    @Override
+                    public String apply(ClassData classData) {
+                        return classData.getPackageName();
+                    }
+                }).toSet();
     }
 
     /**
@@ -121,7 +149,9 @@ public class PackageUnit {
      * @return Set of all classes that use classes in this package.
      */
     public Set<String> ClientsC() {
-        throw new UnsupportedOperationException("Not Yet Implemented");
+        return Collections.unmodifiableSet(
+                Sets.union(this.data.getExtendedByClasses().keySet(), this.data.getUsedByClasses().keySet())
+        );
     }
 
     /**
@@ -130,15 +160,10 @@ public class PackageUnit {
      * @return Set of all classes that get used by classes in this package.
      */
     public Set<String> ProvidersC() {
-        throw new UnsupportedOperationException("Not Yet Implemented");
+        return Collections.unmodifiableSet(
+                Sets.union(this.data.getExtendsClasses().keySet(), this.data.getUsesClasses().keySet())
+        );
     }
-
-    //D:
-    //Ext(c1, c2)
-    //Ext(p1, p2)
-
-    //Uses(c1, c2)
-    //Uses(p1, p2)
 
     /**
      * Uses(package) in P
@@ -174,5 +199,37 @@ public class PackageUnit {
      */
     public Set<String> ExtC() {
         return Collections.unmodifiableSet(this.data.getExtendsClasses().keySet());
+    }
+
+    /**
+     * UsesSum(package) in C
+     *
+     * @return All classes used by members of this package, including internal Uses.
+     */
+    public Set<String> UsesSum() {
+        return FluentIterable.from(this.data.getMemberClasses().values())
+                .transformAndConcat(new Function<ClassData, Iterable<String>>() {
+                    @Override
+                    public Iterable<String> apply(ClassData member) {
+                        return member.getUsesMap().keySet();
+                    }
+                })
+                .toSet();
+    }
+
+    /**
+     * ExtSum(package) in C
+     *
+     * @return All classes extended by members of this package, including internal Extends.
+     */
+    public Set<String> ExtSum() {
+        return FluentIterable.from(this.data.getMemberClasses().values())
+                .transformAndConcat(new Function<ClassData, Iterable<String>>() {
+                    @Override
+                    public Iterable<String> apply(ClassData member) {
+                        return member.getExtendsMap().keySet();
+                    }
+                })
+                .toSet();
     }
 }

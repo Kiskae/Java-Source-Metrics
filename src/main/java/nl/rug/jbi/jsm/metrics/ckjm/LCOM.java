@@ -10,7 +10,6 @@ import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.event.Subscribe;
 import nl.rug.jbi.jsm.util.DefaultValue;
-import nl.rug.jbi.jsm.util.DoubleResult;
 
 import java.util.List;
 import java.util.Set;
@@ -61,6 +60,6 @@ public class LCOM extends IsolatedMetric {
                 }
             }
         }
-        return new DoubleResult(identifier, this, lcom > 0 ? lcom : 0);
+        return new MetricResult(identifier, this, lcom > 0 ? lcom : 0);
     }
 }

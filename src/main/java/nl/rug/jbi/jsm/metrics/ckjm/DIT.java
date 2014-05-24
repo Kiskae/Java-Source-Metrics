@@ -6,7 +6,6 @@ import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.event.Subscribe;
-import nl.rug.jbi.jsm.util.DoubleResult;
 
 public class DIT extends IsolatedMetric {
 
@@ -21,7 +20,6 @@ public class DIT extends IsolatedMetric {
 
     @Override
     public MetricResult getResult(String identifier, MetricState state) {
-        final Integer DIT = state.getValue("dit-depth");
-        return new DoubleResult(identifier, this, DIT.doubleValue());
+        return new MetricResult(identifier, this, state.getValue("dit-depth"));
     }
 }

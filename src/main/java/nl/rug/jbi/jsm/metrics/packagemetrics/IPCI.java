@@ -1,15 +1,27 @@
 package nl.rug.jbi.jsm.metrics.packagemetrics;
 
-import nl.rug.jbi.jsm.core.calculator.IsolatedMetric;
+import com.google.common.collect.Lists;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
+import nl.rug.jbi.jsm.core.calculator.SharedMetric;
 import nl.rug.jbi.jsm.core.event.Subscribe;
 import nl.rug.jbi.jsm.core.event.UsingProducer;
 import nl.rug.jbi.jsm.metrics.packagemetrics.resource.PackageProducer;
 import nl.rug.jbi.jsm.metrics.packagemetrics.resource.PackageUnit;
 
-public class IPCI extends IsolatedMetric {
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Metric calculator for the Index of Package Changing Intent (IPCI)
+ *
+ * @author David van Leusen
+ * @since 1.0
+ */
+public class IPCI extends SharedMetric {
+
     public IPCI() {
         super(MetricScope.PACKAGE);
     }
@@ -17,24 +29,37 @@ public class IPCI extends IsolatedMetric {
     @Subscribe
     @UsingProducer(PackageProducer.class)
     public void onPackage(final MetricState state, final PackageUnit pack) {
-        final double ClientsP = pack.ClientsP().size();
-        final int packageCount = pack.getPackageCount() - 1;
-        if (packageCount != 0) {
-            state.setValue("IPCI-p", 1 - (ClientsP / packageCount));
-        } else {
-            state.setValue("IPCI-p", 1);
-        }
+        state.setValue("IPCI-ClientsP", pack.ClientsP().size());
     }
 
     @Override
-    public MetricResult getResult(final String identifier, MetricState state) {
-        final double result = state.getValue("IPCI-p");
+    public List<MetricResult> getResults(Map<String, MetricState> states) {
+        final List<MetricResult> ret = Lists.newLinkedList();
 
-        return new MetricResult(identifier, this) {
-            @Override
-            public String getValue() {
-                return String.format("%.2f", result);
-            }
-        };
+        double accumulator = 0.0;
+
+        for (final MetricState state : states.values()) {
+            final double ClientsP = state.<Integer>getValue("IPCI-ClientsP").doubleValue();
+
+            final double result = 1 - (ClientsP / (states.size() - 1));
+            accumulator += result;
+
+            ret.add(new MetricResult(state.getIdentifier(), this, result));
+        }
+
+        //TODO: fix for different collections
+        ret.add(new MetricResult(
+                "Cptn. Placeholder",
+                IPCI.class,
+                MetricScope.COLLECTION,
+                accumulator / states.size()
+        ));
+
+        return ret;
+    }
+
+    @Override
+    public EnumSet<MetricScope> getResultScopes() {
+        return EnumSet.of(MetricScope.PACKAGE, MetricScope.COLLECTION);
     }
 }

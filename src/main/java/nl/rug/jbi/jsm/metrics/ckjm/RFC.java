@@ -10,7 +10,6 @@ import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.event.Subscribe;
 import nl.rug.jbi.jsm.util.DefaultValue;
-import nl.rug.jbi.jsm.util.DoubleResult;
 
 import java.util.Set;
 
@@ -56,6 +55,6 @@ public class RFC extends IsolatedMetric {
     @Override
     public MetricResult getResult(String identifier, MetricState state) {
         //ResponseSet size is all the different methods used by this class.
-        return new DoubleResult(identifier, this, state.getValue("responseSet", EMPTY_HASHSET_DEFAULT).size());
+        return new MetricResult(identifier, this, state.getValue("responseSet", EMPTY_HASHSET_DEFAULT).size());
     }
 }

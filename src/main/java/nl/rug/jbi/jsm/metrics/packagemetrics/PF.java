@@ -2,21 +2,29 @@ package nl.rug.jbi.jsm.metrics.packagemetrics;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.AtomicDouble;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.calculator.SharedMetric;
 import nl.rug.jbi.jsm.core.event.Subscribe;
 import nl.rug.jbi.jsm.core.event.UsingProducer;
-import nl.rug.jbi.jsm.core.execution.InvalidResult;
 import nl.rug.jbi.jsm.metrics.packagemetrics.resource.PackageProducer;
 import nl.rug.jbi.jsm.metrics.packagemetrics.resource.PackageUnit;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Metric calculator for the Index of Package Goal Focus (PF)
+ *
+ * @author David van Leusen
+ * @since 1.0
+ */
 public class PF extends SharedMetric {
 
     public PF() {
@@ -50,11 +58,36 @@ public class PF extends SharedMetric {
 
     @Override
     public List<MetricResult> getResults(Map<String, MetricState> states) {
-        return FluentIterable.from(states.keySet()).transform(new Function<String, MetricResult>() {
-            @Override
-            public MetricResult apply(String s) {
-                return new InvalidResult(s, PF.this, "NYI, InInt");
-            }
-        }).toList();
+        final List<MetricResult> results = Lists.newLinkedList();
+
+        final AtomicDouble acc = new AtomicDouble(0);
+
+        FluentIterable.from(states.entrySet())
+                .transform(new Function<Map.Entry<String, MetricState>, MetricResult>() {
+                    @Override
+                    public MetricResult apply(Map.Entry<String, MetricState> entry) {
+                        final double pfResult = entry.getValue().getValue("PF-p");
+
+                        acc.addAndGet(pfResult);
+
+                        return new MetricResult(entry.getKey(), PF.this, pfResult);
+                    }
+                })
+                .copyInto(results);
+
+        //TODO: fix for different collections
+        results.add(new MetricResult(
+                "Cptn. Placeholder",
+                PF.class,
+                MetricScope.COLLECTION,
+                acc.doubleValue() / states.size()
+        ));
+
+        return results;
+    }
+
+    @Override
+    public EnumSet<MetricScope> getResultScopes() {
+        return EnumSet.of(MetricScope.PACKAGE, MetricScope.COLLECTION);
     }
 }

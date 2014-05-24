@@ -24,6 +24,9 @@ class PackageData {
     private final Map<String, ClassData> extendedByClasses = Maps.newHashMap();
     private final Map<String, PackageData> extendedByPackages = Maps.newHashMap();
 
+    private final Map<String, ClassData> inClasses = Maps.newHashMap();
+    private final Map<String, ClassData> outClasses = Maps.newHashMap();
+
     public PackageData(final String packageName, final String packageSource) {
         this.packageName = packageName;
         this.packageSource = packageSource;
@@ -80,6 +83,14 @@ class PackageData {
         return this.extendedByPackages;
     }
 
+    public Map<String, ClassData> getOutClasses() {
+        return this.outClasses;
+    }
+
+    public Map<String, ClassData> getInClasses() {
+        return this.inClasses;
+    }
+
     public boolean isInThisPackage(final ClassData classData) {
         return this.packageName.equals(classData.getPackageName());
     }
@@ -92,7 +103,6 @@ class PackageData {
         PackageData that = (PackageData) o;
 
         return packageName.equals(that.packageName);
-
     }
 
     @Override
@@ -140,7 +150,13 @@ class PackageData {
                     packageDataMap
             );
 
-            //TODO: collect sets of classes which get used/extended (check size of sets, add if > 0)
+            if (member.getUsedByMap().size() + member.getExtendedByMap().size() > 0) {
+                this.inClasses.put(member.getClassName(), member);
+            }
+
+            if (member.getUsesMap().size() + member.getExtendsMap().size() > 0) {
+                this.outClasses.put(member.getClassName(), member);
+            }
         }
     }
 

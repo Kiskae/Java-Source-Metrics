@@ -7,7 +7,6 @@ import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.event.Subscribe;
 import nl.rug.jbi.jsm.util.DefaultValues;
-import nl.rug.jbi.jsm.util.DoubleResult;
 
 public class WMC extends IsolatedMetric {
 
@@ -23,7 +22,7 @@ public class WMC extends IsolatedMetric {
 
     @Override
     public MetricResult getResult(final String identifier, final MetricState state) {
-        return new DoubleResult(
+        return new MetricResult(
                 identifier,
                 this,
                 state.getValue("method-num", DefaultValues.ZERO_INT)

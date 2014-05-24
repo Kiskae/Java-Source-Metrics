@@ -8,7 +8,6 @@ import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.calculator.SharedMetric;
 import nl.rug.jbi.jsm.core.event.Subscribe;
-import nl.rug.jbi.jsm.util.DoubleResult;
 
 import java.util.List;
 import java.util.Map;
@@ -42,7 +41,7 @@ public class NOC extends SharedMetric {
         final List<MetricResult> ret = Lists.newLinkedList();
 
         for (final Map.Entry<String, Integer> entry : nocMap.entrySet()) {
-            ret.add(new DoubleResult(entry.getKey(), NOC.class, MetricScope.CLASS, entry.getValue().doubleValue()));
+            ret.add(new MetricResult(entry.getKey(), NOC.class, MetricScope.CLASS, entry.getValue()));
         }
 
         return ret;

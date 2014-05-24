@@ -9,7 +9,6 @@ import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.event.Subscribe;
 import nl.rug.jbi.jsm.util.DefaultValue;
 import nl.rug.jbi.jsm.util.DefaultValues;
-import nl.rug.jbi.jsm.util.DoubleResult;
 
 import java.util.Set;
 
@@ -119,6 +118,6 @@ public class CBO extends IsolatedMetric {
 
     @Override
     public MetricResult getResult(String identifier, MetricState state) {
-        return new DoubleResult(identifier, this, state.getValueOrCreate("coupledClasses", EMPTY_SET).size());
+        return new MetricResult(identifier, this, state.getValueOrCreate("coupledClasses", EMPTY_SET).size());
     }
 }
