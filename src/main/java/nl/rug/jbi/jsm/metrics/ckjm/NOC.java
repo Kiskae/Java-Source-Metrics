@@ -24,7 +24,8 @@ public class NOC extends SharedMetric {
     }
 
     @Override
-    public List<MetricResult> getResults(Map<String, MetricState> states) {
+    public List<MetricResult> getResults(Map<String, MetricState> states, int invalidMembers) {
+        //TODO: check invalidMembers, output warning if != 0
         final Map<String, Integer> nocMap = Maps.newHashMap();
 
         for (final String className : states.keySet()) {

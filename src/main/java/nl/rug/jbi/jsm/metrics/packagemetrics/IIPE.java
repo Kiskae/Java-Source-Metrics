@@ -43,7 +43,9 @@ public class IIPE extends SharedMetric {
     }
 
     @Override
-    public List<MetricResult> getResults(Map<String, MetricState> states) {
+    public List<MetricResult> getResults(Map<String, MetricState> states, int invalidMembers) {
+        //TODO: check invalidMembers, output warning if != 0
+
         final double packageExtends = FluentIterable.from(states.values())
                 .transformAndConcat(new Function<MetricState, Iterable<String>>() {
                     @Override

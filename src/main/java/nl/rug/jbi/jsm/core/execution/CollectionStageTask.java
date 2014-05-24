@@ -1,5 +1,7 @@
 package nl.rug.jbi.jsm.core.execution;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Maps;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.calculator.ProducerMetric;
@@ -12,6 +14,13 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
 class CollectionStageTask<M, R> implements Callable<List<R>> {
+    private final static Predicate<MetricState> VALIDITY_FILTER = new Predicate<MetricState>() {
+        @Override
+        public boolean apply(final MetricState state) {
+            return state.isValid();
+        }
+    };
+
     private final Map<String, MetricState> data;
     private final M metric;
     private final BiFunction<M, Map<String, MetricState>, List<R>> converter;
@@ -41,7 +50,8 @@ class CollectionStageTask<M, R> implements Callable<List<R>> {
                 new BiFunction<ProducerMetric, Map<String, MetricState>, List<ProducerMetric.Produce>>() {
                     @Override
                     public List<ProducerMetric.Produce> apply(ProducerMetric calc, Map<String, MetricState> data) {
-                        return calc.getProduce(data);
+                        final Map<String, MetricState> filteredData = Maps.filterValues(data, VALIDITY_FILTER);
+                        return calc.getProduce(filteredData, data.size() - filteredData.size());
                     }
                 },
                 latch
@@ -58,8 +68,9 @@ class CollectionStageTask<M, R> implements Callable<List<R>> {
                 metric,
                 new BiFunction<SharedMetric, Map<String, MetricState>, List<MetricResult>>() {
                     @Override
-                    public List<MetricResult> apply(SharedMetric in1, Map<String, MetricState> in2) {
-                        return in1.getResults(data);
+                    public List<MetricResult> apply(SharedMetric calc, Map<String, MetricState> data) {
+                        final Map<String, MetricState> filteredData = Maps.filterValues(data, VALIDITY_FILTER);
+                        return calc.getResults(filteredData, data.size() - filteredData.size());
                     }
                 },
                 latch

@@ -7,12 +7,22 @@ import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.calculator.ProducerMetric;
 import nl.rug.jbi.jsm.core.event.Subscribe;
+import nl.rug.jbi.jsm.util.DefaultValue;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.google.common.base.Preconditions.checkState;
+
 public class ClassSourceProducer extends ProducerMetric {
+    private final static DefaultValue<String> MISSING_SOURCE = new DefaultValue<String>() {
+        @Override
+        public String getDefault() {
+            return "UNKNOWN";
+        }
+    };
+
     private static AtomicReference<CompositeBCELClassLoader> CLOADER = new AtomicReference<CompositeBCELClassLoader>(null);
 
     public ClassSourceProducer() {
@@ -32,11 +42,13 @@ public class ClassSourceProducer extends ProducerMetric {
     }
 
     @Override
-    public List<Produce> getProduce(Map<String, MetricState> states) {
+    public List<Produce> getProduce(Map<String, MetricState> states, int invalidMembers) {
+        checkState(invalidMembers == 0, "Calculation of this producer should never fail.");
+
         final List<Produce> ret = Lists.newLinkedList();
 
         for (final Map.Entry<String, MetricState> entry : states.entrySet()) {
-            final String source = entry.getValue().getValue("source");
+            final String source = entry.getValue().getValue("source", MISSING_SOURCE);
             ret.add(new Produce<ClassSource>(entry.getKey(), new ClassSource(entry.getKey(), source)));
         }
 

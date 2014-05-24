@@ -67,7 +67,9 @@ public class IPSC extends SharedMetric {
     }
 
     @Override
-    public List<MetricResult> getResults(Map<String, MetricState> states) {
+    public List<MetricResult> getResults(Map<String, MetricState> states, int invalidMembers) {
+        //TODO: check invalidMembers, output warning if != 0
+
         final List<MetricResult> results = Lists.newLinkedList();
 
         final AtomicDouble acc = new AtomicDouble(0);

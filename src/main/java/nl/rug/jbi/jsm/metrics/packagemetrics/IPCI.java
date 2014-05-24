@@ -33,7 +33,9 @@ public class IPCI extends SharedMetric {
     }
 
     @Override
-    public List<MetricResult> getResults(Map<String, MetricState> states) {
+    public List<MetricResult> getResults(Map<String, MetricState> states, int invalidMembers) {
+        //TODO: check invalidMembers, output warning if != 0
+
         final List<MetricResult> ret = Lists.newLinkedList();
 
         double accumulator = 0.0;

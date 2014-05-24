@@ -23,9 +23,10 @@ public abstract class ProducerMetric extends BaseMetric {
 
     /**
      * @param states
+     * @param invalidMembers
      * @return
      */
-    public abstract List<Produce> getProduce(final Map<String, MetricState> states);
+    public abstract List<Produce> getProduce(final Map<String, MetricState> states, int invalidMembers);
 
     /**
      * @return

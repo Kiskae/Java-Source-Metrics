@@ -123,7 +123,8 @@ public class CA extends SharedMetric {
     }
 
     @Override
-    public List<MetricResult> getResults(Map<String, MetricState> states) {
+    public List<MetricResult> getResults(Map<String, MetricState> states, int invalidMembers) {
+        //TODO: check invalidMembers, output warning if != 0
         final Map<String, List<String>> reverseMap = Maps.newHashMap();
         for (final String className : states.keySet()) {
             reverseMap.put(className, Lists.<String>newLinkedList());

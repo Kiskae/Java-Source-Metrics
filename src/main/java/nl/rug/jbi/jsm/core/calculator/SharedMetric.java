@@ -12,5 +12,5 @@ public abstract class SharedMetric extends BaseMetric {
         super(scope);
     }
 
-    public abstract List<MetricResult> getResults(final Map<String, MetricState> states);
+    public abstract List<MetricResult> getResults(final Map<String, MetricState> states, int invalidMembers);
 }

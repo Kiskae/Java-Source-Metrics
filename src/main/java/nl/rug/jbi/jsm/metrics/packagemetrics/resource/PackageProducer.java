@@ -1,8 +1,6 @@
 package nl.rug.jbi.jsm.metrics.packagemetrics.resource;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -151,19 +149,10 @@ public class PackageProducer extends ProducerMetric {
     }
 
     @Override
-    public List<Produce> getProduce(Map<String, MetricState> states) {
+    public List<Produce> getProduce(Map<String, MetricState> states, int invalidMembers) {
+        //TODO: check invalidMembers, output warning if != 0
         //Build objects representing all the classes.
-        //TODO: filter states until that can be moved to ControllerThread
-        final Map<String, ClassData> classDataMap = Collections.unmodifiableMap(
-                buildClassData(
-                        Collections2.filter(states.values(), new Predicate<MetricState>() {
-                            @Override
-                            public boolean apply(MetricState metricState) {
-                                return metricState.isValid();
-                            }
-                        })
-                )
-        );
+        final Map<String, ClassData> classDataMap = Collections.unmodifiableMap(buildClassData(states.values()));
 
         //Release states so they can be GC'd
         states.clear();
