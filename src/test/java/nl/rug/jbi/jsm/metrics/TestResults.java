@@ -10,7 +10,7 @@ import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import java.util.Map;
 
 public class TestResults {
-    public final static String COLLECTION_IDENTIFIER = "Cptn. Placeholder"; //"Application" TODO: fix
+    public final static String COLLECTION_IDENTIFIER = "Bootstrap";
     private final Map<MetricScope, Table<String, Class, Object>> results = Maps.newEnumMap(MetricScope.class);
 
     public TestResults() {

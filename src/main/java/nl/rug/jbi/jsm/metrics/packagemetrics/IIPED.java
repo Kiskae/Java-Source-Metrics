@@ -1,7 +1,5 @@
 package nl.rug.jbi.jsm.metrics.packagemetrics;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
@@ -18,6 +16,10 @@ import org.apache.logging.log4j.Logger;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static nl.rug.jbi.jsm.metrics.packagemetrics.CollectionAccumulator.DEF_ATOMIC_DOUBLE;
+import static nl.rug.jbi.jsm.metrics.packagemetrics.CollectionAccumulator.DEF_ATOMIC_INT;
 
 /**
  * Metric calculator for the Index of Inter-Package Extending Diversion (IIPED)
@@ -58,33 +60,33 @@ public class IIPED extends SharedMetric {
         }
 
         final List<MetricResult> results = Lists.newLinkedList();
+        final CollectionAccumulator collectionData = new CollectionAccumulator();
 
-        final AtomicDouble acc = new AtomicDouble(0);
+        for (final Map.Entry<String, MetricState> entry : states.entrySet()) {
+            final String collectionName = entry.getValue().getValue("Collection");
+            final double result = entry.getValue().getValue("IIPED-p");
 
-        FluentIterable.from(states.entrySet())
-                .transform(new Function<Map.Entry<String, MetricState>, MetricResult>() {
-                    @Override
-                    public MetricResult apply(final Map.Entry<String, MetricState> entry) {
-                        final double result = entry.getValue().getValue("IIPED-p");
+            results.add(new MetricResult(
+                    entry.getKey(),
+                    this,
+                    result
+            ));
 
-                        acc.addAndGet(result);
+            collectionData.getOrSet(collectionName, "PackageCount", DEF_ATOMIC_INT).incrementAndGet();
+            collectionData.getOrSet(collectionName, "result", DEF_ATOMIC_DOUBLE).addAndGet(result);
+        }
 
-                        return new MetricResult(
-                                entry.getKey(),
-                                IIPED.this,
-                                result
-                        );
-                    }
-                })
-                .copyInto(results);
+        for (final Map.Entry<String, Map<String, Object>> entry : collectionData.getEntrySetByCollection()) {
+            final double result = ((AtomicDouble) entry.getValue().get("result")).doubleValue();
+            final int packageCount = ((AtomicInteger) entry.getValue().get("PackageCount")).intValue();
 
-        //TODO: fix for different collections
-        results.add(new MetricResult(
-                "Cptn. Placeholder",
-                IIPED.class,
-                MetricScope.COLLECTION,
-                acc.doubleValue() / states.size()
-        ));
+            results.add(new MetricResult(
+                    entry.getKey(),
+                    IIPED.class,
+                    MetricScope.COLLECTION,
+                    result / packageCount
+            ));
+        }
 
         return results;
     }

@@ -1,8 +1,6 @@
 package nl.rug.jbi.jsm.metrics.packagemetrics;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
@@ -18,6 +16,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static nl.rug.jbi.jsm.metrics.packagemetrics.CollectionAccumulator.DEF_SET_STRING;
 
 /**
  * Metric calculator for the Index of Inter-Package Usage (IIPU)
@@ -54,32 +54,31 @@ public class IIPU extends SharedMetric {
             );
         }
 
-        final double packageUses = FluentIterable.from(states.values())
-                .transformAndConcat(new Function<MetricState, Iterable<String>>() {
-                    @Override
-                    public Iterable<String> apply(MetricState metricState) {
-                        return metricState.<Set<String>>getValue("ExternalUses");
-                    }
-                })
-                .toSet().size();
+        final CollectionAccumulator collectionData = new CollectionAccumulator();
 
-        final int globalUses = FluentIterable.from(states.values())
-                .transformAndConcat(new Function<MetricState, Iterable<String>>() {
-                    @Override
-                    public Iterable<String> apply(MetricState metricState) {
-                        return metricState.<Set<String>>getValue("Uses");
-                    }
-                })
-                .toSet().size();
+        for (final MetricState state : states.values()) {
+            final String collectionName = state.getValue("Collection");
+            final Set<String> UsesSumP = state.getValue("ExternalUses");
+            final Set<String> UsesSumC = state.getValue("Uses");
 
-        //packageExtends = UsesSum(P)
-        //globalExtends = UsesSum(C)
-        //TODO: fix for different collections
-        return ImmutableList.of(new MetricResult(
-                "Cptn. Placeholder",
-                IIPU.class,
-                MetricScope.COLLECTION,
-                1 - (globalUses != 0 ? packageUses / globalUses : 0)
-        ));
+            collectionData.getOrSet(collectionName, "UsesSumP", DEF_SET_STRING).addAll(UsesSumP);
+            collectionData.getOrSet(collectionName, "UsesSumC", DEF_SET_STRING).addAll(UsesSumC);
+        }
+
+        final List<MetricResult> results = Lists.newLinkedList();
+
+        for (final Map.Entry<String, Map<String, Object>> entry : collectionData.getEntrySetByCollection()) {
+            final double UsesSumP = ((Set) entry.getValue().get("UsesSumP")).size();
+            final int UsesSumC = ((Set) entry.getValue().get("UsesSumC")).size();
+
+            results.add(new MetricResult(
+                    entry.getKey(),
+                    IIPU.class,
+                    MetricScope.COLLECTION,
+                    1 - (UsesSumC != 0 ? UsesSumP / UsesSumC : 0)
+            ));
+        }
+
+        return results;
     }
 }

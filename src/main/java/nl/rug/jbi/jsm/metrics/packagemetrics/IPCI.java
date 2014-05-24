@@ -1,6 +1,7 @@
 package nl.rug.jbi.jsm.metrics.packagemetrics;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.AtomicDouble;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
@@ -15,6 +16,10 @@ import org.apache.logging.log4j.Logger;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static nl.rug.jbi.jsm.metrics.packagemetrics.CollectionAccumulator.DEF_ATOMIC_DOUBLE;
+import static nl.rug.jbi.jsm.metrics.packagemetrics.CollectionAccumulator.DEF_ATOMIC_INT;
 
 /**
  * Metric calculator for the Index of Package Changing Intent (IPCI)
@@ -45,28 +50,44 @@ public class IPCI extends SharedMetric {
             );
         }
 
-        final List<MetricResult> ret = Lists.newLinkedList();
+        final List<MetricResult> results = Lists.newLinkedList();
+        final CollectionAccumulator collectionData = new CollectionAccumulator();
 
-        double accumulator = 0.0;
+        for (final Map.Entry<String, MetricState> entry : states.entrySet()) {
+            final String collectionName = entry.getValue().getValue("Collection");
 
-        for (final MetricState state : states.values()) {
-            final double ClientsP = state.<Integer>getValue("IPCI-ClientsP").doubleValue();
-
-            final double result = 1 - (ClientsP / (states.size() - 1));
-            accumulator += result;
-
-            ret.add(new MetricResult(state.getIdentifier(), this, result));
+            //Increment packageCount for the collection it belongs to
+            collectionData.getOrSet(collectionName, "PackageCount", DEF_ATOMIC_INT).incrementAndGet();
         }
 
-        //TODO: fix for different collections
-        ret.add(new MetricResult(
-                "Cptn. Placeholder",
-                IPCI.class,
-                MetricScope.COLLECTION,
-                accumulator / states.size()
-        ));
+        for (final Map.Entry<String, MetricState> entry : states.entrySet()) {
+            final String collectionName = entry.getValue().getValue("Collection");
+            final double ClientsP = ((Number) entry.getValue().getValue("IPCI-ClientsP")).doubleValue();
+            final int packageCount = collectionData.getOrSet(collectionName, "PackageCount", DEF_ATOMIC_INT).intValue();
 
-        return ret;
+            final double result = 1 - (ClientsP / (packageCount - 1));
+            results.add(new MetricResult(
+                    entry.getKey(),
+                    this,
+                    result
+            ));
+
+            collectionData.getOrSet(collectionName, "result", DEF_ATOMIC_DOUBLE).addAndGet(result);
+        }
+
+        for (final Map.Entry<String, Map<String, Object>> entry : collectionData.getEntrySetByCollection()) {
+            final double result = ((AtomicDouble) entry.getValue().get("result")).doubleValue();
+            final int packageCount = ((AtomicInteger) entry.getValue().get("PackageCount")).intValue();
+
+            results.add(new MetricResult(
+                    entry.getKey(),
+                    IPCI.class,
+                    MetricScope.COLLECTION,
+                    result / packageCount
+            ));
+        }
+
+        return results;
     }
 
     @Override

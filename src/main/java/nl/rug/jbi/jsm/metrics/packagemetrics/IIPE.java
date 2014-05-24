@@ -1,8 +1,6 @@
 package nl.rug.jbi.jsm.metrics.packagemetrics;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
@@ -18,6 +16,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static nl.rug.jbi.jsm.metrics.packagemetrics.CollectionAccumulator.DEF_SET_STRING;
 
 /**
  * Metric calculator for the Index of Inter-Package Extending (IIPE)
@@ -54,32 +54,31 @@ public class IIPE extends SharedMetric {
             );
         }
 
-        final double packageExtends = FluentIterable.from(states.values())
-                .transformAndConcat(new Function<MetricState, Iterable<String>>() {
-                    @Override
-                    public Iterable<String> apply(MetricState metricState) {
-                        return metricState.<Set<String>>getValue("ExternalExtends");
-                    }
-                })
-                .toSet().size();
+        final CollectionAccumulator collectionData = new CollectionAccumulator();
 
-        final int globalExtends = FluentIterable.from(states.values())
-                .transformAndConcat(new Function<MetricState, Iterable<String>>() {
-                    @Override
-                    public Iterable<String> apply(MetricState metricState) {
-                        return metricState.<Set<String>>getValue("Extends");
-                    }
-                })
-                .toSet().size();
+        for (final MetricState state : states.values()) {
+            final String collectionName = state.getValue("Collection");
+            final Set<String> ExtSumP = state.getValue("ExternalExtends");
+            final Set<String> ExtSumC = state.getValue("Extends");
 
-        //packageExtends = ExtSum(P)
-        //globalExtends = ExtSum(C)
-        //TODO: fix for different collections
-        return ImmutableList.of(new MetricResult(
-                "Cptn. Placeholder",
-                IIPE.class,
-                MetricScope.COLLECTION,
-                1 - (globalExtends != 0 ? packageExtends / globalExtends : 0)
-        ));
+            collectionData.getOrSet(collectionName, "ExtSumP", DEF_SET_STRING).addAll(ExtSumP);
+            collectionData.getOrSet(collectionName, "ExtSumC", DEF_SET_STRING).addAll(ExtSumC);
+        }
+
+        final List<MetricResult> results = Lists.newLinkedList();
+
+        for (final Map.Entry<String, Map<String, Object>> entry : collectionData.getEntrySetByCollection()) {
+            final double ExtSumP = ((Set) entry.getValue().get("ExtSumP")).size();
+            final int ExtSumC = ((Set) entry.getValue().get("ExtSumC")).size();
+
+            results.add(new MetricResult(
+                    entry.getKey(),
+                    IIPE.class,
+                    MetricScope.COLLECTION,
+                    1 - (ExtSumC != 0 ? ExtSumP / ExtSumC : 0)
+            ));
+        }
+
+        return results;
     }
 }
