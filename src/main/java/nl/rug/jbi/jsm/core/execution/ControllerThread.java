@@ -2,10 +2,8 @@ package nl.rug.jbi.jsm.core.execution;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Queues;
+import com.google.common.base.Supplier;
+import com.google.common.collect.*;
 import nl.rug.jbi.jsm.core.calculator.*;
 import nl.rug.jbi.jsm.core.event.EventBus;
 import nl.rug.jbi.jsm.core.pipeline.HandlerMap;
@@ -47,7 +45,15 @@ class ControllerThread extends Thread {
             }
     );
     private final Map<String, EventBus> stateContainers = Maps.newHashMap();
-    private final Map<String, List> dataForFutureScope = Maps.newHashMap();
+    private final Table<MetricScope, String, List<Object>> dataForFutureScope = Tables.newCustomTable(
+            Maps.<MetricScope, Map<String, List<Object>>>newEnumMap(MetricScope.class),
+            new Supplier<Map<String, List<Object>>>() {
+                @Override
+                public Map<String, List<Object>> get() {
+                    return Maps.newHashMap();
+                }
+            }
+    );
     private final Predicate<List<MetricResult>> resultsCallback = new Predicate<List<MetricResult>>() {
         @Override
         public boolean apply(List<MetricResult> metricResults) {
@@ -81,28 +87,6 @@ class ControllerThread extends Thread {
         return new CountDownLatch(childTaskNum);
     }
 
-    private static <A, B, C> Map<B, Map<A, C>> transposeMap(
-            final Map<A, Map<B, C>> inputMap
-    ) {
-        final Map<B, Map<A, C>> ret = Maps.newHashMap();
-
-        for (final Map.Entry<A, Map<B, C>> entry : inputMap.entrySet()) {
-            final A ident = entry.getKey();
-            for (final Map.Entry<B, C> entry2 : entry.getValue().entrySet()) {
-                final Map<A, C> iMap;
-                if (ret.containsKey(entry2.getKey())) {
-                    iMap = ret.get(entry2.getKey());
-                } else {
-                    iMap = Maps.newHashMap();
-                    ret.put(entry2.getKey(), iMap);
-                }
-                iMap.put(ident, entry2.getValue());
-            }
-        }
-
-        return ret;
-    }
-
     @Override
     public void run() {
         ClassSourceProducer.setCBCL(this.executionPlan.getDataSource());
@@ -128,12 +112,14 @@ class ControllerThread extends Thread {
             }
         }
 
-        //TODO: at the moment the PACKAGE step cannot be skipped, but it is feasible that this could happen.
-        //CLASS->COLLECTION producers
-        while (currentFrame != null && !taskQueue.isEmpty()) {
+        while (currentFrame != null) {
             logger.debug("Processing frame {}", currentFrame);
 
-            logger.debug("Elements in Task Queue: {}, Data waiting for next frame: {}", taskQueue.size(), this.dataForFutureScope.size());
+            logger.debug(
+                    "Elements in Task Queue: {}, Data waiting for next frame: {}",
+                    taskQueue.size(),
+                    this.dataForFutureScope.size()
+            );
 
             //Calculation Stage
             try {
@@ -163,10 +149,8 @@ class ControllerThread extends Thread {
 
             logger.debug("Finished collection phase, produce created: {}", produceList.size());
 
-            //Partition produce for next frame or next scope, depending on the produce
-            final Map<String, List> nextFrameExecutionData = Maps.newHashMap();
-
-            //TODO: split scope?
+            //Partition produce for next frame or next scopes, depending on the produce
+            final Map<String, List<Object>> nextFrameExecutionData = Maps.newHashMap();
             prepareProduceForNextFrame(nextFrameExecutionData, produceList, currentScope);
 
             logger.debug("Produce partitioned.");
@@ -183,14 +167,14 @@ class ControllerThread extends Thread {
                 );
 
                 //Prepare the containers and task set for the next scope.
-                //TODO: only use the correct scope.
+                final Map<String, List<Object>> deferredData = this.dataForFutureScope.row(currentScope);
                 prepareEventBuses(
-                        this.dataForFutureScope.keySet(),
+                        deferredData.keySet(),
                         executionPlan.getHandlerMap(currentScope),
                         this.stateContainers
                 );
-                nextFrameExecutionData.putAll(this.dataForFutureScope);
-                this.dataForFutureScope.clear();
+                nextFrameExecutionData.putAll(deferredData);
+                deferredData.clear();
 
                 logger.debug("State containers and tasks added for next scope.");
             }
@@ -207,9 +191,9 @@ class ControllerThread extends Thread {
 
     private void prepareCalculatorsForNextFrame(
             final Queue<Pair<EventBus, Runnable>> taskQueue,
-            final Map<String, List> executionData
+            final Map<String, List<Object>> executionData
     ) {
-        for (final Map.Entry<String, List> entry : executionData.entrySet()) {
+        for (final Map.Entry<String, List<Object>> entry : executionData.entrySet()) {
             final EventBus eBus = this.stateContainers.get(entry.getKey());
             //TODO: if eBus == null, try to fix it....
             taskQueue.add(new Pair<EventBus, Runnable>(eBus, new DataListDispatcher(eBus, entry.getValue())));
@@ -217,19 +201,19 @@ class ControllerThread extends Thread {
     }
 
     private void prepareProduceForNextFrame(
-            final Map<String, List> executionMap,
+            final Map<String, List<Object>> executionMap,
             final List<ProducerMetric.Produce> produceList,
             final MetricScope currentScope
     ) {
         for (final ProducerMetric.Produce produce : produceList) {
-            final Map<String, List> targetMap;
+            final Map<String, List<Object>> targetMap;
             if (produce.getScope() == currentScope) {
                 targetMap = executionMap;
             } else {
-                targetMap = this.dataForFutureScope;
+                targetMap = this.dataForFutureScope.row(produce.getScope());
             }
 
-            final List todoList;
+            final List<Object> todoList;
             if (targetMap.containsKey(produce.getTarget())) {
                 todoList = targetMap.get(produce.getTarget());
             } else {
@@ -308,7 +292,7 @@ class ControllerThread extends Thread {
             final PipelineFrame currentFrame,
             final Map<Class, Map<String, MetricState>> dataMap
     ) {
-        final Map<String, Map<Class, MetricState>> dataTmp = Maps.newHashMap();
+        final Table<String, Class, MetricState> dataTmp = HashBasedTable.create();
 
         final List<Class> classFilter = Lists.newLinkedList();
         classFilter.addAll(Lists.transform(currentFrame.getSharedMetrics(), OBJECT_GETCLASS));
@@ -318,11 +302,11 @@ class ControllerThread extends Thread {
 
         //Extract data for Shared + Produced metrics
         for (final Map.Entry<String, EventBus> entry : this.stateContainers.entrySet()) {
-            dataTmp.put(entry.getKey(), entry.getValue().extractData(classFilter));
+            dataTmp.row(entry.getKey()).putAll(entry.getValue().extractData(classFilter));
         }
 
         //Output the data
-        dataMap.putAll(transposeMap(dataTmp));
+        dataMap.putAll(Tables.transpose(dataTmp).rowMap());
     }
 
     private void performCalculationStage(
