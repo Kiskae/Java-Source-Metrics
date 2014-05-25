@@ -150,7 +150,14 @@ public class PackageProducer extends ProducerMetric {
 
     @Override
     public List<Produce> getProduce(Map<String, MetricState> states, int invalidMembers) {
-        //TODO: check invalidMembers, output warning if != 0
+        if (invalidMembers != 0) {
+            logger.warn(
+                    "PackageProducer: Unsuccessful calculation for {} classes(s), " +
+                            "'PackageUnit'-based metrics might be inaccurate.",
+                    invalidMembers
+            );
+        }
+
         //Build objects representing all the classes.
         final Map<String, ClassData> classDataMap = Collections.unmodifiableMap(buildClassData(states.values()));
 

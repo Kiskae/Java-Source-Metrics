@@ -140,7 +140,10 @@ class ControllerThread extends Thread {
             //Collection stage
             final List<ProducerMetric.Produce> produceList = Lists.newLinkedList();
             try {
-                performCollectionStage(dataMap, currentFrame, produceList);
+                //If there is no data, skip this step.
+                if (!dataMap.isEmpty()) {
+                    performCollectionStage(dataMap, currentFrame, produceList);
+                }
             } catch (InterruptedException e) {
                 //TODO: handle interruption correctly.
                 logger.debug(e);

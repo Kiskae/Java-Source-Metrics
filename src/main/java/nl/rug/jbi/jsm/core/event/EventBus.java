@@ -8,6 +8,7 @@ import nl.rug.jbi.jsm.core.pipeline.HandlerExecutor;
 import nl.rug.jbi.jsm.core.pipeline.HandlerMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.message.ParameterizedMessage;
 
 import java.util.Collections;
 import java.util.List;
@@ -48,13 +49,19 @@ public class EventBus {
             final MetricState state = this.getState(he.getMetricClass());
 
             if (!state.isValid()) {
-                logger.debug("Ignoring {} because of invalidation", state);
+                logger.trace("Ignoring {} because of invalidation", state);
                 continue;
             }
 
             try {
                 he.emitEvent(something, state);
             } catch (final MetricExecutionException e) {
+                logger.warn(new ParameterizedMessage(
+                        "Exception occurred whilst calculating '{}' for '{}', invalidating results.",
+                        he.getMetricClass().getName(),
+                        this.identifier
+                ), e);
+
                 state.invalidate(e);
             }
         }

@@ -36,7 +36,7 @@ public class JavaClassDefinition {
                 }
             });
         } catch (ClassNotFoundException e) {
-            throw new MissingDataException("JavaClass#getSuperClasses()", e);
+            throw new MissingDataException("Missing Super-Class in call to JavaClass.getSuperClasses()", e);
         }
     }
 
