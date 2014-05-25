@@ -154,9 +154,6 @@ public class PackageProducer extends ProducerMetric {
         //Build objects representing all the classes.
         final Map<String, ClassData> classDataMap = Collections.unmodifiableMap(buildClassData(states.values()));
 
-        //Release states so they can be GC'd
-        states.clear();
-
         //Build objects representing the packages and the classes they contain.
         final Map<String, PackageData> packageDataMap =
                 Collections.unmodifiableMap(buildPackageDataBase(classDataMap.values()));
