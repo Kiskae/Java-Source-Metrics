@@ -5,7 +5,9 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import nl.rug.jbi.jsm.core.JSMCore;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
+import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.util.FileUtils;
+import nl.rug.jbi.jsm.util.ResultsExporter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,8 +16,13 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+/**
+ * @author David van Leusen
+ * @since 1.0
+ */
 public class ScriptFrontend implements Frontend {
     private final static Logger logger = LogManager.getLogger(ScriptFrontend.class);
 
@@ -23,22 +30,40 @@ public class ScriptFrontend implements Frontend {
 
     private final Set<String> input;
     private final Set<String> libraries;
-    private final Set<String> output;
 
     private final Table<String, Class, Object> resultsClass = HashBasedTable.create();
     private final Table<String, Class, Object> resultsPackage = HashBasedTable.create();
     private final Table<String, Class, Object> resultsCollection = HashBasedTable.create();
 
+    private final ResultsExporter exporter;
+
+    /**
+     * @param core
+     * @param input
+     * @param libraries
+     * @param output
+     * @throws IOException
+     */
     public ScriptFrontend(
             final JSMCore core,
             final Set<String> input,
             final Set<String> libraries,
             final Set<String> output
-    ) {
+    ) throws IOException {
         this.core = core;
         this.input = input;
         this.libraries = libraries;
-        this.output = output;
+        this.exporter = getOutputWriter(output);
+    }
+
+    private static void exportData(
+            final ResultsExporter exporter,
+            final Table<String, Class, Object> results,
+            final MetricScope scope
+    ) throws IOException {
+        for (final Map.Entry<Class, Map<String, Object>> entry : results.columnMap().entrySet()) {
+            exporter.exportData(entry.getKey(), scope, entry.getValue());
+        }
     }
 
     @Override
@@ -123,9 +148,31 @@ public class ScriptFrontend implements Frontend {
 
     @Override
     public void signalDone() {
-        logger.info("Processing finished:");
-        logger.info("Class results: {}", this.resultsClass);
-        logger.info("Package results: {}", this.resultsPackage);
-        logger.info("Collection results: {}", this.resultsCollection);
+        logger.info("Processing finished, exporting results");
+        try {
+            exportData(this.exporter, this.resultsClass, MetricScope.CLASS);
+            exportData(this.exporter, this.resultsPackage, MetricScope.PACKAGE);
+            exportData(this.exporter, this.resultsCollection, MetricScope.COLLECTION);
+
+            this.exporter.close();
+        } catch (IOException e) {
+            logger.error("Error exporting data", e);
+        }
+
+        logger.info("Results exported.");
+    }
+
+    private ResultsExporter getOutputWriter(final Set<String> output) throws IOException {
+        final List<Exception> exceptions = Lists.newLinkedList();
+        for (final String out : output) {
+            try {
+                return new ResultsExporter(out);
+            } catch (Exception ex) {
+                //Try other outputs
+                exceptions.add(ex);
+            }
+        }
+
+        throw new IOException("Failed to find a suitable output: " + exceptions);
     }
 }

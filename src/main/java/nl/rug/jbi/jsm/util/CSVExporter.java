@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+@Deprecated
 public class CSVExporter {
     private final CSVWriter writer;
 

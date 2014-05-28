@@ -12,13 +12,14 @@ import nl.rug.jbi.jsm.metrics.packagemetrics.PackageMetrics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Set;
 
 public class Bootstrap {
     private static final Logger logger = LogManager.getLogger(Bootstrap.class);
 
-    public static void main(final String[] args) throws MetricPreparationException {
+    public static void main(final String[] args) throws MetricPreparationException, IOException {
         logger.trace("Beginning startup");
 
         final JSMCore core = new JSMCore();
