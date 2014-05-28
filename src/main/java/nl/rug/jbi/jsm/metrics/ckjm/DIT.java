@@ -11,7 +11,7 @@ import nl.rug.jbi.jsm.core.event.Subscribe;
  * Metric calculator for the Depth of Inheritance Tree (DIT)
  *
  * @author David van Leusen
- * @since 1.0
+ * @since 2014-05-28
  */
 public class DIT extends IsolatedMetric {
 

@@ -21,7 +21,7 @@ import java.util.Set;
 
 /**
  * @author David van Leusen
- * @since 1.0
+ * @since 2014-05-28
  */
 public class ScriptFrontend implements Frontend {
     private final static Logger logger = LogManager.getLogger(ScriptFrontend.class);

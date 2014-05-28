@@ -7,7 +7,7 @@ import org.apache.bcel.generic.ObjectType;
  * Represents a catch-block of a try-catch structure, allowing inspection of the caught exception.
  *
  * @author David van Leusen
- * @since 1.0
+ * @since 2014-05-28
  */
 public class ExceptionHandlerDefinition {
     private final CodeExceptionGen ceg;

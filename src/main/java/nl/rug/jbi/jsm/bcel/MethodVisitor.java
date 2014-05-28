@@ -13,7 +13,7 @@ import java.util.Arrays;
  * {@link nl.rug.jbi.jsm.bcel.ClassVisitor#createMethodVisitor(org.apache.bcel.generic.MethodGen)}.
  *
  * @author David van Leusen
- * @since 1.0
+ * @since 2014-05-28
  */
 public class MethodVisitor extends EmptyVisitor {
     private final static Logger logger = LogManager.getLogger(MethodVisitor.class);

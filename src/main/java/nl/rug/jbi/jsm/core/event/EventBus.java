@@ -16,7 +16,7 @@ import java.util.Map;
 
 /**
  * @author David van Leusen
- * @since 1.0
+ * @since 2014-05-28
  */
 public class EventBus {
     private final static Logger logger = LogManager.getLogger(EventBus.class);
@@ -56,6 +56,7 @@ public class EventBus {
             try {
                 he.emitEvent(something, state);
             } catch (final MetricExecutionException e) {
+                //TODO: decide on exception spam
                 logger.warn(new ParameterizedMessage(
                         "Exception occurred whilst calculating '{}' for '{}', invalidating results.",
                         he.getMetricClass().getName(),

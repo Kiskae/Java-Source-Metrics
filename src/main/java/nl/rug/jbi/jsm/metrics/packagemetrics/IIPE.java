@@ -23,7 +23,7 @@ import static nl.rug.jbi.jsm.metrics.packagemetrics.CollectionAccumulator.DEF_SE
  * Metric calculator for the Index of Inter-Package Extending (IIPE)
  *
  * @author David van Leusen
- * @since 1.0
+ * @since 2014-05-28
  */
 public class IIPE extends SharedMetric {
     private final static Logger logger = LogManager.getLogger(IIPE.class);

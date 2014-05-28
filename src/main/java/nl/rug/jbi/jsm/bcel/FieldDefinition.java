@@ -6,7 +6,7 @@ import org.apache.bcel.classfile.Field;
  * Represents a field member of the class inspected in the current scope.
  *
  * @author David van Leusen
- * @since 1.0
+ * @since 2014-05-28
  */
 public class FieldDefinition {
     private final Field field;

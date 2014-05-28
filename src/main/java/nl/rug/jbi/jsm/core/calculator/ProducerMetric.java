@@ -70,7 +70,6 @@ public abstract class ProducerMetric extends BaseMetric {
         }
 
         /**
-         *
          * @return
          */
         public String getTarget() {
@@ -78,7 +77,6 @@ public abstract class ProducerMetric extends BaseMetric {
         }
 
         /**
-         *
          * @return
          */
         public P getProduce() {

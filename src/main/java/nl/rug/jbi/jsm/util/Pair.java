@@ -6,7 +6,7 @@ import com.google.common.base.Objects;
  * @param <F>
  * @param <S>
  * @author David van Leusen
- * @since 1.0
+ * @since 2014-05-28
  */
 public class Pair<F, S> {
     public final F first;

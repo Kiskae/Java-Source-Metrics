@@ -12,7 +12,7 @@ import java.util.Set;
  *
  * @author David van Leusen
  * @see nl.rug.jbi.jsm.util.DefaultValue
- * @since 1.0
+ * @since 2014-05-28
  */
 public class DefaultValues {
     /**

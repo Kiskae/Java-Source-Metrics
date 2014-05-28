@@ -15,7 +15,7 @@ import static nl.rug.jbi.jsm.bcel.BCELTools.type2className;
  * Represents the invocation of a method.
  *
  * @author David van Leusen
- * @since 1.0
+ * @since 2014-05-28
  */
 public class InvokeMethodInstr {
     private final InvokeInstruction instruction;

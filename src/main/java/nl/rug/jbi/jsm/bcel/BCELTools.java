@@ -8,7 +8,7 @@ import org.apache.bcel.generic.Type;
  * Utility class exposing methods that are useful for processing the BCEL data objects into data usable by metrics.
  *
  * @author David van Leusen
- * @since 1.0
+ * @since 2014-05-28
  */
 public class BCELTools {
 

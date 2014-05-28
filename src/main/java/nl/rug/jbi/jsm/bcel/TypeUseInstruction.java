@@ -7,7 +7,7 @@ import org.apache.bcel.generic.Type;
  * emits this data on INSTANCEOF, CAST and RETURN.
  *
  * @author David van Leusen
- * @since 1.0
+ * @since 2014-05-28
  */
 public class TypeUseInstruction {
     private final String typeName;

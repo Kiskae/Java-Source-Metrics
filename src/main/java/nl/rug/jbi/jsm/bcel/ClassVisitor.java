@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Logger;
  * @see nl.rug.jbi.jsm.core.execution.ClassVisitorFactory
  * @see nl.rug.jbi.jsm.core.execution.PipelineExecutor#setClassVisitorFactory(nl.rug.jbi.jsm.core.execution.ClassVisitorFactory)
  * @see nl.rug.jbi.jsm.core.pipeline.Pipeline#registerNewBaseData(Class)
- * @since 1.0
+ * @since 2014-05-28
  */
 public class ClassVisitor extends EmptyVisitor {
     private final static Logger logger = LogManager.getLogger(ClassVisitor.class);

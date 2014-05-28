@@ -25,7 +25,7 @@ import java.util.*;
  *
  * @author David van Leusen
  * @see nl.rug.jbi.jsm.metrics.packagemetrics.resource.PackageUnit
- * @since 1.0
+ * @since 2014-05-28
  */
 public class PackageProducer extends ProducerMetric {
     private final static Logger logger = LogManager.getLogger(PackageProducer.class);

@@ -6,7 +6,7 @@ package nl.rug.jbi.jsm.util;
  * @param <C> Output type
  * @author David van Leusen
  * @see com.google.common.base.Function
- * @since 1.0
+ * @since 2014-05-28
  */
 public interface BiFunction<A, B, C> {
 

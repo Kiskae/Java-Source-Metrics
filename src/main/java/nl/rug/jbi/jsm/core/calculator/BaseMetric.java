@@ -22,7 +22,6 @@ public class BaseMetric {
     }
 
     /**
-     *
      * @return
      */
     public EnumSet<MetricScope> getResultScopes() {

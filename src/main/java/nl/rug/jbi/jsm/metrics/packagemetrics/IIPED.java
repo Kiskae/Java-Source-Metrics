@@ -25,7 +25,7 @@ import static nl.rug.jbi.jsm.metrics.packagemetrics.CollectionAccumulator.DEF_AT
  * Metric calculator for the Index of Inter-Package Extending Diversion (IIPED)
  *
  * @author David van Leusen
- * @since 1.0
+ * @since 2014-05-28
  */
 public class IIPED extends SharedMetric {
     private final static Logger logger = LogManager.getLogger(IIPED.class);

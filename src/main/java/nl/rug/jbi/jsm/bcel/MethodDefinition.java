@@ -15,7 +15,7 @@ import static nl.rug.jbi.jsm.bcel.BCELTools.type2className;
  * the {@link nl.rug.jbi.jsm.bcel.ClassVisitor}.
  *
  * @author David van Leusen
- * @since 1.0
+ * @since 2014-05-28
  */
 public class MethodDefinition {
     private final MethodGen mg;

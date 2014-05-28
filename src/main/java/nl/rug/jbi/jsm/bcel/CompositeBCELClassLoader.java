@@ -20,7 +20,7 @@ import java.util.Map;
  * functionality to BCEL.
  *
  * @author David van Leusen
- * @since 1.0
+ * @since 2014-05-28
  */
 public class CompositeBCELClassLoader extends ClassLoader {
     private final List<ClassLoader> classLoaders = Lists.newLinkedList();
