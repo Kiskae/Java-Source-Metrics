@@ -7,6 +7,12 @@ import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.event.Subscribe;
 
+/**
+ * Metric calculator for the Depth of Inheritance Tree (DIT)
+ *
+ * @author David van Leusen
+ * @since 1.0
+ */
 public class DIT extends IsolatedMetric {
 
     public DIT() {
@@ -19,7 +25,7 @@ public class DIT extends IsolatedMetric {
     }
 
     @Override
-    public MetricResult getResult(String identifier, MetricState state) {
+    public MetricResult getResult(final String identifier, final MetricState state) {
         return new MetricResult(identifier, this, state.getValue("dit-depth"));
     }
 }
