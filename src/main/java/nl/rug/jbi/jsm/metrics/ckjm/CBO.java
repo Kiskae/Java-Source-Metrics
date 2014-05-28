@@ -1,5 +1,6 @@
 package nl.rug.jbi.jsm.metrics.ckjm;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.Sets;
 import nl.rug.jbi.jsm.bcel.*;
 import nl.rug.jbi.jsm.core.calculator.IsolatedMetric;
@@ -7,15 +8,13 @@ import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.event.Subscribe;
-import nl.rug.jbi.jsm.util.DefaultValue;
-import nl.rug.jbi.jsm.util.DefaultValues;
 
 import java.util.Set;
 
 public class CBO extends IsolatedMetric {
-    private final static DefaultValue<Set<String>> EMPTY_SET = new DefaultValue<Set<String>>() {
+    private final static Supplier<Set<String>> EMPTY_SET = new Supplier<Set<String>>() {
         @Override
-        public Set<String> getDefault() {
+        public Set<String> get() {
             return Sets.newHashSet();
         }
     };
@@ -26,7 +25,7 @@ public class CBO extends IsolatedMetric {
 
     private static void registerCoupling(final MetricState state, final String className) {
         if (!(isJdkClass(className) || state.getIdentifier().equals(className))) {
-            final Set<String> coupledClasses = state.getValueOrCreate("coupledClasses", DefaultValues.<String>emptySet());
+            final Set<String> coupledClasses = state.getValueOrCreate("coupledClasses", EMPTY_SET);
             coupledClasses.add(className);
         }
     }

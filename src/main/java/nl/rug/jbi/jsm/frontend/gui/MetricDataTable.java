@@ -1,13 +1,10 @@
 package nl.rug.jbi.jsm.frontend.gui;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
-import nl.rug.jbi.jsm.util.CSVExporter;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
@@ -89,16 +86,8 @@ public class MetricDataTable extends AbstractTableModel {
         this.fireTableStructureChanged();
     }
 
-    public void export(final CSVExporter export) {
-        final List<String> headers = Lists.newLinkedList();
-        headers.add(this.identifierName);
-        headers.addAll(Collections2.transform(this.metricClasses, new Function<Class, String>() {
-            @Override
-            public String apply(Class aClass) {
-                return aClass.getSimpleName();
-            }
-        }));
-        export.writeDataRow(headers);
+    public void export() {
+        throw new UnsupportedOperationException();
     }
 
     public void clear() {

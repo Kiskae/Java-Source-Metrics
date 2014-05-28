@@ -1,6 +1,9 @@
 package nl.rug.jbi.jsm.util;
 
 /**
+ * BiFunction is a variant of {@link com.google.common.base.Function} that takes two arguments.
+ * In its basic form it represents a function with two parameters that returns a value.
+ *
  * @param <A> Input type 1
  * @param <B> Input type 2
  * @param <C> Output type
@@ -11,11 +14,16 @@ package nl.rug.jbi.jsm.util;
 public interface BiFunction<A, B, C> {
 
     /**
-     * Applies a function to in1 and in2 to create some output.
+     * Returns the result of applying this function to the given inputs. This method is <i>generally expected</i>, but
+     * not absolutely required, to have the following properties:
+     * <ul>
+     *     <li>Its execution does not cause any observable side effects.</li>
+     *     <li>The computation is consistent with equals; that is, {@code Objects.equal(a, b)} and
+     *     {@code Objects.equal(c, d)} implies that {@code Objects.equal(function.apply(a, c), function.apply(b, d))}.</li>
+     * </ul>
      *
-     * @param in1
-     * @param in2
-     * @return
+     * @throws java.lang.NullPointerException if {@code input1} or {@code input2} is null and this function does not
+     * accept null arguments
      */
-    C apply(A in1, B in2);
+    C apply(A input1, B input2);
 }

@@ -10,15 +10,22 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import static com.google.common.base.Preconditions.checkState;
+
 /**
+ * Utility class to find a list of all classes within a directory tree or .JAR file.
  *
+ * @author David van Leusen
+ * @since 2014-05-28
  */
-public class FileUtils {
+public class ClassDiscoverer {
 
     /**
-     * @param file
-     * @return
-     * @throws IOException
+     * Find a list of all class files in a .JAR file or directory.
+     *
+     * @param file File path to find .class files in
+     * @return A list of strings representing the class files on the given path.
+     * @throws IOException If there is an issue iterating the files.
      */
     public static List<String> findClassNames(final File file) throws IOException {
         if (file.getName().endsWith(".jar")) {
@@ -42,6 +49,9 @@ public class FileUtils {
 
     private static List<String> recursiveFindClassFiles(final File directory, final String prefix) {
         List<String> result = Lists.newLinkedList();
+
+        checkState(directory.isDirectory());
+
         for (final File f : directory.listFiles()) {
             if (f.isDirectory()) {
                 result.addAll(recursiveFindClassFiles(f, prefix + f.getName() + "/"));

@@ -1,6 +1,7 @@
 package nl.rug.jbi.jsm.metrics.packagemetrics.resource;
 
 import com.google.common.base.Function;
+import com.google.common.base.Supplier;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -14,7 +15,6 @@ import nl.rug.jbi.jsm.core.event.Subscribe;
 import nl.rug.jbi.jsm.core.event.UsingProducer;
 import nl.rug.jbi.jsm.metrics.ClassSource;
 import nl.rug.jbi.jsm.metrics.ClassSourceProducer;
-import nl.rug.jbi.jsm.util.DefaultValues;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,6 +29,12 @@ import java.util.*;
  */
 public class PackageProducer extends ProducerMetric {
     private final static Logger logger = LogManager.getLogger(PackageProducer.class);
+    private final static Supplier<Set<String>> EMPTY_SET = new Supplier<Set<String>>() {
+        @Override
+        public Set<String> get() {
+            return Sets.newHashSet();
+        }
+    };
 
     public PackageProducer() {
         //    Data Scope         Produce Scope
@@ -36,11 +42,11 @@ public class PackageProducer extends ProducerMetric {
     }
 
     private static Set<String> getExtendsSet(final MetricState state) {
-        return state.getValueOrCreate("extends", DefaultValues.<String>emptySet());
+        return state.getValueOrCreate("extends", EMPTY_SET);
     }
 
     private static Set<String> getUsesSet(final MetricState state) {
-        return state.getValueOrCreate("uses", DefaultValues.<String>emptySet());
+        return state.getValueOrCreate("uses", EMPTY_SET);
     }
 
     private static boolean isSuperClass(final MetricState state, final String className) {

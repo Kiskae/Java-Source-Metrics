@@ -1,6 +1,7 @@
 package nl.rug.jbi.jsm.metrics.ckjm;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Sets;
 import nl.rug.jbi.jsm.bcel.InvokeMethodInstr;
 import nl.rug.jbi.jsm.bcel.MethodDefinition;
@@ -9,14 +10,13 @@ import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.event.Subscribe;
-import nl.rug.jbi.jsm.util.DefaultValue;
 
 import java.util.Set;
 
 public class RFC extends IsolatedMetric {
-    private final static DefaultValue<Set<String>> EMPTY_HASHSET_DEFAULT = new DefaultValue<Set<String>>() {
+    private final static Supplier<Set<String>> EMPTY_HASHSET_DEFAULT = new Supplier<Set<String>>() {
         @Override
-        public Set<String> getDefault() {
+        public Set<String> get() {
             return Sets.newHashSet();
         }
     };

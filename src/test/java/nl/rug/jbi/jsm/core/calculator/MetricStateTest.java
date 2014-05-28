@@ -1,6 +1,6 @@
 package nl.rug.jbi.jsm.core.calculator;
 
-import nl.rug.jbi.jsm.util.DefaultValue;
+import com.google.common.base.Supplier;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,9 +11,9 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(JUnit4.class)
 public class MetricStateTest {
-    private final static DefaultValue<Integer> ZERO = new DefaultValue<Integer>() {
+    private final static Supplier<Integer> ZERO = new Supplier<Integer>() {
         @Override
-        public Integer getDefault() {
+        public Integer get() {
             return 0;
         }
     };

@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import nl.rug.jbi.jsm.core.JSMCore;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
-import nl.rug.jbi.jsm.util.FileUtils;
+import nl.rug.jbi.jsm.util.ClassDiscoverer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,7 +27,7 @@ public class DebugFrontend implements Frontend {
     public void init() {
         try {
             final File file = new File(this.target);
-            this.core.process(this, Sets.newHashSet(FileUtils.findClassNames(file)), file.toURI().toURL());
+            this.core.process(this, Sets.newHashSet(ClassDiscoverer.findClassNames(file)), file.toURI().toURL());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {

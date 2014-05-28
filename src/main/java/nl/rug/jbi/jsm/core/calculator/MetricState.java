@@ -2,8 +2,8 @@ package nl.rug.jbi.jsm.core.calculator;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
-import nl.rug.jbi.jsm.util.DefaultValue;
 
 import java.util.Map;
 
@@ -53,33 +53,28 @@ public class MetricState {
     }
 
     /**
+     *
      * @param key
      * @param def
      * @param <T>
      * @return
      */
-    public <T> T getValue(final String key, final DefaultValue<T> def) {
+    public <T> T getValue(final String key, final Supplier<T> def) {
         Preconditions.checkNotNull(key, "Key cannot be NULL");
         Preconditions.checkNotNull(def, "The default producer cannot be NULL");
 
         final T obj = (T) this.stateMap.get(key);
-        return (obj != null) ? obj : def.getDefault();
+        return (obj != null) ? obj : def.get();
     }
 
-    /**
-     * @param key
-     * @param def
-     * @param <T>
-     * @return
-     */
-    public <T> T getValueOrCreate(final String key, final DefaultValue<T> def) {
+    public <T> T getValueOrCreate(final String key, final Supplier<T> def) {
         Preconditions.checkNotNull(key, "Key cannot be NULL");
         Preconditions.checkNotNull(def, "The default producer cannot be NULL");
 
         if (this.stateMap.containsKey(key)) {
             return (T) this.stateMap.get(key);
         } else {
-            final T newObj = def.getDefault();
+            final T newObj = def.get();
             this.stateMap.put(key, newObj);
             return newObj;
         }

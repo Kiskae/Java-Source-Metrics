@@ -1,5 +1,6 @@
 package nl.rug.jbi.jsm.metrics.ckjm;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import nl.rug.jbi.jsm.bcel.FieldAccessInstr;
@@ -9,16 +10,15 @@ import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.event.Subscribe;
-import nl.rug.jbi.jsm.util.DefaultValue;
 
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 public class LCOM extends IsolatedMetric {
-    private final static DefaultValue<List<Set<String>>> METHOD_SET_DEFAULT = new DefaultValue<List<Set<String>>>() {
+    private final static Supplier<List<Set<String>>> METHOD_SET_DEFAULT = new Supplier<List<Set<String>>>() {
         @Override
-        public List<Set<String>> getDefault() {
+        public List<Set<String>> get() {
             return Lists.newLinkedList();
         }
     };

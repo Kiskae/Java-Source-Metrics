@@ -6,7 +6,7 @@ import com.google.common.collect.*;
 import nl.rug.jbi.jsm.core.JSMCore;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
-import nl.rug.jbi.jsm.util.FileUtils;
+import nl.rug.jbi.jsm.util.ClassDiscoverer;
 import nl.rug.jbi.jsm.util.ResultsExporter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -92,7 +92,7 @@ public class ScriptFrontend implements Frontend {
                     @Override
                     public Iterable<String> apply(File file) {
                         try {
-                            return FileUtils.findClassNames(file);
+                            return ClassDiscoverer.findClassNames(file);
                         } catch (IOException e) {
                             return ImmutableList.of();
                         }

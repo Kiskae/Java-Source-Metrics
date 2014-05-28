@@ -3,8 +3,10 @@ package nl.rug.jbi.jsm.util;
 import com.google.common.base.Objects;
 
 /**
- * @param <F>
- * @param <S>
+ * Represents a pair of data.
+ *
+ * @param <F> Type of first item
+ * @param <S> Type of second item
  * @author David van Leusen
  * @since 2014-05-28
  */

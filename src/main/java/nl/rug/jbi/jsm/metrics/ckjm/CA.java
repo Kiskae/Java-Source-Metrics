@@ -1,6 +1,7 @@
 package nl.rug.jbi.jsm.metrics.ckjm;
 
 import com.google.common.base.Function;
+import com.google.common.base.Supplier;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -11,17 +12,15 @@ import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.calculator.SharedMetric;
 import nl.rug.jbi.jsm.core.event.Subscribe;
-import nl.rug.jbi.jsm.util.DefaultValue;
-import nl.rug.jbi.jsm.util.DefaultValues;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class CA extends SharedMetric {
-    private final static DefaultValue<Set<String>> EMPTY_SET = new DefaultValue<Set<String>>() {
+    private final static Supplier<Set<String>> EMPTY_SET = new Supplier<Set<String>>() {
         @Override
-        public Set<String> getDefault() {
+        public Set<String> get() {
             return Sets.newHashSet();
         }
     };
@@ -32,7 +31,7 @@ public class CA extends SharedMetric {
 
     private static void registerCoupling(final MetricState state, final String className) {
         if (!(isJdkClass(className) || state.getIdentifier().equals(className))) {
-            final Set<String> coupledClasses = state.getValueOrCreate("coupledClasses", DefaultValues.<String>emptySet());
+            final Set<String> coupledClasses = state.getValueOrCreate("coupledClasses", EMPTY_SET);
             coupledClasses.add(className);
         }
     }

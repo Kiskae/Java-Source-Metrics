@@ -1,5 +1,6 @@
 package nl.rug.jbi.jsm.metrics;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 import nl.rug.jbi.jsm.bcel.CompositeBCELClassLoader;
 import nl.rug.jbi.jsm.bcel.JavaClassDefinition;
@@ -7,7 +8,6 @@ import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.calculator.ProducerMetric;
 import nl.rug.jbi.jsm.core.event.Subscribe;
-import nl.rug.jbi.jsm.util.DefaultValue;
 
 import java.util.List;
 import java.util.Map;
@@ -16,9 +16,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.google.common.base.Preconditions.checkState;
 
 public class ClassSourceProducer extends ProducerMetric {
-    private final static DefaultValue<String> MISSING_SOURCE = new DefaultValue<String>() {
+    private final static Supplier<String> MISSING_SOURCE = new Supplier<String>() {
         @Override
-        public String getDefault() {
+        public String get() {
             return "UNKNOWN";
         }
     };

@@ -11,8 +11,7 @@ import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.frontend.gui.MetricDataTable;
 import nl.rug.jbi.jsm.frontend.gui.SelectableList;
-import nl.rug.jbi.jsm.util.CSVExporter;
-import nl.rug.jbi.jsm.util.FileUtils;
+import nl.rug.jbi.jsm.util.ClassDiscoverer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -217,18 +215,7 @@ public class GUIFrontend implements Frontend {
         export.setAction(new AbstractAction("Export data") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    final CSVExporter exporter = new CSVExporter(new File("test.csv"));
-                    classData.export(exporter);
-                    exporter.writeDataRow(Collections.EMPTY_LIST);
-                    packageData.export(exporter);
-                    exporter.writeDataRow(Collections.EMPTY_LIST);
-                    collectionData.export(exporter);
-
-                    exporter.close();
-                } catch (IOException e1) {
-                    logger.debug(e1);
-                }
+                throw new UnsupportedOperationException();
             }
         });
         export.setEnabled(false);
@@ -258,7 +245,7 @@ public class GUIFrontend implements Frontend {
                             @Override
                             public Iterable<String> apply(File file) {
                                 try {
-                                    return FileUtils.findClassNames(file);
+                                    return ClassDiscoverer.findClassNames(file);
                                 } catch (IOException e1) {
                                     return ImmutableList.of();
                                 }
