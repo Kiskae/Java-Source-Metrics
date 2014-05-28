@@ -56,9 +56,15 @@ public class EventBus {
             try {
                 he.emitEvent(something, state);
             } catch (final MetricExecutionException e) {
-                //TODO: decide on exception spam
-                logger.warn(new ParameterizedMessage(
+                logger.warn(
                         "Exception occurred whilst calculating '{}' for '{}', invalidating results.",
+                        he.getMetricClass().getName(),
+                        this.identifier
+                );
+
+                //Emit additional logging of exception to debug channel.
+                logger.info(new ParameterizedMessage(
+                        "Exception for MC{metric={},identifier={}}",
                         he.getMetricClass().getName(),
                         this.identifier
                 ), e);
