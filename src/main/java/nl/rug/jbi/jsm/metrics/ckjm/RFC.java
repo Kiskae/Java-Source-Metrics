@@ -13,6 +13,12 @@ import nl.rug.jbi.jsm.core.event.Subscribe;
 
 import java.util.Set;
 
+/**
+ * Metric calculator for the Response for a Class (RFC)
+ *
+ * @author David van Leusen
+ * @since 2014-05-28
+ */
 public class RFC extends IsolatedMetric {
     private final static Supplier<Set<String>> EMPTY_HASHSET_DEFAULT = new Supplier<Set<String>>() {
         @Override
@@ -53,7 +59,7 @@ public class RFC extends IsolatedMetric {
     }
 
     @Override
-    public MetricResult getResult(String identifier, MetricState state) {
+    public MetricResult getResult(final String identifier, final MetricState state) {
         //ResponseSet size is all the different methods used by this class.
         return new MetricResult(identifier, this, state.getValue("responseSet", EMPTY_HASHSET_DEFAULT).size());
     }
