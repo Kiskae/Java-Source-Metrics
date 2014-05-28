@@ -165,23 +165,23 @@ public class GUIFrontend implements Frontend {
                 });
                 fc.setAcceptAllFileFilterUsed(false);
                 fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-                fc.setMultiSelectionEnabled(false);
+                fc.setMultiSelectionEnabled(true);
                 fc.setCurrentDirectory(workingDir);
 
                 int ret = fc.showDialog(root, "Select");
 
                 if (ret == JFileChooser.APPROVE_OPTION) {
-                    final File selectedFile = fc.getSelectedFile();
+                    for (final File selectedFile : fc.getSelectedFiles()) {
+                        final String relativePath = workingDir
+                                .toURI()
+                                .relativize(
+                                        selectedFile.toURI()
+                                ).getPath();
 
-                    final String relativePath = workingDir
-                            .toURI()
-                            .relativize(
-                                    selectedFile.toURI()
-                            ).getPath();
+                        target.addOption(relativePath);
 
-                    target.addOption(relativePath);
-
-                    removeButton.setEnabled(true);
+                        removeButton.setEnabled(true);
+                    }
                 }
             }
         }), c);
