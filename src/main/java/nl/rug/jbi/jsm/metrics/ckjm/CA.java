@@ -12,12 +12,21 @@ import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.calculator.SharedMetric;
 import nl.rug.jbi.jsm.core.event.Subscribe;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Metric calculator for the Afferent Couplings (CA)
+ *
+ * @author David van Leusen
+ * @since 2014-05-28
+ */
 public class CA extends SharedMetric {
+    private final static Logger logger = LogManager.getLogger(CA.class);
     private final static Supplier<Set<String>> EMPTY_SET = new Supplier<Set<String>>() {
         @Override
         public Set<String> get() {
@@ -122,8 +131,14 @@ public class CA extends SharedMetric {
     }
 
     @Override
-    public List<MetricResult> getResults(Map<String, MetricState> states, int invalidMembers) {
-        //TODO: check invalidMembers, output warning if != 0
+    public List<MetricResult> getResults(final Map<String, MetricState> states, final int invalidMembers) {
+        if (invalidMembers != 0) {
+            logger.warn(
+                    "CA: Unsuccessful calculation for {} classes(s), results might be inaccurate.",
+                    invalidMembers
+            );
+        }
+
         final Map<String, List<String>> reverseMap = Maps.newHashMap();
         for (final String className : states.keySet()) {
             reverseMap.put(className, Lists.<String>newLinkedList());
