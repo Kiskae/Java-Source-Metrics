@@ -15,6 +15,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * Metric calculator for the Lack of Cohesion in Methods (LCOM)
+ *
+ * @author David van Leusen
+ * @since 2014-05-28
+ */
 public class LCOM extends IsolatedMetric {
     private final static Supplier<List<Set<String>>> METHOD_SET_DEFAULT = new Supplier<List<Set<String>>>() {
         @Override
@@ -48,8 +54,9 @@ public class LCOM extends IsolatedMetric {
     }
 
     @Override
-    public MetricResult getResult(String identifier, MetricState state) {
+    public MetricResult getResult(final String identifier, final MetricState state) {
         final List<Set<String>> miStack = state.getValueOrCreate("mi", METHOD_SET_DEFAULT);
+
         int lcom = 0;
         for (int i = 0; i < miStack.size(); ++i) {
             for (int j = i + 1; j < miStack.size(); ++j) {
