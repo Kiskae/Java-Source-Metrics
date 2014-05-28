@@ -46,7 +46,7 @@ public class IIPE extends SharedMetric {
     }
 
     @Override
-    public List<MetricResult> getResults(Map<String, MetricState> states, int invalidMembers) {
+    public List<MetricResult> getResults(final Map<String, MetricState> states, final int invalidMembers) {
         if (invalidMembers != 0) {
             logger.warn(
                     "IIPE: Unsuccessful calculation for {} package(s), collection results might be inaccurate.",

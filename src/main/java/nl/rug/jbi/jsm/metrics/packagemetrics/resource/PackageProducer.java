@@ -149,7 +149,7 @@ public class PackageProducer extends ProducerMetric {
     }
 
     @Override
-    public List<Produce> getProduce(Map<String, MetricState> states, int invalidMembers) {
+    public List<Produce> getProduce(final Map<String, MetricState> states, final int invalidMembers) {
         if (invalidMembers != 0) {
             logger.warn(
                     "PackageProducer: Unsuccessful calculation for {} classes(s), " +

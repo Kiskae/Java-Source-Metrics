@@ -57,13 +57,13 @@ public class PF extends SharedMetric {
         }
     }
 
-    private double Role(PackageUnit p, PackageUnit q) {
+    private double Role(final PackageUnit p, final PackageUnit q) {
         final double InIntPQ = Sets.intersection(p.InInt(), q.ProvidersC()).size();
         return InIntPQ / p.InInt().size();
     }
 
     @Override
-    public List<MetricResult> getResults(Map<String, MetricState> states, int invalidMembers) {
+    public List<MetricResult> getResults(final Map<String, MetricState> states, final int invalidMembers) {
         if (invalidMembers != 0) {
             logger.warn(
                     "PF: Unsuccessful calculation for {} package(s), collection results might be inaccurate.",
