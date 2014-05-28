@@ -11,6 +11,12 @@ import nl.rug.jbi.jsm.core.event.Subscribe;
 
 import java.util.Set;
 
+/**
+ * Metric calculator for the Coupling between Object Classes (CBO)
+ *
+ * @author David van Leusen
+ * @since 2014-05-28
+ */
 public class CBO extends IsolatedMetric {
     private final static Supplier<Set<String>> EMPTY_SET = new Supplier<Set<String>>() {
         @Override
@@ -116,7 +122,7 @@ public class CBO extends IsolatedMetric {
     }
 
     @Override
-    public MetricResult getResult(String identifier, MetricState state) {
+    public MetricResult getResult(final String identifier, final MetricState state) {
         return new MetricResult(identifier, this, state.getValueOrCreate("coupledClasses", EMPTY_SET).size());
     }
 }
