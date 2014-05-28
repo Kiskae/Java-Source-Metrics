@@ -15,6 +15,12 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.google.common.base.Preconditions.checkState;
 
+/**
+ * Producer for {@link nl.rug.jbi.jsm.metrics.ClassSource}
+ *
+ * @author David van Leusen
+ * @since 2014-05-29
+ */
 public class ClassSourceProducer extends ProducerMetric {
     private final static Supplier<String> MISSING_SOURCE = new Supplier<String>() {
         @Override
@@ -42,7 +48,7 @@ public class ClassSourceProducer extends ProducerMetric {
     }
 
     @Override
-    public List<Produce> getProduce(Map<String, MetricState> states, int invalidMembers) {
+    public List<Produce> getProduce(final Map<String, MetricState> states, final int invalidMembers) {
         checkState(invalidMembers == 0, "Calculation of this producer should never fail.");
 
         final List<Produce> ret = Lists.newLinkedList();
