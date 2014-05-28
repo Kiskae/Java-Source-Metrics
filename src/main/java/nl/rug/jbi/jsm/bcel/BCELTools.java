@@ -4,16 +4,21 @@ import org.apache.bcel.Constants;
 import org.apache.bcel.generic.ArrayType;
 import org.apache.bcel.generic.Type;
 
+/**
+ * Utility class exposing methods that are useful for processing the BCEL data objects into data usable by metrics.
+ *
+ * @author David van Leusen
+ * @since 1.0
+ */
 public class BCELTools {
 
     /**
      * Converts any type into the correct string representing the underlying type.
      * It will unroll ArrayTypes and turn primitive types into a common type "java.PRIMITIVE".
-     * <p></p>
      * Based on the implementation by dspinellis
      *
-     * @param t
-     * @return
+     * @param t BCEL Type object
+     * @return String representation of the base type of the provided type object.
      * @see <a href="https://github.com/dspinellis/ckjm/blob/master/src/gr/spinellis/ckjm/ClassVisitor.java#L180">
      * Original Implementation</a>
      */

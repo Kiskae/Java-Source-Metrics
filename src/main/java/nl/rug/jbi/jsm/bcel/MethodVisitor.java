@@ -7,10 +7,19 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 
+/**
+ * This class serves as an extension to the {@link nl.rug.jbi.jsm.bcel.ClassVisitor}, emitting data related to the
+ * definition of a single method. It can be replaced by overriding
+ * {@link nl.rug.jbi.jsm.bcel.ClassVisitor#createMethodVisitor(org.apache.bcel.generic.MethodGen)}.
+ *
+ * @author David van Leusen
+ * @since 1.0
+ */
 public class MethodVisitor extends EmptyVisitor {
     private final static Logger logger = LogManager.getLogger(MethodVisitor.class);
 
     private final MethodGen mg;
+
     private final EventBus eBus;
     private final ConstantPoolGen cp;
 
@@ -31,30 +40,37 @@ public class MethodVisitor extends EmptyVisitor {
                 ih = ih.getNext();
             }
 
-            handleLocalVariables();
-            handleExceptionHandlers();
+            visitLocalVariables(mg.getLocalVariables());
+            visitExceptionHandlers(mg.getExceptionHandlers());
         }
     }
 
-    private void handleLocalVariables() {
-        final LocalVariableGen[] lVarGens = mg.getLocalVariables();
+    /**
+     * Exposes EventBus to overriding implementations.
+     *
+     * @return EventBus assigned to this visitor.
+     */
+    protected EventBus getEventBus() {
+        return this.eBus;
+    }
+
+    public void visitLocalVariables(final LocalVariableGen[] lVarGens) {
         logger.trace(Arrays.asList(lVarGens));
 
-        if (!this.eBus.hasListeners(LocalVariableDefinition.class)) return;
+        if (!this.getEventBus().hasListeners(LocalVariableDefinition.class)) return;
 
         for (final LocalVariableGen lVarGen : lVarGens) {
-            this.eBus.publish(new LocalVariableDefinition(lVarGen));
+            this.getEventBus().publish(new LocalVariableDefinition(lVarGen));
         }
     }
 
-    private void handleExceptionHandlers() {
-        final CodeExceptionGen[] cegs = mg.getExceptionHandlers();
+    public void visitExceptionHandlers(final CodeExceptionGen[] cegs) {
         logger.trace(Arrays.asList(cegs));
 
-        if (!this.eBus.hasListeners(ExceptionHandlerDefinition.class)) return;
+        if (!this.getEventBus().hasListeners(ExceptionHandlerDefinition.class)) return;
 
         for (final CodeExceptionGen ceg : cegs) {
-            this.eBus.publish(new ExceptionHandlerDefinition(ceg));
+            this.getEventBus().publish(new ExceptionHandlerDefinition(ceg));
         }
     }
 
@@ -85,8 +101,8 @@ public class MethodVisitor extends EmptyVisitor {
         logger.trace(obj);
 
         /** Field access. */
-        if (this.eBus.hasListeners(FieldAccessInstr.class)) {
-            this.eBus.publish(new FieldAccessInstr(obj, this.cp));
+        if (this.getEventBus().hasListeners(FieldAccessInstr.class)) {
+            this.getEventBus().publish(new FieldAccessInstr(obj, this.cp));
         }
     }
 
@@ -155,8 +171,8 @@ public class MethodVisitor extends EmptyVisitor {
         logger.trace(obj);
 
         /** Method invocation. */
-        if (this.eBus.hasListeners(InvokeMethodInstr.class)) {
-            this.eBus.publish(new InvokeMethodInstr(obj, this.cp));
+        if (this.getEventBus().hasListeners(InvokeMethodInstr.class)) {
+            this.getEventBus().publish(new InvokeMethodInstr(obj, this.cp));
         }
     }
 
@@ -177,8 +193,8 @@ public class MethodVisitor extends EmptyVisitor {
         logger.trace(obj);
 
         /** Visit return instruction. */
-        if (this.eBus.hasListeners(TypeUseInstruction.class)) {
-            this.eBus.publish(new TypeUseInstruction(obj.getType(this.cp)));
+        if (this.getEventBus().hasListeners(TypeUseInstruction.class)) {
+            this.getEventBus().publish(new TypeUseInstruction(obj.getType(this.cp)));
         }
     }
 
@@ -267,8 +283,8 @@ public class MethodVisitor extends EmptyVisitor {
         logger.trace(obj);
 
         /** Visit checkcast instruction. */
-        if (this.eBus.hasListeners(TypeUseInstruction.class)) {
-            this.eBus.publish(new TypeUseInstruction(obj.getType(this.cp)));
+        if (this.getEventBus().hasListeners(TypeUseInstruction.class)) {
+            this.getEventBus().publish(new TypeUseInstruction(obj.getType(this.cp)));
         }
     }
 
@@ -687,8 +703,8 @@ public class MethodVisitor extends EmptyVisitor {
         logger.trace(obj);
 
         /** Visit an instanceof instruction. */
-        if (this.eBus.hasListeners(TypeUseInstruction.class)) {
-            this.eBus.publish(new TypeUseInstruction(obj.getType(this.cp)));
+        if (this.getEventBus().hasListeners(TypeUseInstruction.class)) {
+            this.getEventBus().publish(new TypeUseInstruction(obj.getType(this.cp)));
         }
     }
 

@@ -9,6 +9,17 @@ import org.apache.bcel.generic.MethodGen;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Default implementation of the Visitor pattern for {@link org.apache.bcel.classfile.JavaClass}. This class serves to
+ * take the BCEL data and emit structural data based on this data. It is possible to override this class-visitor with a
+ * custom implementation if additional data is required. See the associated classes/methods for more information.
+ *
+ * @author David van Leusen
+ * @see nl.rug.jbi.jsm.core.execution.ClassVisitorFactory
+ * @see nl.rug.jbi.jsm.core.execution.PipelineExecutor#setClassVisitorFactory(nl.rug.jbi.jsm.core.execution.ClassVisitorFactory)
+ * @see nl.rug.jbi.jsm.core.pipeline.Pipeline#registerNewBaseData(Class)
+ * @since 1.0
+ */
 public class ClassVisitor extends EmptyVisitor {
     private final static Logger logger = LogManager.getLogger(ClassVisitor.class);
 
@@ -22,8 +33,23 @@ public class ClassVisitor extends EmptyVisitor {
         this.cp = new ConstantPoolGen(this.visitedClass.getConstantPool());
     }
 
+    /**
+     * Exposes EventBus to overriding implementations.
+     *
+     * @return EventBus assigned to this visitor.
+     */
     protected EventBus getEventBus() {
         return this.eBus;
+    }
+
+    /**
+     * Override this method to substitute a custom MethodVisitor implementation.
+     *
+     * @param mg Method data
+     * @return A visitor that is ready to execute.
+     */
+    protected MethodVisitor createMethodVisitor(final MethodGen mg) {
+        return new MethodVisitor(mg, this.getEventBus());
     }
 
     public void start() {
@@ -182,7 +208,7 @@ public class ClassVisitor extends EmptyVisitor {
         if (this.getEventBus().hasListeners(MethodDefinition.class))
             this.getEventBus().publish(new MethodDefinition(mg));
 
-        final MethodVisitor mv = new MethodVisitor(mg, this.getEventBus());
+        final MethodVisitor mv = createMethodVisitor(mg);
         mv.start(); //Run visitor for method instructions
     }
 
