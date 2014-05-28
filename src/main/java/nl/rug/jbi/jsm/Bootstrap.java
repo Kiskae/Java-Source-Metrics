@@ -29,7 +29,6 @@ public class Bootstrap {
         //Package metrics
         core.registerMetricCollection(new PackageMetrics());
 
-
         final Frontend frontend;
         if (Arrays.asList(args).contains("--nogui") && args.length > 1) {
             //Debug Mode

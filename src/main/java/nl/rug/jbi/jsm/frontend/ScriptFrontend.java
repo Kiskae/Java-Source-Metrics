@@ -20,6 +20,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Frontend for use of JSM in scripts, it calculates the metrics for the given targets and exports the results
+ * to the given output.
+ *
  * @author David van Leusen
  * @since 2014-05-28
  */
@@ -38,11 +41,13 @@ public class ScriptFrontend implements Frontend {
     private final ResultsExporter exporter;
 
     /**
-     * @param core
-     * @param input
-     * @param libraries
-     * @param output
-     * @throws IOException
+     * Create a new ScriptFrontend
+     *
+     * @param core JSMCore containing the metrics it needs to calculate.
+     * @param input List of targets for calculation.
+     * @param libraries List of additional targets for use as library.
+     * @param output Possible outputs, will be linearly searched for the first non-used target.
+     * @throws IOException If all of the outputs are already in use.
      */
     public ScriptFrontend(
             final JSMCore core,
@@ -54,6 +59,8 @@ public class ScriptFrontend implements Frontend {
         this.input = input;
         this.libraries = libraries;
         this.exporter = getOutputWriter(output);
+
+        logger.info("Exporting to {}", this.exporter);
     }
 
     private static void exportData(
