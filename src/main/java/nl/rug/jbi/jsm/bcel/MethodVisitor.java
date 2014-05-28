@@ -84,6 +84,7 @@ public class MethodVisitor extends EmptyVisitor {
         logger.trace(obj);
 
         /* Used in CKJM, replaced by LocalVariable iteration */
+        /* CKJM error: This actually always returns basic types */
     }
 
     @Override
@@ -181,6 +182,7 @@ public class MethodVisitor extends EmptyVisitor {
         logger.trace(obj);
 
         /* Used in CKJM, replaced by LocalVariable iteration */
+        /* CKJM error: This actually always returns basic types */
     }
 
     @Override
@@ -193,9 +195,7 @@ public class MethodVisitor extends EmptyVisitor {
         logger.trace(obj);
 
         /** Visit return instruction. */
-        if (this.getEventBus().hasListeners(TypeUseInstruction.class)) {
-            this.getEventBus().publish(new TypeUseInstruction(obj.getType(this.cp)));
-        }
+        /* CKJM error: This actually always returns basic types */
     }
 
     @Override

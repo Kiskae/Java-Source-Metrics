@@ -4,7 +4,7 @@ import org.apache.bcel.generic.Type;
 
 /**
  * Represents the use of a type not bound to a specific invocation. The current {@link nl.rug.jbi.jsm.bcel.ClassVisitor}
- * emits this data on INSTANCEOF, CAST and RETURN.
+ * emits this data on INSTANCEOF and CAST.
  *
  * @author David van Leusen
  * @since 2014-05-28

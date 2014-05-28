@@ -27,6 +27,9 @@ public class InvokeMethodInstr {
     }
 
     /**
+     * Beware that this returns the types of the arguments that the method expects, not the types of the objects
+     * put into the invocation.
+     *
      * @return List of Strings representing the types of the arguments of the invoked method.
      */
     public List<String> getArgumentTypes() {
