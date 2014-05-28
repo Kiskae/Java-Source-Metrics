@@ -11,7 +11,7 @@ public class RefAll extends RefTypes.Map implements RefTypes.FakeInterface {
         final RefTypes.List list = null;
 
         try {
-            Objects.isNull(RefTypes.access);
+            Objects.hash(RefTypes.access);
 
             if (null instanceof RefTypes.List) {
                 RefTypes.test(null, null);

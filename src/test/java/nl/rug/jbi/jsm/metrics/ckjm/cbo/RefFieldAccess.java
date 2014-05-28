@@ -5,6 +5,6 @@ import java.util.Objects;
 public class RefFieldAccess {
 
     public void method() {
-        Objects.isNull(RefTypes.access);
+        Objects.hash(RefTypes.access);
     }
 }

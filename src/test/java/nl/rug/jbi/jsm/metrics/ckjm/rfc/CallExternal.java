@@ -7,6 +7,6 @@ public class CallExternal {
     public void method() {
         Objects.toString(this);
         Objects.hash(this);
-        Objects.isNull(this);
+        Objects.equals(this, this);
     }
 }
