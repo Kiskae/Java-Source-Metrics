@@ -8,6 +8,13 @@ import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.event.Subscribe;
 
+/**
+ * Metric calculator for the Weighted Method per Class (WMC)
+ * Please be aware that this implementation sets all method complexity to 1.
+ *
+ * @author David van Leusen
+ * @since 2014-05-28
+ */
 public class WMC extends IsolatedMetric {
     private static final Supplier<Integer> ZERO_INT = new Supplier<Integer>() {
         @Override
