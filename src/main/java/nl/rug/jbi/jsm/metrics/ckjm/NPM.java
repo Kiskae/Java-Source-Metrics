@@ -8,6 +8,12 @@ import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.event.Subscribe;
 
+/**
+ * Metric calculator for the Number of Public Methods (NPM)
+ *
+ * @author David van Leusen
+ * @since 2014-05-28
+ */
 public class NPM extends IsolatedMetric {
     private static final Supplier<Integer> ZERO_INT = new Supplier<Integer>() {
         @Override
