@@ -1,4 +1,4 @@
-package nl.rug.jbi.jsm.frontend.gui;
+package nl.rug.jbi.jsm.frontend.ui.element;
 
 import javax.swing.*;
 import java.util.Collections;

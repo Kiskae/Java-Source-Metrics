@@ -43,10 +43,10 @@ public class ScriptFrontend implements Frontend {
     /**
      * Create a new ScriptFrontend
      *
-     * @param core JSMCore containing the metrics it needs to calculate.
-     * @param input List of targets for calculation.
+     * @param core      JSMCore containing the metrics it needs to calculate.
+     * @param input     List of targets for calculation.
      * @param libraries List of additional targets for use as library.
-     * @param output Possible outputs, will be linearly searched for the first non-used target.
+     * @param output    Possible outputs, will be linearly searched for the first non-used target.
      * @throws IOException If all of the outputs are already in use.
      */
     public ScriptFrontend(

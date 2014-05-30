@@ -1,4 +1,4 @@
-package nl.rug.jbi.jsm.frontend.gui;
+package nl.rug.jbi.jsm.frontend.ui;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
@@ -34,6 +34,12 @@ public class MetricDataTable extends AbstractTableModel {
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return false;
+    }
+
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        //TODO: seems it doesn't work naively.
+        return super.getColumnClass(columnIndex);
     }
 
     @Override

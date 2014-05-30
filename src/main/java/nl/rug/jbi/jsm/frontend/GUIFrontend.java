@@ -9,8 +9,9 @@ import com.google.common.collect.Sets;
 import nl.rug.jbi.jsm.core.JSMCore;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
-import nl.rug.jbi.jsm.frontend.gui.MetricDataTable;
-import nl.rug.jbi.jsm.frontend.gui.SelectableList;
+import nl.rug.jbi.jsm.frontend.ui.MetricDataTable;
+import nl.rug.jbi.jsm.frontend.ui.element.SelectableList;
+import nl.rug.jbi.jsm.frontend.ui.UserConsole;
 import nl.rug.jbi.jsm.util.ClassDiscoverer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,6 +30,7 @@ import java.util.Set;
 
 public class GUIFrontend implements Frontend {
     private final static Logger logger = LogManager.getLogger(GUIFrontend.class);
+    private final UserConsole console = new UserConsole(this);
     private final JSMCore core;
     private final MetricDataTable classData = new MetricDataTable("Class Name");
     private final MetricDataTable packageData = new MetricDataTable("Package Name");
@@ -101,6 +103,7 @@ public class GUIFrontend implements Frontend {
 
         panel.add(createTabbedDataTable(), BorderLayout.CENTER);
         panel.add(createControlPanel(), BorderLayout.EAST);
+        panel.add(this.console, BorderLayout.SOUTH);
 
         frame.setContentPane(panel);
         frame.pack();

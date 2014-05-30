@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
+<Configuration status="WARN" packages="nl.rug.jbi.jsm.util">
     <Appenders>
         <Console name="SysOut" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
@@ -13,16 +13,11 @@
             </Policies>
         </RollingRandomAccessFile>
 
-        <!-- TODO: turn into Console -->
-        <RollingRandomAccessFile name="UserConsole" fileName="logs/uc-latest.log"
-                                 filePattern="logs/uc-%d{yyyy-MM-dd}-%i.log.gz">
+        <!-- Self-defined Plugin: nl.rug.jbi.jsm.util.QueueLogAppender -->
+        <Queue name="UserConsole">
             <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
-            <PatternLayout pattern="[%d{HH:mm:ss}]: %msg%n"/>
-            <Policies>
-                <TimeBasedTriggeringPolicy/>
-                <OnStartupTriggeringPolicy/>
-            </Policies>
-        </RollingRandomAccessFile>
+            <PatternLayout pattern="[%d{HH:mm:ss}]: %msg%n" alwaysWriteExceptions="false"/>
+        </Queue>
     </Appenders>
     <Loggers>
         <Root level="debug">
