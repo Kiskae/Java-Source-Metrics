@@ -25,6 +25,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public class ResultsExporter implements Closeable {
     private final CSVWriter mappingWriter;
+    private final String mappingFileName;
     private final File container;
     private final String namePattern;
 
@@ -49,6 +50,7 @@ public class ResultsExporter implements Closeable {
         this.container.mkdirs();
 
         final File mappingFile = getFileForName("Mapping", true); //Throw exception if this file already exists.
+        this.mappingFileName = mappingFile.getAbsolutePath();
         this.mappingWriter = new CSVWriter(new FileWriter(mappingFile));
         this.mappingWriter.writeNext(new String[]{"Metric Identifier", "Scope", "Output File"});
     }
@@ -113,6 +115,10 @@ public class ResultsExporter implements Closeable {
         } finally {
             writer.close();
         }
+    }
+
+    public String getMappingFileName() {
+        return this.mappingFileName;
     }
 
     @Override

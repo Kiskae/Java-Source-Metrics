@@ -1,9 +1,9 @@
-package nl.rug.jbi.jsm.frontend.ui;
+package nl.rug.jbi.jsm.frontend.ui.element;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 
 import javax.swing.table.AbstractTableModel;
@@ -12,13 +12,11 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkState;
 
 public class MetricDataTable extends AbstractTableModel {
-    private final String identifierName;
     private final List<Class> metricClasses = Lists.newArrayList();
     private final List<String> identifierLookup = Lists.newArrayList();
     private final Table<String, Class, Object> resultTable = HashBasedTable.create();
 
-    public MetricDataTable(final String identifierName) {
-        this.identifierName = Preconditions.checkNotNull(identifierName);
+    public MetricDataTable() {
     }
 
     @Override
@@ -38,8 +36,7 @@ public class MetricDataTable extends AbstractTableModel {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        //TODO: seems it doesn't work naively.
-        return super.getColumnClass(columnIndex);
+        return columnIndex == 0 ? String.class : SortableResult.class;
     }
 
     @Override
@@ -54,12 +51,7 @@ public class MetricDataTable extends AbstractTableModel {
             return identifier;
         } else {
             final Class metricClass = metricClasses.get(columnIndex - 1);
-            final Object result = this.resultTable.get(identifier, metricClass);
-            if (result instanceof Float || result instanceof Double) {
-                return String.format("%.4f", result);
-            } else {
-                return result;
-            }
+            return new SortableResult(this.resultTable.get(identifier, metricClass));
         }
     }
 
@@ -92,8 +84,8 @@ public class MetricDataTable extends AbstractTableModel {
         this.fireTableStructureChanged();
     }
 
-    public void export() {
-        throw new UnsupportedOperationException();
+    public Table<String, Class, Object> getResultsMap() {
+        return Tables.unmodifiableTable(this.resultTable);
     }
 
     public void clear() {

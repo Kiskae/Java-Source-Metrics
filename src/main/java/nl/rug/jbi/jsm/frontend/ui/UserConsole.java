@@ -22,7 +22,7 @@ public class UserConsole extends JScrollPane {
 
         this.setPreferredSize(new Dimension(
                 this.getMinimumSize().width,
-                MONOSPACED.getSize() * 10
+                MONOSPACED.getSize() * 10 //Console shows 10 lines
         ));
 
         setViewportView(this.console);

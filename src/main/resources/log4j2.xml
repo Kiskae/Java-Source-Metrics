@@ -15,7 +15,7 @@
 
         <!-- Self-defined Plugin: nl.rug.jbi.jsm.util.QueueLogAppender -->
         <Queue name="UserConsole">
-            <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="[%d{HH:mm:ss}]: %msg%n" alwaysWriteExceptions="false"/>
         </Queue>
     </Appenders>

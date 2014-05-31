@@ -30,6 +30,10 @@ public class SelectableList extends JList<String> {
         }
     }
 
+    public boolean isEmpty() {
+        return this.items.isEmpty();
+    }
+
     public int removeSelection() {
         final int selectedIndex = this.getSelectedIndex();
 
