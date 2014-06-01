@@ -5,9 +5,14 @@ import java.util.EnumSet;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * TODO: documentation
+ * Abstract base class for the metrics.
+ * This class should never be directly extended, but be extended through {@link nl.rug.jbi.jsm.core.calculator.IsolatedMetric}
+ * or {@link nl.rug.jbi.jsm.core.calculator.SharedMetric}.
+ *
+ * @author David van Leusen
+ * @since 2014-06-01
  */
-public class BaseMetric {
+public abstract class BaseMetric {
     private final MetricScope scope;
 
     BaseMetric(final MetricScope scope) {
@@ -15,14 +20,19 @@ public class BaseMetric {
     }
 
     /**
-     * @return
+     * Returns the scope in which this metric operates. This means receives events and gets evaluated for results.
+     *
+     * @return the operating scope of this metric.
      */
     public MetricScope getScope() {
         return this.scope;
     }
 
     /**
-     * @return
+     * Returns all the scopes for which this metric produces results, meant to be overridden if metrics are calculated
+     * for multiple scopes at once or a different scope than their operating scope.
+     *
+     * @return A set of MetricScopes that this metric calculates results for.
      */
     public EnumSet<MetricScope> getResultScopes() {
         return EnumSet.of(this.scope);

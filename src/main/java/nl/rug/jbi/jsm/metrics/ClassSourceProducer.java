@@ -55,7 +55,7 @@ public class ClassSourceProducer extends ProducerMetric {
 
         for (final Map.Entry<String, MetricState> entry : states.entrySet()) {
             final String source = entry.getValue().getValue("source", MISSING_SOURCE);
-            ret.add(new Produce<ClassSource>(entry.getKey(), new ClassSource(entry.getKey(), source)));
+            ret.add(new Produce(entry.getKey(), new ClassSource(entry.getKey(), source)));
         }
 
         return ret;

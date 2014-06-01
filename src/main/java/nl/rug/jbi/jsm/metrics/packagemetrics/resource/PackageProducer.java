@@ -173,8 +173,8 @@ public class PackageProducer extends ProducerMetric {
 
         return FluentIterable.from(packageDataMap.entrySet()).transform(new Function<Map.Entry<String, PackageData>, Produce>() {
             @Override
-            public Produce<PackageUnit> apply(Map.Entry<String, PackageData> entry) {
-                return new Produce<PackageUnit>(entry.getKey(), new PackageUnit(packageDataMap, entry.getValue()));
+            public Produce apply(Map.Entry<String, PackageData> entry) {
+                return new Produce(entry.getKey(), new PackageUnit(packageDataMap, entry.getValue()));
             }
         }).toList();
     }
