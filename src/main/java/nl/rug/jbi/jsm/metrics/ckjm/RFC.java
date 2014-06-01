@@ -61,6 +61,6 @@ public class RFC extends IsolatedMetric {
     @Override
     public MetricResult getResult(final String identifier, final MetricState state) {
         //ResponseSet size is all the different methods used by this class.
-        return new MetricResult(identifier, this, state.getValue("responseSet", EMPTY_HASHSET_DEFAULT).size());
+        return MetricResult.getResult(identifier, this, state.getValue("responseSet", EMPTY_HASHSET_DEFAULT).size());
     }
 }

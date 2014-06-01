@@ -78,7 +78,7 @@ public class PF extends SharedMetric {
             final String collectionName = entry.getValue().getValue("Collection");
             final double result = entry.getValue().getValue("PF-p");
 
-            results.add(new MetricResult(
+            results.add(MetricResult.getResult(
                     entry.getKey(),
                     this,
                     result
@@ -92,7 +92,7 @@ public class PF extends SharedMetric {
             final double result = ((AtomicDouble) entry.getValue().get("result")).doubleValue();
             final int packageCount = ((AtomicInteger) entry.getValue().get("PackageCount")).intValue();
 
-            results.add(new MetricResult(
+            results.add(MetricResult.getResult(
                     entry.getKey(),
                     PF.class,
                     MetricScope.COLLECTION,

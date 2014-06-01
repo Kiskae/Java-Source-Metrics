@@ -66,7 +66,7 @@ public class IIPED extends SharedMetric {
             final String collectionName = entry.getValue().getValue("Collection");
             final double result = entry.getValue().getValue("IIPED-p");
 
-            results.add(new MetricResult(
+            results.add(MetricResult.getResult(
                     entry.getKey(),
                     this,
                     result
@@ -80,7 +80,7 @@ public class IIPED extends SharedMetric {
             final double result = ((AtomicDouble) entry.getValue().get("result")).doubleValue();
             final int packageCount = ((AtomicInteger) entry.getValue().get("PackageCount")).intValue();
 
-            results.add(new MetricResult(
+            results.add(MetricResult.getResult(
                     entry.getKey(),
                     IIPED.class,
                     MetricScope.COLLECTION,

@@ -5,7 +5,10 @@ import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * TODO: documentation
+ * Result to be passed on to the {@link nl.rug.jbi.jsm.frontend.Frontend} for processing and possible display.
+ *
+ * @author David van Leusen
+ * @since 2014-06-01
  */
 public class MetricResult {
     private final String identifier;
@@ -14,12 +17,15 @@ public class MetricResult {
     private final Object value;
 
     /**
-     * @param identifier
-     * @param metricClass
-     * @param scope
-     * @param value
+     * Protected superclass for sub-classing.
+     *
+     * @param identifier Identifier of the associated resource
+     * @param metricClass Metric for which this is a result
+     * @param scope Scope that this metric belongs in.
+     * @param value The result value.
+     * @throws java.lang.NullPointerException If anything but the value is NULL
      */
-    public MetricResult(
+    protected MetricResult(
             final String identifier,
             final Class<? extends BaseMetric> metricClass,
             final MetricScope scope,
@@ -32,37 +38,61 @@ public class MetricResult {
     }
 
     /**
-     * @param identifier
-     * @param metric
-     * @param value
+     * Convenient version of {@link #getResult(String, Class, MetricScope, Object)} which extracts the class and
+     * scope from the given metric.
+     *
+     * @param identifier Identifier of the associated resource
+     * @param metric Metric for which this is a result
+     * @param value The result value.
+     * @return The result for the given values.
+     * @throws java.lang.NullPointerException If anything but the value is NULL
      */
-    public MetricResult(final String identifier, final BaseMetric metric, final Object value) {
-        this(identifier, metric.getClass(), metric.getScope(), value);
+    public static MetricResult getResult(final String identifier, final BaseMetric metric, final Object value) {
+        return MetricResult.getResult(identifier, metric.getClass(), metric.getScope(), value);
     }
 
     /**
-     * @return
+     * Construct a result for the given identifier-metric pair, in the given scope and with the given value.
+     *
+     * @param identifier Identifier of the associated resource
+     * @param metricClass Metric for which this is a result
+     * @param scope Scope that this metric belongs in.
+     * @param value The result value.
+     * @return The result for the given values.
+     * @throws java.lang.NullPointerException If anything but the value is NULL
+     */
+    public static MetricResult getResult(
+            final String identifier,
+            final Class<? extends BaseMetric> metricClass,
+            final MetricScope scope,
+            final Object value
+    ) {
+        return new MetricResult(identifier, metricClass, scope, value);
+    }
+
+    /**
+     * @return The metric for which this is the result.
      */
     public final Class getMetricClass() {
         return this.metricClass;
     }
 
     /**
-     * @return
+     * @return The associated resource that this result belongs to.
      */
     public String getIdentifier() {
         return this.identifier;
     }
 
     /**
-     * @return
+     * @return The scope that this result belongs in.
      */
     public MetricScope getScope() {
         return this.scope;
     }
 
     /**
-     * @return
+     * @return The final result of the metric
      */
     public Object getValue() {
         return this.value;
@@ -71,8 +101,9 @@ public class MetricResult {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                .add("identifier", identifier)
-                .add("metricClass", metricClass.getSimpleName())
+                .add("identifier", this.identifier)
+                .add("metricClass", this.metricClass.getSimpleName())
+                .add("metricScope", this.scope)
                 .add("result", this.getValue())
                 .toString();
     }

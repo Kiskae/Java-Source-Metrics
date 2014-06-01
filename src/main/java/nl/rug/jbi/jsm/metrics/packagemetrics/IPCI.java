@@ -66,7 +66,7 @@ public class IPCI extends SharedMetric {
             final int packageCount = collectionData.getOrSet(collectionName, "PackageCount", DEF_ATOMIC_INT).intValue();
 
             final double result = 1 - (ClientsP / (packageCount - 1));
-            results.add(new MetricResult(
+            results.add(MetricResult.getResult(
                     entry.getKey(),
                     this,
                     result
@@ -79,7 +79,7 @@ public class IPCI extends SharedMetric {
             final double result = ((AtomicDouble) entry.getValue().get("result")).doubleValue();
             final int packageCount = ((AtomicInteger) entry.getValue().get("PackageCount")).intValue();
 
-            results.add(new MetricResult(
+            results.add(MetricResult.getResult(
                     entry.getKey(),
                     IPCI.class,
                     MetricScope.COLLECTION,

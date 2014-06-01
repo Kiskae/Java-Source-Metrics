@@ -37,7 +37,7 @@ public class NPM extends IsolatedMetric {
 
     @Override
     public MetricResult getResult(final String identifier, final MetricState state) {
-        return new MetricResult(
+        return MetricResult.getResult(
                 identifier,
                 this,
                 state.getValue("method-num", ZERO_INT)

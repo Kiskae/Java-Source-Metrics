@@ -58,7 +58,7 @@ public class NOC extends SharedMetric {
         final List<MetricResult> ret = Lists.newLinkedList();
 
         for (final Map.Entry<String, Integer> entry : nocMap.entrySet()) {
-            ret.add(new MetricResult(entry.getKey(), this, entry.getValue()));
+            ret.add(MetricResult.getResult(entry.getKey(), this, entry.getValue()));
         }
 
         return ret;

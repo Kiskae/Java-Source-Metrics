@@ -159,7 +159,7 @@ public class CA extends SharedMetric {
         return FluentIterable.from(reverseMap.entrySet()).transform(new Function<Map.Entry<String, List<String>>, MetricResult>() {
             @Override
             public MetricResult apply(Map.Entry<String, List<String>> entry) {
-                return new MetricResult(entry.getKey(), CA.this, entry.getValue().size());
+                return MetricResult.getResult(entry.getKey(), CA.this, entry.getValue().size());
             }
         }).toList();
     }

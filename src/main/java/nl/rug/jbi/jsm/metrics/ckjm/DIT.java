@@ -26,6 +26,6 @@ public class DIT extends IsolatedMetric {
 
     @Override
     public MetricResult getResult(final String identifier, final MetricState state) {
-        return new MetricResult(identifier, this, state.getValue("dit-depth"));
+        return MetricResult.getResult(identifier, this, state.getValue("dit-depth"));
     }
 }

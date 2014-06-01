@@ -71,7 +71,7 @@ public class IIPE extends SharedMetric {
             final double ExtSumP = ((Set) entry.getValue().get("ExtSumP")).size();
             final int ExtSumC = ((Set) entry.getValue().get("ExtSumC")).size();
 
-            results.add(new MetricResult(
+            results.add(MetricResult.getResult(
                     entry.getKey(),
                     IIPE.class,
                     MetricScope.COLLECTION,

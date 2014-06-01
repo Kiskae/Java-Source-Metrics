@@ -123,6 +123,6 @@ public class CBO extends IsolatedMetric {
 
     @Override
     public MetricResult getResult(final String identifier, final MetricState state) {
-        return new MetricResult(identifier, this, state.getValueOrCreate("coupledClasses", EMPTY_SET).size());
+        return MetricResult.getResult(identifier, this, state.getValueOrCreate("coupledClasses", EMPTY_SET).size());
     }
 }

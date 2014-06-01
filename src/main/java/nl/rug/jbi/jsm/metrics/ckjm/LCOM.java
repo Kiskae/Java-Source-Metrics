@@ -67,6 +67,6 @@ public class LCOM extends IsolatedMetric {
                 }
             }
         }
-        return new MetricResult(identifier, this, lcom > 0 ? lcom : 0);
+        return MetricResult.getResult(identifier, this, lcom > 0 ? lcom : 0);
     }
 }

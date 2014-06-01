@@ -71,7 +71,7 @@ public class IIPU extends SharedMetric {
             final double UsesSumP = ((Set) entry.getValue().get("UsesSumP")).size();
             final int UsesSumC = ((Set) entry.getValue().get("UsesSumC")).size();
 
-            results.add(new MetricResult(
+            results.add(MetricResult.getResult(
                     entry.getKey(),
                     IIPU.class,
                     MetricScope.COLLECTION,
