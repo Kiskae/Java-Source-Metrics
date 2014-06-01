@@ -17,13 +17,13 @@ public interface BiFunction<A, B, C> {
      * Returns the result of applying this function to the given inputs. This method is <i>generally expected</i>, but
      * not absolutely required, to have the following properties:
      * <ul>
-     *     <li>Its execution does not cause any observable side effects.</li>
-     *     <li>The computation is consistent with equals; that is, {@code Objects.equal(a, b)} and
-     *     {@code Objects.equal(c, d)} implies that {@code Objects.equal(function.apply(a, c), function.apply(b, d))}.</li>
+     * <li>Its execution does not cause any observable side effects.</li>
+     * <li>The computation is consistent with equals; that is, {@code Objects.equal(a, b)} and
+     * {@code Objects.equal(c, d)} implies that {@code Objects.equal(function.apply(a, c), function.apply(b, d))}.</li>
      * </ul>
      *
      * @throws java.lang.NullPointerException if {@code input1} or {@code input2} is null and this function does not
-     * accept null arguments
+     *                                        accept null arguments
      */
     C apply(A input1, B input2);
 }
