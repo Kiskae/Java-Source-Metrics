@@ -10,6 +10,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -24,10 +25,12 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @since 2014-05-28
  */
 public class ResultsExporter implements Closeable {
+    private final static int DOUBLE_PRINT_PRECISION = 4;
     private final CSVWriter mappingWriter;
     private final String mappingFileName;
     private final File container;
     private final String namePattern;
+    private final NumberFormat nf;
 
     /**
      * Creates a new ResultsExporter that creates files using the given fileNamePattern. This pattern should include
@@ -53,6 +56,19 @@ public class ResultsExporter implements Closeable {
         this.mappingFileName = mappingFile.getAbsolutePath();
         this.mappingWriter = new CSVWriter(new FileWriter(mappingFile));
         this.mappingWriter.writeNext(new String[]{"Metric Identifier", "Scope", "Output File"});
+
+        this.nf = NumberFormat.getNumberInstance();
+        //Set double precision
+        this.nf.setMinimumFractionDigits(0);
+        this.nf.setMaximumFractionDigits(DOUBLE_PRINT_PRECISION);
+    }
+
+    private static String printObject(final Object o, final NumberFormat nf) {
+        if (o instanceof Number) {
+            return nf.format(((Number) o).doubleValue());
+        } else {
+            return java.util.Objects.toString(o);
+        }
     }
 
     private File getFileForName(final String identifier, final boolean strict) throws IOException {
@@ -107,7 +123,10 @@ public class ResultsExporter implements Closeable {
                             .transform(new Function<Map.Entry<String, Object>, String[]>() {
                                 @Override
                                 public String[] apply(Map.Entry<String, Object> entry) {
-                                    return new String[]{entry.getKey(), java.util.Objects.toString(entry.getValue())};
+                                    return new String[]{
+                                            entry.getKey(),
+                                            printObject(entry.getValue(), ResultsExporter.this.nf)
+                                    };
                                 }
                             })
                             .toList()
