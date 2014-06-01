@@ -11,23 +11,45 @@ import nl.rug.jbi.jsm.metrics.packagemetrics.PackageMetrics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+/**
+ * Application bootstrapper for JSM, will start either {@link nl.rug.jbi.jsm.frontend.GUIFrontend} or
+ * {@link nl.rug.jbi.jsm.frontend.ScriptFrontend} based on the arguments given to the program.
+ *
+ * @author David van Leusen
+ * @since 2014-06-01
+ */
 public class Bootstrap {
     private static final Logger logger = LogManager.getLogger(Bootstrap.class);
 
-    public static void main(final String[] args) throws MetricPreparationException, IOException {
+    public static void main(final String[] args) throws IOException {
         logger.trace("Beginning startup");
 
         final JSMCore core = new JSMCore();
 
-        //CKJM
-        core.registerMetricCollection(new CKJM());
-        //Package metrics
-        core.registerMetricCollection(new PackageMetrics());
+        try {
+            //CKJM
+            core.registerMetricCollection(new CKJM());
+            //Package metrics
+            core.registerMetricCollection(new PackageMetrics());
+        } catch (MetricPreparationException e) {
+            logger.error("Error loading metric definitions", e);
+            if (!GraphicsEnvironment.isHeadless()) {
+                JOptionPane.showMessageDialog(
+                        null,
+                        e.getMessage(),
+                        "Error loading metrics, see logs for more information",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+            System.exit(-1);
+        }
 
         final Frontend frontend;
         if (args.length > 0) {
@@ -60,7 +82,6 @@ public class Bootstrap {
         }
 
         frontend.init();
-
         logger.trace("Startup finished");
     }
 }
