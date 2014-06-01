@@ -6,6 +6,14 @@ import nl.rug.jbi.jsm.core.calculator.MetricCollection;
 
 import java.util.Set;
 
+/**
+ * Implementation of the metrics suite described by Abdeen, Ducasse and Sahraoui in
+ * <a href="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=6079866">Modularization Metrics: Assessing
+ * Package Organization in Legacy Large Object-Oriented Software</a>
+ *
+ * @author David van Leusen
+ * @since 2014-06-01
+ */
 public class PackageMetrics implements MetricCollection {
     @Override
     public Set<BaseMetric> getMetrics() {
