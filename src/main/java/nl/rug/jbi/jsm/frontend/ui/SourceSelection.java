@@ -29,7 +29,9 @@ public class SourceSelection extends JPanel {
         c.gridy = 0;
         c.gridwidth = 2;
         final JScrollPane sPane = new JScrollPane(sourceList);
-        sPane.setPreferredSize(new Dimension(250, 80));
+        final Dimension sPaneSize = new Dimension(250, 80);
+        sPane.setPreferredSize(sPaneSize);
+        sPane.setMinimumSize(sPaneSize);
         this.add(sPane, c);
 
         c.gridy = 1;
