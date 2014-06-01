@@ -10,13 +10,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.ParameterizedMessage;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 /**
+ * This class maintains the state of all metrics for a single source and dispatches data to listeners to mutate that
+ * state. It is maintained as long as the scope it is created for is the executing scope.
+ *
  * @author David van Leusen
- * @since 2014-05-28
+ * @since 2014-06-01
  */
 public class EventBus {
     private final static Logger logger = LogManager.getLogger(EventBus.class);
@@ -30,18 +34,21 @@ public class EventBus {
     }
 
     /**
-     * @param eventType
-     * @return
+     * @param eventType data-type to check listening for.
+     * @return Whether there is any metric listening for the given data-type.
      */
     public boolean hasListeners(final Class eventType) {
         return this.handlerMap.getHandlers(eventType).size() != 0;
     }
 
     /**
-     * @param something
+     * Publishes the given data to all metrics that are listening for it, if an exception occurs during execution the
+     * associated state will be marked as invalid and won't be sent any new data.
+     *
+     * @param something the data to publish to all associated listeners
      */
     public void publish(final Object something) {
-        Preconditions.checkArgument(something != null);
+        checkArgument(something != null);
         assert something != null;
         final List<HandlerExecutor> executorList = this.handlerMap.getHandlers(something.getClass());
 
@@ -57,9 +64,9 @@ public class EventBus {
                 he.emitEvent(something, state);
             } catch (final MetricExecutionException e) {
                 logger.warn(new ParameterizedMessage(
-                                "Exception occurred whilst calculating '{}' for '{}', invalidating results.",
-                                he.getMetricClass().getName(),
-                                this.identifier
+                        "Exception occurred whilst calculating '{}' for '{}', invalidating results.",
+                        he.getMetricClass().getName(),
+                        this.identifier
                 ), e);
 
                 state.invalidate(e);
@@ -68,12 +75,8 @@ public class EventBus {
     }
 
     /**
-     * @return An {@link java.util.Collections.UnmodifiableMap} view of the internal state map
+     * @return The identifier of the associated unique target
      */
-    public Map<Class, MetricState> getStates() {
-        return Collections.unmodifiableMap(this.stateMap);
-    }
-
     public String getIdentifier() {
         return this.identifier;
     }
@@ -82,7 +85,7 @@ public class EventBus {
      * Destructive extraction of a subset of data, erases the state within this object and returns the references.
      *
      * @param keys Classes for which the data should be extracted.
-     * @return
+     * @return Map with the given keys and their the associated state.
      */
     public Map<Class, MetricState> extractData(final List<Class> keys) {
         final Map<Class, MetricState> ret = Maps.newHashMap();
