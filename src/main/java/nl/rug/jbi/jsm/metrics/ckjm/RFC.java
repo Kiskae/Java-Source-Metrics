@@ -40,7 +40,7 @@ public class RFC extends IsolatedMetric {
                 "%s.%s(%s)",
                 state.getIdentifier(),
                 method.getMethodName(),
-                Joiner.on(',').join(method.getArgumentTypes())
+                Joiner.on(',').join(method.getExactArgumentTypes())
         );
         responseSet.add(signature);
     }
@@ -53,7 +53,7 @@ public class RFC extends IsolatedMetric {
                 "%s.%s(%s)",
                 instr.getClassName(),
                 instr.getMethodName(),
-                Joiner.on(',').join(instr.getArgumentTypes())
+                Joiner.on(',').join(instr.getExactArgumentTypes())
         );
         responseSet.add(signature);
     }

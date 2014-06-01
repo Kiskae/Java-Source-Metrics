@@ -6,7 +6,6 @@ import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.metrics.TestFrontend;
 import nl.rug.jbi.jsm.metrics.TestResults;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -99,7 +98,6 @@ public class RFCTest {
     }
 
     @Test
-    @Ignore
     public void testExternalOverloadedMethods() throws ExecutionException {
         final Set<String> targetClasses = ImmutableSet.of(
                 "ExternalOverloaded"
@@ -115,14 +113,15 @@ public class RFCTest {
                 RFC.class
         );
 
-        //InternalMethodsOnly.<init>()
-        //InternalMethodsOnly.method()
-        //Assert.assertArrayEquals(byte,byte);
-        //Assert.assertArrayEquals(short,short);
-        //Assert.assertArrayEquals(int,int);
-        //Assert.assertArrayEquals(long,long);
-        //TODO: this test actually fails, because primitives get put together and array declarations get removed.
-        //This is probably wrong.
-        assertEquals(6.0, result, 0.001);
+        //ExternalOverloaded.<init>()
+        //Object.<init>() - super()
+        //ExternalOverloaded.method()
+        //Assert.assertArrayEquals(byte[],byte[]);
+        //Assert.assertArrayEquals(short[],short[]);
+        //Assert.assertArrayEquals(int[],int[]);
+        //Assert.assertArrayEquals(long[],long[]);
+        //Objects.toStringHelper(Object)
+        //Objects.toStringHelper(Class)
+        assertEquals(9.0, result, 0.001);
     }
 }

@@ -27,8 +27,9 @@ public class InvokeMethodInstr {
     }
 
     /**
-     * Beware that this returns the types of the arguments that the method expects, not the types of the objects
+     * Beware that this returns the base types of the arguments that the method expects, not the types of the objects
      * put into the invocation.
+     * Notice: use {@link #getExactArgumentTypes()} if difference between polymorphic methods is important.
      *
      * @return List of Strings representing the types of the arguments of the invoked method.
      */
@@ -37,6 +38,20 @@ public class InvokeMethodInstr {
             @Override
             public String apply(final Type type) {
                 return type2className(type);
+            }
+        });
+    }
+
+    /**
+     * Use {@link #getArgumentTypes()} if only the actual base types are important.
+     *
+     * @return A list of strings representing the types of the arguments EXACTLY as BCEL reports them.
+     */
+    public List<String> getExactArgumentTypes() {
+        return Lists.transform(Arrays.asList(this.instruction.getArgumentTypes(this.cp)), new Function<Type, String>() {
+            @Override
+            public String apply(final Type type) {
+                return type.toString();
             }
         });
     }

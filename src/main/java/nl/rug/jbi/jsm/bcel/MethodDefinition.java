@@ -46,13 +46,29 @@ public class MethodDefinition {
     }
 
     /**
-     * @return A list of strings representing the types of the arguments of this method.
+     * Notice: use {@link #getExactArgumentTypes()} if difference between polymorphic methods is important.
+     *
+     * @return A list of strings representing the base types of the arguments of this method.
      */
     public List<String> getArgumentTypes() {
         return Lists.transform(Arrays.asList(this.mg.getArgumentTypes()), new Function<Type, String>() {
             @Override
             public String apply(final Type type) {
                 return type2className(type);
+            }
+        });
+    }
+
+    /**
+     * Use {@link #getArgumentTypes()} if only the actual base types are important.
+     *
+     * @return A list of strings representing the types of the arguments EXACTLY as BCEL reports them.
+     */
+    public List<String> getExactArgumentTypes() {
+        return Lists.transform(Arrays.asList(this.mg.getArgumentTypes()), new Function<Type, String>() {
+            @Override
+            public String apply(final Type type) {
+                return type.toString();
             }
         });
     }
