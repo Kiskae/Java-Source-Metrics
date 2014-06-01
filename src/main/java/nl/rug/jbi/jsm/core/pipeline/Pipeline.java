@@ -5,10 +5,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import nl.rug.jbi.jsm.bcel.*;
-import nl.rug.jbi.jsm.core.calculator.BaseMetric;
-import nl.rug.jbi.jsm.core.calculator.MetricScope;
-import nl.rug.jbi.jsm.core.calculator.MetricState;
-import nl.rug.jbi.jsm.core.calculator.ProducerMetric;
+import nl.rug.jbi.jsm.core.calculator.*;
 import nl.rug.jbi.jsm.core.event.Subscribe;
 import nl.rug.jbi.jsm.core.event.UsingProducer;
 import nl.rug.jbi.jsm.util.Pair;
@@ -112,7 +109,7 @@ public class Pipeline {
         return new Pair<Class, HandlerExecutor>(params[1], new HandlerExecutor(listener, metric));
     }
 
-    public void registerMetric(final BaseMetric metric) throws MetricPreparationException {
+    private void registerMetricInternal(final BaseMetric metric) throws MetricPreparationException {
         final List<Pair<Class, HandlerExecutor>> executors = Lists.newLinkedList();
 
         for (final MetricScope resultScope : metric.getResultScopes()) {
@@ -163,6 +160,14 @@ public class Pipeline {
         }
     }
 
+    public void registerMetric(final BaseMetric metric) throws MetricPreparationException {
+        if (!(metric instanceof IsolatedMetric || metric instanceof SharedMetric)) {
+            throw new MetricPreparationException("A metric needs to be a subclass of IsolatedMetric or SharedMetric");
+        } else {
+            this.registerMetricInternal(metric);
+        }
+    }
+
     public Map<MetricScope, HandlerMap> getHandlerMaps() {
         return Collections.unmodifiableMap(this.handlerMaps);
     }
@@ -186,7 +191,7 @@ public class Pipeline {
             logger.debug("Creating new producer: {}", producerClass);
             try {
                 final ProducerMetric pm = producerClass.getConstructor().newInstance();
-                this.registerMetric(pm);
+                this.registerMetricInternal(pm);
                 this.addProducer(pm);
                 return pm;
             } catch (InvocationTargetException e) {
