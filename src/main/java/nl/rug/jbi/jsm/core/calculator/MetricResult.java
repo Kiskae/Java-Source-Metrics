@@ -19,10 +19,10 @@ public class MetricResult {
     /**
      * Protected superclass for sub-classing.
      *
-     * @param identifier Identifier of the associated resource
+     * @param identifier  Identifier of the associated resource
      * @param metricClass Metric for which this is a result
-     * @param scope Scope that this metric belongs in.
-     * @param value The result value.
+     * @param scope       Scope that this metric belongs in.
+     * @param value       The result value.
      * @throws java.lang.NullPointerException If anything but the value is NULL
      */
     protected MetricResult(
@@ -42,8 +42,8 @@ public class MetricResult {
      * scope from the given metric.
      *
      * @param identifier Identifier of the associated resource
-     * @param metric Metric for which this is a result
-     * @param value The result value.
+     * @param metric     Metric for which this is a result
+     * @param value      The result value.
      * @return The result for the given values.
      * @throws java.lang.NullPointerException If anything but the value is NULL
      */
@@ -54,10 +54,10 @@ public class MetricResult {
     /**
      * Construct a result for the given identifier-metric pair, in the given scope and with the given value.
      *
-     * @param identifier Identifier of the associated resource
+     * @param identifier  Identifier of the associated resource
      * @param metricClass Metric for which this is a result
-     * @param scope Scope that this metric belongs in.
-     * @param value The result value.
+     * @param scope       Scope that this metric belongs in.
+     * @param value       The result value.
      * @return The result for the given values.
      * @throws java.lang.NullPointerException If anything but the value is NULL
      */

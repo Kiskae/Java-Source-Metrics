@@ -18,7 +18,7 @@ public abstract class ProducerMetric extends BaseMetric {
     private final MetricScope produceScope;
 
     /**
-     * @param dataScope The operating scope of this metric.
+     * @param dataScope    The operating scope of this metric.
      * @param produceScope Scope that the produce will belong to.
      */
     public ProducerMetric(final MetricScope dataScope, final MetricScope produceScope) {
@@ -66,7 +66,7 @@ public abstract class ProducerMetric extends BaseMetric {
         private final Object produce;
 
         /**
-         * @param target Identifier of the target that the data belongs to.
+         * @param target  Identifier of the target that the data belongs to.
          * @param produce Data to be delivered to metrics requesting it.
          * @throws java.lang.NullPointerException of either of the parameters is NULL.
          */

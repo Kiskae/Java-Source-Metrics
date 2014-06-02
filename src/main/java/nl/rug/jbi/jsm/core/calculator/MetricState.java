@@ -72,7 +72,7 @@ public class MetricState {
     /**
      * Get a value from the internal map, use of {@link #getValue(String, com.google.common.base.Supplier)} or
      * {@link #getValueOrCreate(String, com.google.common.base.Supplier)} is recommended.
-     **
+     *
      * @param key Unique key by which the value can be identified.
      * @param <T> Type of the given object.
      * @return The object if it exists within this state, otherwise NULL
@@ -87,7 +87,7 @@ public class MetricState {
     /**
      * Get a value from the internal store, if that value doesn't exist the result from the given
      * {@link com.google.common.base.Supplier#get()} is returned.
-     **
+     *
      * @param key Unique key by which the value can be identified.
      * @param def Default value supplier if the value doesn't exist within the store.
      * @param <T> Type of the given object.
@@ -104,7 +104,6 @@ public class MetricState {
     /**
      * Same as {@link #getValue(String, com.google.common.base.Supplier)}, but if the value is missing the default value
      * is immediately inserted into the store at the same time.
-     * *
      *
      * @param key Unique key by which the value can be identified.
      * @param def Default value supplier if the value doesn't exist within the store.
