@@ -14,13 +14,19 @@ import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
+ * The pipeline encapsulates the planned execution order of metrics, when data is available and what metrics to finalize
+ * when. It does this by creating chains of {@link nl.rug.jbi.jsm.core.pipeline.PipelineFrame} for each scope, with each
+ * frame building upon the data produced by the last frame.
  *
+ * @author David van Leusen
+ * @since 2014-06-02
  */
 public class Pipeline {
     private final static Logger logger = LogManager.getLogger(Pipeline.class);
@@ -59,6 +65,13 @@ public class Pipeline {
         this.frameMap.put(MetricScope.COLLECTION, new PipelineFrame(MetricScope.COLLECTION));
     }
 
+    /**
+     * To be used in conjunction with {@link nl.rug.jbi.jsm.core.execution.PipelineExecutor#setClassVisitorFactory(nl.rug.jbi.jsm.core.execution.ClassVisitorFactory)}
+     * to set up a custom ClassLoader with custom initial data. This method needs to be called any instances of this
+     * class are created to prevent exceptions related to unknown data-types.
+     *
+     * @param dataType The data-type to register within the initial CLASS frame.
+     */
     public static void registerNewBaseData(final Class dataType) {
         Pipeline.BASE_DATA_CLASSES.add(dataType);
     }
@@ -71,6 +84,14 @@ public class Pipeline {
         if (params.length != 2) {
             throw new MetricPreparationException(String.format(
                     "'%s' has more than 2 parameters.",
+                    listener
+            ));
+        }
+
+        //Method has to be set to public.
+        if ((listener.getModifiers() & Modifier.PUBLIC) == 0) {
+            throw new MetricPreparationException(String.format(
+                    "'%s' isn't set to public",
                     listener
             ));
         }
@@ -160,6 +181,15 @@ public class Pipeline {
         }
     }
 
+    /**
+     * Registers a metric to be evaluated within this pipeline, it will be validated and then placed within a frame
+     * where all the data required by the metric is available. Metrics registered need to subclass
+     * {@link nl.rug.jbi.jsm.core.calculator.IsolatedMetric} or {@link nl.rug.jbi.jsm.core.calculator.SharedMetric}.ø
+     *
+     * @param metric Metric to registered to this pipeline.
+     * @throws MetricPreparationException If there is an issue with the metric definition or its requirements, see the
+     *                                    associated error for more information.
+     */
     public void registerMetric(final BaseMetric metric) throws MetricPreparationException {
         if (!(metric instanceof IsolatedMetric || metric instanceof SharedMetric)) {
             throw new MetricPreparationException("A metric needs to be a subclass of IsolatedMetric or SharedMetric");
@@ -168,10 +198,16 @@ public class Pipeline {
         }
     }
 
+    /**
+     * @return An unmodifiable map containing all scopes and the listeners for those scopes.
+     */
     public Map<MetricScope, HandlerMap> getHandlerMaps() {
         return Collections.unmodifiableMap(this.handlerMaps);
     }
 
+    /**
+     * @return An unmodifiable map containing all scopes and the execution frames for those scopes.
+     */
     public Map<MetricScope, PipelineFrame> getPipelineFrames() {
         return Collections.unmodifiableMap(this.frameMap);
     }
