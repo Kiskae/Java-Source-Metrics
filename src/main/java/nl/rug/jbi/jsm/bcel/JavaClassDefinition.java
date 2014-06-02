@@ -49,7 +49,7 @@ public class JavaClassDefinition {
 
     /**
      * @return Transitive list of all results from {@link #getSuperClass()}.
-     * @throws nl.rug.jbi.jsm.bcel.MissingDataException
+     * @throws nl.rug.jbi.jsm.bcel.MissingDataException If one of the superclasses is missing.
      */
     public List<String> getSuperClasses() {
         try {

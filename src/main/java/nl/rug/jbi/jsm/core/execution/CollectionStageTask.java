@@ -13,6 +13,17 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Runnable that performs the third stage of the frame execution pipeline.
+ * This consists of the following steps:
+ * <ul>
+ * <li>Calculate a set of results/produce using the provided data and function.</li>
+ * <li>Return the results/produce to the Controller Thread.</li>
+ * </ul>
+ *
+ * @author David van Leusen
+ * @since 2014-06-02
+ */
 class CollectionStageTask<M, R> implements Callable<List<R>> {
     private final static Predicate<MetricState> VALIDITY_FILTER = new Predicate<MetricState>() {
         @Override

@@ -22,6 +22,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.checkState;
 
+/**
+ * Implementation of the execution of the {@link nl.rug.jbi.jsm.core.pipeline.Pipeline}.
+ * The execution is performed by performing the following loop.
+ * <ul>
+ * <li>{@link #performCalculationStage(java.util.Queue, java.util.List)}</li>
+ * <li>{@link #performMetricCollection(nl.rug.jbi.jsm.core.pipeline.PipelineFrame, java.util.Map)}</li>
+ * <li>{@link #performCollectionStage(java.util.Map, nl.rug.jbi.jsm.core.pipeline.PipelineFrame, java.util.List)}</li>
+ * <li>{@link #prepareProduceForNextFrame(java.util.Map, java.util.List, nl.rug.jbi.jsm.core.calculator.MetricScope)}</li>
+ * <li>If end of frame, merge data for the next scope into the deliverables for the next frame.</li>
+ * <li>{@link #prepareCalculatorsForNextFrame(java.util.Queue, java.util.Map, nl.rug.jbi.jsm.core.pipeline.HandlerMap)}</li>
+ * <li>If there is no next frame, exit loop.</li>
+ * </ul>
+ *
+ * @author David van Leusen
+ * @since 2014-06-02
+ */
 class ControllerThread extends Thread {
     private final static Logger logger = LogManager.getLogger(ControllerThread.class);
     private final static AtomicInteger UNIQUE_EXECUTION_ID = new AtomicInteger(0);
@@ -107,6 +123,7 @@ class ControllerThread extends Thread {
         final Repository repo = this.executionPlan.getRepository();
         final ClassVisitorFactory cvFactory = this.executionPlan.getClassVisitorFactory();
 
+        //Create the base set of modifiers for the first frame, based on the classes that need to be inspected.
         for (final Map.Entry<String, EventBus> entry : this.stateContainers.entrySet()) {
             try {
                 final JavaClass jc = repo.loadClass(entry.getKey());
@@ -187,6 +204,7 @@ class ControllerThread extends Thread {
                 logger.debug("State containers and tasks added for next scope.");
             }
 
+            //Prepare tasks containing data for the next frame.
             prepareCalculatorsForNextFrame(
                     taskQueue,
                     nextFrameExecutionData,
@@ -201,6 +219,12 @@ class ControllerThread extends Thread {
         executionPlan.onFinish();
     }
 
+    /**
+     * Step that gets executed at the end of the frame, it will turn the produce produced by the producers into a set of
+     * {@link nl.rug.jbi.jsm.core.execution.DataListDispatcher} for execution in the next frame.
+     *
+     * @see nl.rug.jbi.jsm.core.execution.DataListDispatcher
+     */
     private void prepareCalculatorsForNextFrame(
             final Queue<Pair<EventBus, Runnable>> taskQueue,
             final Map<String, List<Object>> executionData,
@@ -213,7 +237,7 @@ class ControllerThread extends Thread {
             } else {
                 logger.warn(
                         "Request for undefined identifier, might indicate that " +
-                                "a producer is returning wrong data: '{}'",
+                                "a producer is returning wrong identifiers: '{}'",
                         entry.getKey()
                 );
 
@@ -224,6 +248,13 @@ class ControllerThread extends Thread {
         }
     }
 
+    /**
+     * Processes the produce of {@link #performCollectionStage(java.util.Map, nl.rug.jbi.jsm.core.pipeline.PipelineFrame, java.util.List)}
+     * by splitting the produce based on whether it needs to be delivered in the current frame or a future frame.
+     * The produce meant for the current frame gets prepared to be sent to
+     * {@link #prepareCalculatorsForNextFrame(java.util.Queue, java.util.Map, nl.rug.jbi.jsm.core.pipeline.HandlerMap)}
+     * while the other produce gets stored based on the scope its meant to be delivered in.
+     */
     private void prepareProduceForNextFrame(
             final Map<String, List<Object>> executionMap,
             final List<ProducerMetric.Produce> produceList,
@@ -249,6 +280,16 @@ class ControllerThread extends Thread {
         }
     }
 
+    /**
+     * Based on the data collected by {@link #performMetricCollection(nl.rug.jbi.jsm.core.pipeline.PipelineFrame, java.util.Map)}
+     * calculate both results and produce of declared {@link nl.rug.jbi.jsm.core.calculator.SharedMetric} and
+     * {@link nl.rug.jbi.jsm.core.calculator.ProducerMetric}.
+     * The results from the shared metrics will be sent off to the frontend while the produce gets returned to the loop
+     * for further processing.
+     *
+     * @see nl.rug.jbi.jsm.core.execution.CollectionStageTask#forSharedMetric(nl.rug.jbi.jsm.core.calculator.SharedMetric, java.util.Map, java.util.concurrent.CountDownLatch)
+     * @see nl.rug.jbi.jsm.core.execution.CollectionStageTask#forProducer(nl.rug.jbi.jsm.core.calculator.ProducerMetric, java.util.Map, java.util.concurrent.CountDownLatch)
+     */
     private void performCollectionStage(
             final Map<Class, Map<String, MetricState>> dataMap,
             final PipelineFrame currentFrame,
@@ -262,6 +303,7 @@ class ControllerThread extends Thread {
         final List<Pair<SharedMetric, Future<List<MetricResult>>>> futureResults = Lists.newLinkedList();
         final List<Pair<ProducerMetric, Future<List<ProducerMetric.Produce>>>> futureProduce = Lists.newLinkedList();
 
+        //Begin execution of Shared Metric collection
         for (final SharedMetric metric : sharedMetrics) {
             final Map<String, MetricState> data = dataMap.get(metric.getClass());
             futureResults.add(new Pair<SharedMetric, Future<List<MetricResult>>>(
@@ -270,6 +312,7 @@ class ControllerThread extends Thread {
             ));
         }
 
+        //Begin execution of Producer collection
         for (final ProducerMetric metric : producerMetrics) {
             final Map<String, MetricState> data = dataMap.get(metric.getClass());
             futureProduce.add(new Pair<ProducerMetric, Future<List<ProducerMetric.Produce>>>(
@@ -323,9 +366,13 @@ class ControllerThread extends Thread {
         }
     }
 
+    /**
+     * Collects the states from the individual targets, then transposes the results so they are mapped by metric
+     * instead of by target.
+     */
     private void performMetricCollection(
             final PipelineFrame currentFrame,
-            final Map<Class, Map<String, MetricState>> dataMap
+            final Map<Class, Map<String, MetricState>> outputMap
     ) {
         final Table<String, Class, MetricState> dataTmp = HashBasedTable.create();
 
@@ -341,9 +388,16 @@ class ControllerThread extends Thread {
         }
 
         //Output the data
-        dataMap.putAll(Tables.transpose(dataTmp).rowMap());
+        outputMap.putAll(Tables.transpose(dataTmp).rowMap());
     }
 
+    /**
+     * Applies the set of modifiers left by the last frame and calculate the isolated metrics.
+     * This stage happens in parallel within a {@link java.util.concurrent.ExecutorService}, this thread will block
+     * until all individual processing is done.
+     *
+     * @see nl.rug.jbi.jsm.core.execution.CalculationStageTask
+     */
     private void performCalculationStage(
             final Queue<Pair<EventBus, Runnable>> taskQueue,
             final List<IsolatedMetric> isolatedMetrics
@@ -361,6 +415,7 @@ class ControllerThread extends Thread {
             ));
         }
 
+        //Block until individual processes are complete.
         calculationStageLatch.await();
     }
 }

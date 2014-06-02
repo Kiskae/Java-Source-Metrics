@@ -14,6 +14,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Runnable that performs the first stage of the frame execution pipeline.
+ * This consists of the following steps:
+ * <ul>
+ * <li>Execute the provided modifier, this is a Class Visitor or a {@link nl.rug.jbi.jsm.core.execution.DataListDispatcher}</li>
+ * <li>Calculate the {@link nl.rug.jbi.jsm.core.calculator.IsolatedMetric} for the associated class.</li>
+ * <li>Send the results, if they exist, to the frontend.</li>
+ * </ul>
+ *
+ * @author David van Leusen
+ * @since 2014-06-02
+ */
 class CalculationStageTask implements Runnable {
     private final static Logger logger = LogManager.getLogger(CalculationStageTask.class);
     private final CountDownLatch latch;

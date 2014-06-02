@@ -22,6 +22,9 @@ public interface BiFunction<A, B, C> {
      * {@code Objects.equal(c, d)} implies that {@code Objects.equal(function.apply(a, c), function.apply(b, d))}.</li>
      * </ul>
      *
+     * @param input1 First input
+     * @param input2 Second input
+     * @return A value based on input1 and input2
      * @throws java.lang.NullPointerException if {@code input1} or {@code input2} is null and this function does not
      *                                        accept null arguments
      */

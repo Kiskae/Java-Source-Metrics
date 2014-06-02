@@ -15,7 +15,7 @@ import java.util.Map;
  * The primary purpose of this class is to act as a source for {@link org.apache.bcel.classfile.JavaClass} within the
  * BCEL library.
  * It also records the source of the class files so this information can be used for collection-based metrics.
- * <p></p>
+ * <br>
  * Be aware that this class is not a functional class loader, it only implements what is required to provide
  * functionality to BCEL.
  *
@@ -29,7 +29,7 @@ public class CompositeBCELClassLoader extends ClassLoader {
 
     /**
      * Construct a composite class loader which draws its classes from the sources provided.
-     * <p></p>
+     * <br>
      * Internally the provided URLs are converted into class-loaders with reverse-mappings to identifiable names.
      *
      * @param externalSources URL objects referencing outside resources, defined for URLs representing directories
@@ -69,7 +69,7 @@ public class CompositeBCELClassLoader extends ClassLoader {
     /**
      * Looks for class files by linear search though the provided resources, if the class cannot be found in the
      * provided locations, the {@link ClassLoader#getSystemClassLoader()} will be queried.
-     * <p></p>
+     * <br>
      * {@inheritDoc}
      */
     @Override

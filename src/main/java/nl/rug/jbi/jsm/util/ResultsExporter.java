@@ -17,7 +17,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Multi-file exporter for the metric results. Using the CSV-writer from the OpenCSV project, it will create a CSV file
- * for each Metric->ResultList association. Mappings between the various Metrics, Scopes and their result files will be
+ * for each Metric-&gt;ResultList association. Mappings between the various Metrics, Scopes and their result files will be
  * put in the unique file with identifier "Mapping".
  *
  * @author David van Leusen
