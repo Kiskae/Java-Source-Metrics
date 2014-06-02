@@ -7,13 +7,15 @@ import nl.rug.jbi.jsm.core.calculator.IsolatedMetric;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.event.EventBus;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 class CalculationStageTask implements Runnable {
-
+    private final static Logger logger = LogManager.getLogger(CalculationStageTask.class);
     private final CountDownLatch latch;
     private final Runnable modifier;
     private final EventBus dataStore;
@@ -57,7 +59,7 @@ class CalculationStageTask implements Runnable {
                 if (state.isValid()) {
                     results.add(m.getResult(this.dataStore.getIdentifier(), state));
                 } else {
-                    //TODO: properly log this
+                    logger.warn("Failed to calculate '{}' for '{}'", m.getClass().getName(), state.getIdentifier());
                     results.add(new InvalidResult(this.dataStore.getIdentifier(), m, "Error during calculation"));
                 }
             }

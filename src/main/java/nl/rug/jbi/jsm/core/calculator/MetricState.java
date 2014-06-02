@@ -52,8 +52,8 @@ public class MetricState {
 
     /**
      * Invalidate this state with the given exception, once invalidated this state will cease evaluating and either
-     * return an {@link nl.rug.jbi.jsm.core.execution.InvalidResult} if the metric is isolated or accumulate the
-     * 'invalidMembers' count for shared metrics or producers.
+     * return an error result if the metric is isolated or accumulate the 'invalidMembers' count for shared metrics or
+     * producers.
      *
      * @param ex Exception that has caused invalidation.
      * @throws java.lang.NullPointerException if ex is NULL

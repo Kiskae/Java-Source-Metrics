@@ -14,6 +14,7 @@ import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.util.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.message.ParameterizedMessage;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -32,7 +33,7 @@ class ControllerThread extends Thread {
             return metric.getClass();
         }
     };
-    private final PipelineExecutor executionPlan;
+    private final int executionId = UNIQUE_EXECUTION_ID.incrementAndGet();
     private final ExecutorService executorPool = Executors.newFixedThreadPool(
             Runtime.getRuntime().availableProcessors(),
             new ThreadFactory() {
@@ -40,10 +41,15 @@ class ControllerThread extends Thread {
 
                 @Override
                 public Thread newThread(Runnable r) {
-                    return new Thread(r, String.format("JSM Execution Thread #%d", executionId.getAndIncrement()));
+                    return new Thread(r, String.format(
+                            "JSM Execution Thread #%d/%d",
+                            ControllerThread.this.executionId,
+                            executionId.getAndIncrement()
+                    ));
                 }
             }
     );
+    private final PipelineExecutor executionPlan;
     private final Map<String, EventBus> stateContainers = Maps.newHashMap();
     private final Table<MetricScope, String, List<Object>> dataForFutureScope = Tables.newCustomTable(
             Maps.<MetricScope, Map<String, List<Object>>>newEnumMap(MetricScope.class),
@@ -63,7 +69,9 @@ class ControllerThread extends Thread {
     };
 
     public ControllerThread(final PipelineExecutor executionPlan, final Set<String> classNames) {
-        super(String.format("JSM Controller Thread #%d", ControllerThread.UNIQUE_EXECUTION_ID.getAndIncrement()));
+        super();
+        this.setName(String.format("JSM Controller Thread #%d", this.executionId));
+
         this.executionPlan = executionPlan;
 
         final HandlerMap classHandlerMap = this.executionPlan.getHandlerMap(MetricScope.CLASS);
@@ -107,8 +115,7 @@ class ControllerThread extends Thread {
                         cvFactory.createClassVisitor(jc, entry.getValue())
                 ));
             } catch (ClassNotFoundException e) {
-                //TODO: proper handling
-                logger.debug(e);
+                logger.error("Failed to load '{}', it will not be evaluated.", e);
             }
         }
 
@@ -125,8 +132,7 @@ class ControllerThread extends Thread {
             try {
                 performCalculationStage(taskQueue, currentFrame.getIsolatedMetrics());
             } catch (InterruptedException e) {
-                //TODO: handle interruption correctly.
-                logger.debug(e);
+                logger.warn("Execution interrupted, stopping evaluation.", e);
                 break;
             }
 
@@ -145,8 +151,7 @@ class ControllerThread extends Thread {
                     performCollectionStage(dataMap, currentFrame, produceList);
                 }
             } catch (InterruptedException e) {
-                //TODO: handle interruption correctly.
-                logger.debug(e);
+                logger.warn("Execution interrupted, stopping evaluation.", e);
                 break;
             }
 
@@ -182,7 +187,11 @@ class ControllerThread extends Thread {
                 logger.debug("State containers and tasks added for next scope.");
             }
 
-            prepareCalculatorsForNextFrame(taskQueue, nextFrameExecutionData);
+            prepareCalculatorsForNextFrame(
+                    taskQueue,
+                    nextFrameExecutionData,
+                    this.executionPlan.getHandlerMap(currentScope)
+            );
 
             logger.debug("Tasks for next frame prepared.");
         }
@@ -194,11 +203,23 @@ class ControllerThread extends Thread {
 
     private void prepareCalculatorsForNextFrame(
             final Queue<Pair<EventBus, Runnable>> taskQueue,
-            final Map<String, List<Object>> executionData
+            final Map<String, List<Object>> executionData,
+            final HandlerMap hMap
     ) {
         for (final Map.Entry<String, List<Object>> entry : executionData.entrySet()) {
-            final EventBus eBus = this.stateContainers.get(entry.getKey());
-            //TODO: if eBus == null, try to fix it....
+            final EventBus eBus;
+            if (this.stateContainers.containsKey(entry.getKey())) {
+                eBus = this.stateContainers.get(entry.getKey());
+            } else {
+                logger.warn(
+                        "Request for undefined identifier, might indicate that " +
+                                "a producer is returning wrong data: '{}'",
+                        entry.getKey()
+                );
+
+                eBus = new EventBus(entry.getKey(), hMap);
+                this.stateContainers.put(entry.getKey(), eBus);
+            }
             taskQueue.add(new Pair<EventBus, Runnable>(eBus, new DataListDispatcher(eBus, entry.getValue())));
         }
     }
@@ -238,18 +259,23 @@ class ControllerThread extends Thread {
 
         final CountDownLatch latch = createCountdownLatch(sharedMetrics.size() + producerMetrics.size());
 
-        //TODO: use Pair to link Futures to the metrics, for logging purposes
-        final List<Future<List<MetricResult>>> futureResults = Lists.newLinkedList();
-        final List<Future<List<ProducerMetric.Produce>>> futureProduce = Lists.newLinkedList();
+        final List<Pair<SharedMetric, Future<List<MetricResult>>>> futureResults = Lists.newLinkedList();
+        final List<Pair<ProducerMetric, Future<List<ProducerMetric.Produce>>>> futureProduce = Lists.newLinkedList();
 
         for (final SharedMetric metric : sharedMetrics) {
             final Map<String, MetricState> data = dataMap.get(metric.getClass());
-            futureResults.add(this.executorPool.submit(CollectionStageTask.forSharedMetric(metric, data, latch)));
+            futureResults.add(new Pair<SharedMetric, Future<List<MetricResult>>>(
+                    metric,
+                    this.executorPool.submit(CollectionStageTask.forSharedMetric(metric, data, latch))
+            ));
         }
 
         for (final ProducerMetric metric : producerMetrics) {
             final Map<String, MetricState> data = dataMap.get(metric.getClass());
-            futureProduce.add(this.executorPool.submit(CollectionStageTask.forProducer(metric, data, latch)));
+            futureProduce.add(new Pair<ProducerMetric, Future<List<ProducerMetric.Produce>>>(
+                            metric,
+                            this.executorPool.submit(CollectionStageTask.forProducer(metric, data, latch)))
+            );
         }
 
         //Await completion of async collection.
@@ -257,17 +283,20 @@ class ControllerThread extends Thread {
 
         //Collection Results
         final List<MetricResult> results = Lists.newLinkedList();
-        for (final Future<List<MetricResult>> fResult : futureResults) {
+        for (final Pair<SharedMetric, Future<List<MetricResult>>> fResult : futureResults) {
             try {
-                final List<MetricResult> resList = fResult.get();
+                final List<MetricResult> resList = fResult.second.get();
                 if (resList != null) {
                     results.addAll(resList);
                 } else {
-                    //TODO: log invalid metric
+                    logger.warn("'{}' returned null as a list of results.", fResult.first.getClass().getName());
                 }
             } catch (ExecutionException e) {
-                //TODO: how to handle errors here (do they even happen?)
-                logger.warn("Exception getting results", e);
+                logger.warn(new ParameterizedMessage(
+                        "Exception occurred whilst calculating results for '{}': {}",
+                        fResult.first.getClass().getName(),
+                        e.getCause().getMessage()
+                ), e);
             }
         }
 
@@ -276,17 +305,20 @@ class ControllerThread extends Thread {
             this.resultsCallback.apply(results);
 
         //Collect and return produce.
-        for (final Future<List<ProducerMetric.Produce>> fProduce : futureProduce) {
+        for (final Pair<ProducerMetric, Future<List<ProducerMetric.Produce>>> fProduce : futureProduce) {
             try {
-                final List<ProducerMetric.Produce> prodList = fProduce.get();
+                final List<ProducerMetric.Produce> prodList = fProduce.second.get();
                 if (prodList != null) {
                     produceOutput.addAll(prodList);
                 } else {
-                    //TODO: log invalid metric
+                    logger.warn("'{}' returned null as a list of produce.", fProduce.first.getClass().getName());
                 }
             } catch (ExecutionException e) {
-                //TODO: how to handle errors here (do they even happen?)
-                logger.warn("Exception getting results", e);
+                logger.warn(new ParameterizedMessage(
+                        "Exception occurred whilst calculating produce for '{}': {}",
+                        fProduce.first.getClass().getName(),
+                        e.getCause().getMessage()
+                ), e);
             }
         }
     }
