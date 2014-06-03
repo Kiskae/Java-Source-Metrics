@@ -7,10 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import nl.rug.jbi.jsm.core.JSMCore;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
-import nl.rug.jbi.jsm.frontend.ui.ControlsPanel;
-import nl.rug.jbi.jsm.frontend.ui.SourceSelection;
-import nl.rug.jbi.jsm.frontend.ui.TabbedResultScreen;
-import nl.rug.jbi.jsm.frontend.ui.UserConsole;
+import nl.rug.jbi.jsm.frontend.ui.*;
 import nl.rug.jbi.jsm.util.ClassDiscoverer;
 import nl.rug.jbi.jsm.util.ResultsExporter;
 import org.apache.logging.log4j.LogManager;
@@ -171,20 +168,14 @@ public class GUIFrontend extends JFrame implements Frontend, ActionListener {
     }
 
     private void exportResults() {
-        final String exportPath = JOptionPane.showInputDialog(
-                this,
-                "Please give a path where to export the data.\nThe path has to contain '%s' which will get " +
-                        "replaced by an identifier for each metric.",
-                "Export Path",
-                JOptionPane.PLAIN_MESSAGE
-        );
+        final ExportDialog.Result result = ExportDialog.showDialog(this);
 
-        if (exportPath == null) return;
+        if (result == null || result.exportPath == null) return;
 
         ResultsExporter exporter = null;
         try {
-            exporter = new ResultsExporter(exportPath);
-            this.tabbedResults.exportResults(exporter);
+            exporter = new ResultsExporter(result.exportPath);
+            this.tabbedResults.exportResults(exporter, result.groupScopes);
             logger.info("Results exported, mapping file located at: '{}'", exporter.getMappingFileName());
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

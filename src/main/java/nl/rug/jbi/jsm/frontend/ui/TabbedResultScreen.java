@@ -71,10 +71,16 @@ public class TabbedResultScreen extends JTabbedPane {
         }
     }
 
-    public void exportResults(final ResultsExporter exporter) throws IOException {
-        exportResultsForTable(exporter, MetricScope.CLASS, classData.getResultsMap());
-        exportResultsForTable(exporter, MetricScope.PACKAGE, packageData.getResultsMap());
-        exportResultsForTable(exporter, MetricScope.COLLECTION, collectionData.getResultsMap());
+    public void exportResults(final ResultsExporter exporter, final boolean groupScopes) throws IOException {
+        if (groupScopes) {
+            exporter.exportDataCollection(MetricScope.CLASS, classData.getResultsMap());
+            exporter.exportDataCollection(MetricScope.PACKAGE, packageData.getResultsMap());
+            exporter.exportDataCollection(MetricScope.COLLECTION, collectionData.getResultsMap());
+        } else {
+            exportResultsForTable(exporter, MetricScope.CLASS, classData.getResultsMap());
+            exportResultsForTable(exporter, MetricScope.PACKAGE, packageData.getResultsMap());
+            exportResultsForTable(exporter, MetricScope.COLLECTION, collectionData.getResultsMap());
+        }
     }
 
     public void clearResults() {
