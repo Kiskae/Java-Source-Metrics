@@ -33,6 +33,7 @@ public class ScriptFrontend implements Frontend {
 
     private final Set<String> input;
     private final Set<String> libraries;
+    private final boolean groupExportScopes;
 
     private final Table<String, Class, Object> resultsClass = HashBasedTable.create();
     private final Table<String, Class, Object> resultsPackage = HashBasedTable.create();
@@ -53,11 +54,13 @@ public class ScriptFrontend implements Frontend {
             final JSMCore core,
             final Set<String> input,
             final Set<String> libraries,
-            final Set<String> output
+            final Set<String> output,
+            final boolean groupExportScopes
     ) throws IOException {
         this.core = core;
         this.input = input;
         this.libraries = libraries;
+        this.groupExportScopes = groupExportScopes;
         this.exporter = getOutputWriter(output);
 
         logger.info("Exporting to {}", this.exporter);
@@ -66,10 +69,15 @@ public class ScriptFrontend implements Frontend {
     private static void exportData(
             final ResultsExporter exporter,
             final Table<String, Class, Object> results,
-            final MetricScope scope
+            final MetricScope scope,
+            final boolean groupExportScopes
     ) throws IOException {
-        for (final Map.Entry<Class, Map<String, Object>> entry : results.columnMap().entrySet()) {
-            exporter.exportData(entry.getKey(), scope, entry.getValue());
+        if (groupExportScopes) {
+            exporter.exportDataCollection(scope, results);
+        } else {
+            for (final Map.Entry<Class, Map<String, Object>> entry : results.columnMap().entrySet()) {
+                exporter.exportData(entry.getKey(), scope, entry.getValue());
+            }
         }
     }
 
@@ -157,9 +165,9 @@ public class ScriptFrontend implements Frontend {
     public void signalDone() {
         logger.info("Processing finished, exporting results");
         try {
-            exportData(this.exporter, this.resultsClass, MetricScope.CLASS);
-            exportData(this.exporter, this.resultsPackage, MetricScope.PACKAGE);
-            exportData(this.exporter, this.resultsCollection, MetricScope.COLLECTION);
+            exportData(this.exporter, this.resultsClass, MetricScope.CLASS, this.groupExportScopes);
+            exportData(this.exporter, this.resultsPackage, MetricScope.PACKAGE, this.groupExportScopes);
+            exportData(this.exporter, this.resultsCollection, MetricScope.COLLECTION, this.groupExportScopes);
 
             this.exporter.close();
         } catch (IOException e) {

@@ -3,7 +3,7 @@ package nl.rug.jbi.jsm.util;
 import au.com.bytecode.opencsv.CSVWriter;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
-import com.google.common.collect.FluentIterable;
+import com.google.common.collect.*;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 
 import java.io.Closeable;
@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -96,7 +98,8 @@ public class ResultsExporter implements Closeable {
      * @param results     Map with results for the given metric and scope.
      * @throws IOException If it gets thrown by the underlying CSVWriter
      */
-    public void exportData(final Class metricClass, final MetricScope scope, final Map<String, Object> results) throws IOException {
+    public void exportData(final Class metricClass, final MetricScope scope, final Map<String, Object> results)
+            throws IOException {
         checkArgument(metricClass != null);
         assert metricClass != null;
         checkArgument(scope != null);
@@ -132,10 +135,84 @@ public class ResultsExporter implements Closeable {
                             .toList()
             );
         } finally {
-            writer.close();
+            try {
+                writer.close();
+            } catch (IOException ignored) {
+                //Prevent finally block from overriding exceptions
+            }
         }
     }
 
+
+    /**
+     * Exports a data set collection, creates a file to contain the results, writes the filename to the mapping file
+     * and then write all the data from the given table to that file.
+     *
+     * @param scope   Scope of the results getting exported.
+     * @param results Map with results for the given scope.
+     * @throws IOException If it gets thrown by the underlying CSVWriter
+     */
+    public void exportDataCollection(final MetricScope scope, final Table<String, Class, Object> results)
+            throws IOException {
+        checkArgument(scope != null);
+        assert scope != null;
+        checkArgument(results != null);
+        assert results != null;
+
+        final File metricOutput = getFileForName(scope.toString(), false);
+
+        //Output mappings
+        final String outputFileName = metricOutput.toString();
+        for (final Class c : results.columnKeySet()) {
+            this.mappingWriter.writeNext(new String[]{c.getName(), scope.toString(), outputFileName});
+        }
+        this.mappingWriter.flush();
+
+        //Write results
+        final CSVWriter writer = new CSVWriter(new FileWriter(metricOutput));
+        try {
+            //Output headers
+            final List<String> headers = Lists.newLinkedList();
+            headers.add("Identifier");
+            headers.addAll(Collections2.transform(results.columnKeySet(), new Function<Class, String>() {
+                @Override
+                public String apply(Class aClass) {
+                    return aClass.getSimpleName();
+                }
+            }));
+            writer.writeNext(headers.toArray(new String[headers.size()]));
+
+            //Output data
+            final ImmutableList<String[]> mappedDataSet = FluentIterable.from(results.rowMap().entrySet())
+                    .transform(new Function<Map.Entry<String, Map<Class, Object>>, String[]>() {
+                        @Override
+                        public String[] apply(Map.Entry<String, Map<Class, Object>> entry) {
+                            final String[] ret = new String[1 + entry.getValue().size()];
+                            ret[0] = entry.getKey();
+
+                            final Iterator<Object> it = entry.getValue().values().iterator();
+                            int count = 1;
+                            while (it.hasNext()) {
+                                ret[count++] = printObject(it.next(), ResultsExporter.this.nf);
+                            }
+
+                            return ret;
+                        }
+                    })
+                    .toList();
+            writer.writeAll(mappedDataSet);
+        } finally {
+            try {
+                writer.close();
+            } catch (IOException ignored) {
+                //Prevent finally block from overriding exceptions
+            }
+        }
+    }
+
+    /**
+     * @return Relative location of the 'mapping' file
+     */
     public String getMappingFileName() {
         return this.mappingFileName;
     }

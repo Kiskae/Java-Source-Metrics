@@ -57,6 +57,7 @@ public class Bootstrap {
             final Set<String> input = Sets.newHashSet();
             final Set<String> libraries = Sets.newHashSet();
             final Set<String> output = Sets.newHashSet();
+            boolean groupExportScopes = false;
 
             Set<String> selectedSet = Sets.newHashSet();
 
@@ -67,6 +68,8 @@ public class Bootstrap {
                     selectedSet = libraries;
                 } else if ("--out".equalsIgnoreCase(arg)) {
                     selectedSet = output;
+                } else if ("--group-scopes".equalsIgnoreCase(arg)) {
+                    groupExportScopes = true;
                 } else {
                     selectedSet.add(arg);
                 }
@@ -75,7 +78,7 @@ public class Bootstrap {
             checkArgument(!input.isEmpty(), "Scriptable mode requires a specified input. (--in)");
             checkArgument(!output.isEmpty(), "Scriptable mode requires a specified output. (--out)");
 
-            frontend = new ScriptFrontend(core, input, libraries, output);
+            frontend = new ScriptFrontend(core, input, libraries, output, groupExportScopes);
         } else {
             //GUI mode
             frontend = new GUIFrontend(core);
