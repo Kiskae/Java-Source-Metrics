@@ -1,7 +1,6 @@
 package nl.rug.jbi.jsm.frontend;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -28,6 +27,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class GUIFrontend extends JFrame implements Frontend, ActionListener {
     private final static Logger logger = LogManager.getLogger(GUIFrontend.class);
     private final UserConsole console = new UserConsole(this);
@@ -38,7 +39,8 @@ public class GUIFrontend extends JFrame implements Frontend, ActionListener {
     private final JSMCore core;
 
     public GUIFrontend(final JSMCore core) {
-        this.core = Preconditions.checkNotNull(core);
+        super("Java Source Metrics - GUI");
+        this.core = checkNotNull(core);
         this.tabbedResults = new TabbedResultScreen(this.core);
     }
 
