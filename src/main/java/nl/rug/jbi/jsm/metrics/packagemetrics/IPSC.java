@@ -86,7 +86,7 @@ public class IPSC extends SharedMetric {
 
         for (final Map.Entry<String, MetricState> entry : states.entrySet()) {
             final String collectionName = entry.getValue().getValue("Collection");
-            final double result = entry.getValue().getValue("IPSC-p");
+            final double result = entry.getValue().<Number>getValue("IPSC-p").doubleValue();
 
             results.add(MetricResult.getResult(
                     entry.getKey(),

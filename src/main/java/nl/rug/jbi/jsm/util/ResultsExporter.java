@@ -69,7 +69,7 @@ public class ResultsExporter implements Closeable {
         if (o instanceof Number) {
             return nf.format(((Number) o).doubleValue());
         } else {
-            return java.util.Objects.toString(o);
+            return o != null ? o.toString() : "null";
         }
     }
 

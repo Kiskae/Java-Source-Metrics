@@ -109,7 +109,7 @@ public class CBOTest {
         //Referenced Types:
         //Accessed Type: [nl.rug.jbi.jsm.metrics.ckjm.cbo.RefTypes]
         //Field Type: [nl.rug.jbi.jsm.metrics.ckjm.cbo.RefTypes.Map]
-        //java.util.Objects access is ignored!
+        //java.lang.String access is ignored!
         assertEquals(2.0, result, 0.001);
     }
 
@@ -233,6 +233,7 @@ public class CBOTest {
         //Implements: nl.rug.jbi.jsm.metrics.ckjm.cbo.RefTypes.FakeInterface
         //INSTANCEOF: nl.rug.jbi.jsm.metrics.ckjm.cbo.RefTypes.List
         //CAST: nl.rug.jbi.jsm.metrics.ckjm.cbo.RefTypes.FakeInterface
+        //java.lang.String access is ignored!
 
         //Basically all types created by nl.rug.jbi.jsm.metrics.ckjm.cbo.RefTypes
         assertEquals(5.0, result, 0.001);

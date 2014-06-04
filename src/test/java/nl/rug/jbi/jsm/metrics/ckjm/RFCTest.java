@@ -67,9 +67,9 @@ public class RFCTest {
         //CallExternal.<init>()
         //Object.<init>() - super()
         //CallExternal.method()
-        //Objects.toString(Object);
-        //Objects.hash(Object);
-        //Objects.isNull(Object);
+        //String.valueOf(Object)
+        //com.google.common.base.Objects.hashCode(Object[])
+        //com.google.common.base.Objects.equal(Object, Object)
         assertEquals(6.0, result, 0.001);
     }
 

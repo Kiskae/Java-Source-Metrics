@@ -49,10 +49,14 @@ public class GUIFrontend extends JFrame implements Frontend, ActionListener {
     public void init() {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (final ReflectiveOperationException e) {
-            logger.warn("Exception setting Swing L&F", e);
         } catch (final UnsupportedLookAndFeelException ignored) {
             /* Will just default to the cross-platform L&F */
+        } catch (ClassNotFoundException e) {
+            logger.warn("Exception setting Swing L&F", e);
+        } catch (InstantiationException e) {
+            logger.warn("Exception setting Swing L&F", e);
+        } catch (IllegalAccessException e) {
+            logger.warn("Exception setting Swing L&F", e);
         }
 
         SwingUtilities.invokeLater(new Runnable() {

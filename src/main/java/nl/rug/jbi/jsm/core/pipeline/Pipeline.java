@@ -238,7 +238,9 @@ public class Pipeline {
                 );
             } catch (NoSuchMethodException e) {
                 throw new MetricPreparationException("Producers require a zero-argument constructor.");
-            } catch (ReflectiveOperationException e) {
+            } catch (InstantiationException e) {
+                throw new MetricPreparationException("Exception in producer creation through reflection", e);
+            } catch (IllegalAccessException e) {
                 throw new MetricPreparationException("Exception in producer creation through reflection", e);
             }
         }

@@ -76,7 +76,7 @@ public class PF extends SharedMetric {
 
         for (final Map.Entry<String, MetricState> entry : states.entrySet()) {
             final String collectionName = entry.getValue().getValue("Collection");
-            final double result = entry.getValue().getValue("PF-p");
+            final double result = entry.getValue().<Number>getValue("PF-p").doubleValue();
 
             results.add(MetricResult.getResult(
                     entry.getKey(),

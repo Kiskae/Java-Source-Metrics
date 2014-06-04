@@ -1,4 +1,4 @@
-Java Source Metrics
+Java Source Metrics [![Build Status](https://travis-ci.org/Kiskae/Java-Source-Metrics.svg?branch=master)](https://travis-ci.org/Kiskae/Java-Source-Metrics)
 ===================
 
 An application to calculate metrics from java bytecode.

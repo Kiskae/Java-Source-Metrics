@@ -1,17 +1,20 @@
 package nl.rug.jbi.jsm.frontend.ui.element;
 
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
+
 import javax.swing.*;
 import java.util.Collections;
 import java.util.List;
 
-public class SelectableList extends JList<String> {
-    private final DefaultListModel<String> items;
+public class SelectableList extends JList {
+    private final DefaultListModel items;
 
     public SelectableList() {
-        this(new DefaultListModel<String>());
+        this(new DefaultListModel());
     }
 
-    private SelectableList(final DefaultListModel<String> items) {
+    private SelectableList(final DefaultListModel items) {
         super(items);
         this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         this.setLayoutOrientation(JList.VERTICAL);
@@ -21,7 +24,14 @@ public class SelectableList extends JList<String> {
     }
 
     public List<String> getOptions() {
-        return Collections.list(this.items.elements());
+        return FluentIterable.from(Collections.list(this.items.elements()))
+                .transform(new Function<Object, String>() {
+                    @Override
+                    public String apply(Object o) {
+                        return o != null ? o.toString() : null;
+                    }
+                })
+                .toList();
     }
 
     public void addOption(final String item) {

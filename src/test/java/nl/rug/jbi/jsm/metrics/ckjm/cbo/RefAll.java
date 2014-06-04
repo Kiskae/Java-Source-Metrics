@@ -1,7 +1,5 @@
 package nl.rug.jbi.jsm.metrics.ckjm.cbo;
 
-import java.util.Objects;
-
 public class RefAll extends RefTypes.Map implements RefTypes.FakeInterface {
     public RefTypes.Map map = null;
     public RefTypes.List list = null;
@@ -11,7 +9,7 @@ public class RefAll extends RefTypes.Map implements RefTypes.FakeInterface {
         final RefTypes.List list = null;
 
         try {
-            Objects.hash(RefTypes.access);
+            String.valueOf(RefTypes.access);
 
             if (null instanceof RefTypes.List) {
                 RefTypes.test(null, null);
