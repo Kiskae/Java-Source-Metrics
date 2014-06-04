@@ -2,10 +2,11 @@ Java Source Metrics
 ===================
 
 An application to calculate metrics from java bytecode. 
+
 This project was created for the purpose of performing a bachelor thesis.
 
-How to use: [HOWTOUSE.md](https://github.com/Kiskae/Java-Source-Metrics/blob/master/HOWTOUSE.md)
-Extending the application: [EXTENDING.md](https://github.com/Kiskae/Java-Source-Metrics/blob/master/EXTENDING.md)
+* How to use: [HOWTOUSE.md](https://github.com/Kiskae/Java-Source-Metrics/blob/master/HOWTOUSE.md)
+* Extending the application: [EXTENDING.md](https://github.com/Kiskae/Java-Source-Metrics/blob/master/EXTENDING.md)
 
 Compilation
 -----------
