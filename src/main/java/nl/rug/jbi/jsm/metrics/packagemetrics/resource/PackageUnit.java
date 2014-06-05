@@ -1,6 +1,7 @@
 package nl.rug.jbi.jsm.metrics.packagemetrics.resource;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -231,5 +232,21 @@ public class PackageUnit {
                     }
                 })
                 .toSet();
+    }
+
+    /**
+     * Filters the given set of package names so only those that belong to the same collection as this package remain.
+     *
+     * @param packageNames Set of package names to filter
+     * @return A filtered view of the given set.
+     */
+    public Set<String> filterSameCollectionP(final Set<String> packageNames) {
+        return Sets.filter(packageNames, new Predicate<String>() {
+            @Override
+            public boolean apply(final String packageName) {
+                final String otherSource = packagedata.get(packageName).getPackageSource();
+                return data.getPackageSource().equals(otherSource);
+            }
+        });
     }
 }

@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static nl.rug.jbi.jsm.metrics.packagemetrics.CollectionAccumulator.DEF_ATOMIC_DOUBLE;
@@ -37,7 +38,11 @@ public class IPCI extends SharedMetric {
     @Subscribe
     @UsingProducer(PackageProducer.class)
     public void onPackage(final MetricState state, final PackageUnit pack) {
-        state.setValue("IPCI-ClientsP", pack.ClientsP().size());
+        //For this metric, clamp ClientsP to the set P in M. This is done because ClientsP can contain packages
+        //that are not part of the same collection, resulting in a ClientsP that is larger than P, which results
+        //in negative values for this metric.
+        final Set<String> ClientsP = pack.filterSameCollectionP(pack.ClientsP());
+        state.setValue("IPCI-ClientsP", ClientsP.size());
         state.setValue("Collection", pack.getSourceIdentifier());
     }
 
