@@ -66,10 +66,16 @@ public class IIPE extends SharedMetric {
         }
 
         final List<MetricResult> results = Lists.newLinkedList();
-
+        final Set<String> globalExtSumP = DEF_SET_STRING.get();
+        final Set<String> globalExtSumC = DEF_SET_STRING.get();
         for (final Map.Entry<String, Map<String, Object>> entry : collectionData.getEntrySetByCollection()) {
-            final double ExtSumP = ((Set) entry.getValue().get("ExtSumP")).size();
-            final int ExtSumC = ((Set) entry.getValue().get("ExtSumC")).size();
+            final Set<String> ExtSumPSet = (Set<String>) entry.getValue().get("ExtSumP");
+            final double ExtSumP = ExtSumPSet.size();
+            globalExtSumP.addAll(ExtSumPSet);
+
+            final Set<String> ExtSumCSet = (Set<String>) entry.getValue().get("ExtSumC");
+            final int ExtSumC = ExtSumCSet.size();
+            globalExtSumC.addAll(ExtSumCSet);
 
             results.add(MetricResult.getResult(
                     entry.getKey(),
@@ -78,6 +84,15 @@ public class IIPE extends SharedMetric {
                     1 - (ExtSumC != 0 ? ExtSumP / ExtSumC : 0)
             ));
         }
+
+        final double ExtSumP = globalExtSumP.size();
+        final int ExtSumC = globalExtSumC.size();
+        results.add(MetricResult.getResult(
+                GLOBAL_COLLECTION_IDENTIFIER,
+                IIPE.class,
+                MetricScope.COLLECTION,
+                1 - (ExtSumC != 0 ? ExtSumP / ExtSumC : 0)
+        ));
 
         return results;
     }

@@ -66,10 +66,16 @@ public class IIPU extends SharedMetric {
         }
 
         final List<MetricResult> results = Lists.newLinkedList();
-
+        final Set<String> globalUsesSumP = DEF_SET_STRING.get();
+        final Set<String> globalUsesSumC = DEF_SET_STRING.get();
         for (final Map.Entry<String, Map<String, Object>> entry : collectionData.getEntrySetByCollection()) {
-            final double UsesSumP = ((Set) entry.getValue().get("UsesSumP")).size();
-            final int UsesSumC = ((Set) entry.getValue().get("UsesSumC")).size();
+            final Set<String> UsesSumPSet = (Set<String>) entry.getValue().get("UsesSumP");
+            final double UsesSumP = UsesSumPSet.size();
+            globalUsesSumP.addAll(UsesSumPSet);
+
+            final Set<String> UsesSumCSet = (Set<String>) entry.getValue().get("UsesSumC");
+            final int UsesSumC = UsesSumCSet.size();
+            globalUsesSumC.addAll(UsesSumCSet);
 
             results.add(MetricResult.getResult(
                     entry.getKey(),
@@ -78,6 +84,15 @@ public class IIPU extends SharedMetric {
                     1 - (UsesSumC != 0 ? UsesSumP / UsesSumC : 0)
             ));
         }
+
+        final double UsesSumP = globalUsesSumP.size();
+        final int UsesSumC = globalUsesSumC.size();
+        results.add(MetricResult.getResult(
+                GLOBAL_COLLECTION_IDENTIFIER,
+                IIPU.class,
+                MetricScope.COLLECTION,
+                1 - (UsesSumC != 0 ? UsesSumP / UsesSumC : 0)
+        ));
 
         return results;
     }

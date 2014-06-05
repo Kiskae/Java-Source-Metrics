@@ -88,9 +88,12 @@ public class PF extends SharedMetric {
             collectionData.getOrSet(collectionName, "result", DEF_ATOMIC_DOUBLE).addAndGet(result);
         }
 
+        double gResult = 0.0;
         for (final Map.Entry<String, Map<String, Object>> entry : collectionData.getEntrySetByCollection()) {
             final double result = ((AtomicDouble) entry.getValue().get("result")).doubleValue();
             final int packageCount = ((AtomicInteger) entry.getValue().get("PackageCount")).intValue();
+
+            gResult += result;
 
             results.add(MetricResult.getResult(
                     entry.getKey(),
@@ -99,6 +102,13 @@ public class PF extends SharedMetric {
                     result / packageCount
             ));
         }
+
+        results.add(MetricResult.getResult(
+                GLOBAL_COLLECTION_IDENTIFIER,
+                PF.class,
+                MetricScope.COLLECTION,
+                gResult / states.size()
+        ));
 
         return results;
     }

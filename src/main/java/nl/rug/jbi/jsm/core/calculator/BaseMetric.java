@@ -13,6 +13,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * @since 2014-06-01
  */
 public abstract class BaseMetric {
+    /**
+     * Global Collection identifier, used when a result concerns ALL input, not just select parts of it.
+     */
+    public final static String GLOBAL_COLLECTION_IDENTIFIER = "<all>";
+
     private final MetricScope scope;
 
     BaseMetric(final MetricScope scope) {
