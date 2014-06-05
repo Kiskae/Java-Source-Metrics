@@ -10,9 +10,11 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -59,7 +61,7 @@ public class ResultsExporter implements Closeable {
         this.mappingWriter = new CSVWriter(new FileWriter(mappingFile));
         this.mappingWriter.writeNext(new String[]{"Metric Identifier", "Scope", "Output File"});
 
-        this.nf = NumberFormat.getNumberInstance();
+        this.nf = NumberFormat.getNumberInstance(Locale.US);
         //Set double precision
         this.nf.setMinimumFractionDigits(0);
         this.nf.setMaximumFractionDigits(DOUBLE_PRINT_PRECISION);
