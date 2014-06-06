@@ -1,7 +1,7 @@
 How to use
 ============
 
-Building JSM produces a buildable .jar file, this file can be executed in two different ways:
+Building JSM produces an executable .jar file, this file can be executed in two different ways:
 * The first is GUI mode, which gets started if there are no additional parameters given when the application is started.
 * The second is Script mode, which gets started if there is at least 1 parameters given when the application starts, the parsing of these parameters will be described below in the *Script Mode* section.
 
