@@ -34,29 +34,29 @@ public class PipelineExecutor {
     private final Map<MetricScope, PipelineFrame> frameMap;
 
     private final ControllerThread controllerThread;
-
+    private final ClassVisitorFactory cvFactory;
     private Runnable finishCallback = null;
-    private ClassVisitorFactory cvFactory = JSMClassVisitorFactory.INSTANCE;
 
     /**
      * Construct an executor for the given data and target
-     *
-     * @param frontend      Frontend callback for results.
+     *  @param frontend      Frontend callback for results.
      * @param executionPlan Pipeline describing the handlers and execution-frames.
      * @param dataSource    ClassLoader to build the {@link org.apache.bcel.util.ClassLoaderRepository} from.
      * @param classNames    Set of classes that need to be evaluated.
+     * @param cvFactory     Factory to create class visitors for the initial data-set.
      */
     public PipelineExecutor(
             final Frontend frontend,
             final Pipeline executionPlan,
             final CompositeBCELClassLoader dataSource,
-            final Set<String> classNames
-    ) {
+            final Set<String> classNames,
+            final ClassVisitorFactory cvFactory) {
         this.frontend = frontend;
         this.dataSource = dataSource;
         this.repo = new ClassLoaderRepository(dataSource);
         this.handlerMap = executionPlan.getHandlerMaps();
         this.frameMap = executionPlan.getPipelineFrames();
+        this.cvFactory = cvFactory;
         this.controllerThread = new ControllerThread(this, classNames);
     }
 
@@ -100,9 +100,12 @@ public class PipelineExecutor {
      * It will default to a factory that creates {@link nl.rug.jbi.jsm.bcel.ClassVisitor}.
      *
      * @param cvFactory ClassVisitor factory
+     * @deprecated Removed in favor of providing the factory during JSMCore creation, this method does nothing
      */
+    @Deprecated
     public void setClassVisitorFactory(final ClassVisitorFactory cvFactory) {
-        this.cvFactory = Preconditions.checkNotNull(cvFactory);
+        //NOOP
+        //this.cvFactory = Preconditions.checkNotNull(cvFactory);
     }
 
     Repository getRepository() {

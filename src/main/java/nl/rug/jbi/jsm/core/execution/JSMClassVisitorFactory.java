@@ -4,7 +4,7 @@ import nl.rug.jbi.jsm.bcel.ClassVisitor;
 import nl.rug.jbi.jsm.core.event.EventBus;
 import org.apache.bcel.classfile.JavaClass;
 
-class JSMClassVisitorFactory implements ClassVisitorFactory {
+public class JSMClassVisitorFactory implements ClassVisitorFactory {
     public final static JSMClassVisitorFactory INSTANCE = new JSMClassVisitorFactory();
 
     @Override

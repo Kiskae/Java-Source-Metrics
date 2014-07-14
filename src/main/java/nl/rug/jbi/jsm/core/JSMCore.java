@@ -4,6 +4,8 @@ import nl.rug.jbi.jsm.bcel.CompositeBCELClassLoader;
 import nl.rug.jbi.jsm.core.calculator.BaseMetric;
 import nl.rug.jbi.jsm.core.calculator.MetricCollection;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
+import nl.rug.jbi.jsm.core.execution.ClassVisitorFactory;
+import nl.rug.jbi.jsm.core.execution.JSMClassVisitorFactory;
 import nl.rug.jbi.jsm.core.execution.PipelineExecutor;
 import nl.rug.jbi.jsm.core.pipeline.MetricPreparationException;
 import nl.rug.jbi.jsm.core.pipeline.Pipeline;
@@ -24,7 +26,24 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class JSMCore {
     private final Pipeline pipe = new Pipeline();
+    private final ClassVisitorFactory cvFactory;
     private volatile boolean running = false;
+
+    /**
+     * Create a JSMCore which uses the default class visitor.
+     */
+    public JSMCore() {
+        this(JSMClassVisitorFactory.INSTANCE);
+    }
+
+    /**
+     * Create a JSMCore with a custom class visitor
+     *
+     * @param cvFactory factory which produced the class visitors that are used during execution.
+     */
+    public JSMCore(final ClassVisitorFactory cvFactory) {
+        this.cvFactory = cvFactory;
+    }
 
     /**
      * Register a metric to be evaluated during execution.
@@ -92,7 +111,7 @@ public class JSMCore {
         this.running = true;
 
         final CompositeBCELClassLoader ccl = new CompositeBCELClassLoader(sources);
-        final PipelineExecutor executor = new PipelineExecutor(frontend, pipe, ccl, classNames);
+        final PipelineExecutor executor = new PipelineExecutor(frontend, pipe, ccl, classNames, this.cvFactory);
 
         executor.setFinishCallback(new Runnable() {
             @Override
