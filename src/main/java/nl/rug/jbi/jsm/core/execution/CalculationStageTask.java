@@ -9,6 +9,7 @@ import nl.rug.jbi.jsm.core.calculator.MetricState;
 import nl.rug.jbi.jsm.core.event.EventBus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.message.ParameterizedMessage;
 
 import java.util.List;
 import java.util.Map;
@@ -69,11 +70,24 @@ class CalculationStageTask implements Runnable {
             for (final IsolatedMetric m : this.metricList) {
                 final MetricState state = isolatedMetricData.get(m.getClass());
                 if (state.isValid()) {
-                    results.add(m.getResult(this.dataStore.getIdentifier(), state));
+                    try {
+                        results.add(m.getResult(this.dataStore.getIdentifier(), state));
+                        continue;
+                    } catch (final Exception ex) {
+                        logger.warn(
+                                new ParameterizedMessage(
+                                        "Exception occurred while finalizing '{}' for '{}'",
+                                        m.getClass().getName(),
+                                        state.getIdentifier()
+                                ),
+                                ex
+                        );
+                    }
                 } else {
                     logger.warn("Failed to calculate '{}' for '{}'", m.getClass().getName(), state.getIdentifier());
-                    results.add(new InvalidResult(this.dataStore.getIdentifier(), m, "Error during calculation"));
                 }
+
+                results.add(new InvalidResult(this.dataStore.getIdentifier(), m, "Error during calculation"));
             }
 
             //Deliver Results
