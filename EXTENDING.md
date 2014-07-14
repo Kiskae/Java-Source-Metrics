@@ -43,3 +43,4 @@ Using a modified class visitor is a three-part process:
 
 1. Create a subclass of the default *ClassVisitor*, if methods are overridden to add more data to broadcast, the super-method needs to be called to ensure the class-visitor completes. Objects can be broadcast using the [EventBus](src/main/java/nl/rug/jbi/jsm/core/event/EventBus.java) object that is available in the class visitor.
 2. Create an implementation of the *ClassVisitorFactory*. First create a method to create and execute the custom class visitor for the given *JavaClass*. Then implement the *getDefaultDataClasses* method to return a set of all data-classes exposed by the class visitor implementation. If the implementation extends the default class visitor, it should be a superset of the *ClassVisitor#DEFAULT_CLASSES* set.
+3. Create an instance of the custom Factory and create the *JSMCore* providing it as an argument, any executions using that core will use the custom class visitor and factory.
