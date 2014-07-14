@@ -15,7 +15,7 @@ import java.util.Arrays;
  * @author David van Leusen
  * @since 2014-05-28
  */
-public class MethodVisitor extends EmptyVisitor {
+public class MethodVisitor implements Visitor {
     private final static Logger logger = LogManager.getLogger(MethodVisitor.class);
 
     private final MethodGen mg;

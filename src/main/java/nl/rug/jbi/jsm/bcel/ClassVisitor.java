@@ -21,7 +21,7 @@ import org.apache.logging.log4j.Logger;
  * @see nl.rug.jbi.jsm.core.pipeline.Pipeline#registerNewBaseData(Class)
  * @since 2014-05-28
  */
-public class ClassVisitor extends EmptyVisitor {
+public class ClassVisitor implements Visitor {
     public final static ImmutableSet<Class> DEFAULT_CLASSES = ImmutableSet.<Class>builder()
             .add(JavaClassDefinition.class)
             .add(MethodDefinition.class)
