@@ -4,6 +4,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.util.ClassLoaderRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Extended version of the default BCEL {@link org.apache.bcel.util.ClassLoaderRepository}.
@@ -18,6 +20,7 @@ import org.apache.bcel.util.ClassLoaderRepository;
  * @since 2014-07-14
  */
 public class SoftValueClassLoaderRepository extends ClassLoaderRepository {
+    private final static Logger logger = LogManager.getLogger(SoftValueClassLoaderRepository.class);
     private final Cache<String, JavaClass> classCache = CacheBuilder.newBuilder()
             .softValues()
             .build();
@@ -32,6 +35,7 @@ public class SoftValueClassLoaderRepository extends ClassLoaderRepository {
 
     @Override
     public void storeClass(JavaClass clazz) {
+        logger.debug("Loaded '{}'", clazz.getClassName());
         classCache.put(clazz.getClassName(), clazz);
         clazz.setRepository(this);
     }
