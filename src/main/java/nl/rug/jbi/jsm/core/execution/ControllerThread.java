@@ -10,7 +10,6 @@ import nl.rug.jbi.jsm.core.pipeline.HandlerMap;
 import nl.rug.jbi.jsm.core.pipeline.PipelineFrame;
 import nl.rug.jbi.jsm.metrics.ClassSourceProducer;
 import nl.rug.jbi.jsm.util.Pair;
-import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.util.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -125,15 +124,22 @@ class ControllerThread extends Thread {
 
         //Create the base set of modifiers for the first frame, based on the classes that need to be inspected.
         for (final Map.Entry<String, EventBus> entry : this.stateContainers.entrySet()) {
-            try {
-                final JavaClass jc = repo.loadClass(entry.getKey());
-                taskQueue.add(new Pair<EventBus, Runnable>(
-                        entry.getValue(),
-                        cvFactory.createClassVisitor(jc, entry.getValue())
-                ));
-            } catch (ClassNotFoundException e) {
-                logger.error("Failed to load '{}', it will not be evaluated.", e);
-            }
+            final String className = entry.getKey();
+            final EventBus eBus = entry.getValue();
+
+            taskQueue.add(new Pair<EventBus, Runnable>(
+                    eBus,
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                cvFactory.createClassVisitor(repo.loadClass(className), eBus).run();
+                            } catch (ClassNotFoundException e) {
+                                logger.error("Failed to load '{}', it will not be evaluated.", e);
+                            }
+                        }
+                    }
+            ));
         }
 
         while (currentFrame != null) {
