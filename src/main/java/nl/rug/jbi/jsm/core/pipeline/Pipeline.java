@@ -18,10 +18,7 @@ import org.apache.logging.log4j.Logger;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -77,8 +74,11 @@ public class Pipeline {
         //NOOP
     }
 
-    private Pair<Class, HandlerExecutor> processMethod(final Method listener, final BaseMetric metric)
-            throws MetricPreparationException {
+    private Pair<Class, HandlerExecutor> processMethod(
+            final Method listener,
+            final BaseMetric metric,
+            final Stack<Class> includeStack
+    ) throws MetricPreparationException {
         final Class<?>[] params = listener.getParameterTypes();
 
         //Listener methods always have 2 parameters
@@ -106,7 +106,10 @@ public class Pipeline {
         }
 
         if (listener.isAnnotationPresent(UsingProducer.class)) {
-            final ProducerMetric producer = loadProducer(listener.getAnnotation(UsingProducer.class).value());
+            final ProducerMetric producer = loadProducer(
+                    listener.getAnnotation(UsingProducer.class).value(),
+                    includeStack
+            );
 
             //Ensure the producer produces for the current scope
             if (!producer.getProduceScope().equals(metric.getScope())) {
@@ -131,7 +134,13 @@ public class Pipeline {
         return new Pair<Class, HandlerExecutor>(params[1], new HandlerExecutor(listener, metric));
     }
 
-    private void registerMetricInternal(final BaseMetric metric) throws MetricPreparationException {
+    private void registerMetricInternal(final BaseMetric metric, final Stack<Class> includeStack)
+            throws MetricPreparationException {
+        if (includeStack.contains(metric.getClass())) {
+            throw new MetricPreparationException(String.format("Cyclic producer requirements: %s", includeStack));
+        }
+        includeStack.push(metric.getClass());
+
         final List<Pair<Class, HandlerExecutor>> executors = Lists.newLinkedList();
 
         for (final MetricScope resultScope : metric.getResultScopes()) {
@@ -143,7 +152,7 @@ public class Pipeline {
 
         for (final Method m : metric.getClass().getDeclaredMethods()) {
             if (m.isAnnotationPresent(Subscribe.class)) {
-                executors.add(processMethod(m, metric));
+                executors.add(processMethod(m, metric, includeStack));
             }
         }
 
@@ -181,6 +190,8 @@ public class Pipeline {
                     "Unable to resolve data for metric, the required data might not have the same MetricScope"
             );
         }
+
+        includeStack.pop();
     }
 
     /**
@@ -196,7 +207,7 @@ public class Pipeline {
         if (!(metric instanceof IsolatedMetric || metric instanceof SharedMetric)) {
             throw new MetricPreparationException("A metric needs to be a subclass of IsolatedMetric or SharedMetric");
         } else {
-            this.registerMetricInternal(metric);
+            this.registerMetricInternal(metric, new Stack<Class>());
         }
     }
 
@@ -222,14 +233,17 @@ public class Pipeline {
                 .toString();
     }
 
-    private ProducerMetric loadProducer(final Class<? extends ProducerMetric> producerClass) throws MetricPreparationException {
+    private ProducerMetric loadProducer(
+            final Class<? extends ProducerMetric> producerClass,
+            final Stack<Class> includeStack
+    ) throws MetricPreparationException {
         if (this.registeredProducers.containsKey(producerClass)) {
             return this.registeredProducers.get(producerClass);
         } else {
             logger.debug("Creating new producer: {}", producerClass);
             try {
                 final ProducerMetric pm = producerClass.getConstructor().newInstance();
-                this.registerMetricInternal(pm);
+                this.registerMetricInternal(pm, includeStack);
                 this.addProducer(pm);
                 return pm;
             } catch (InvocationTargetException e) {

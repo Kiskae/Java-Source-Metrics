@@ -153,10 +153,113 @@ public class MetricValidationTest {
         });
     }
 
+    @Test(expected = MetricPreparationException.class)
+    public void testCyclicProducers() throws MetricPreparationException {
+        //CyclicProducer1 includes CyclicProducer2, which include CyclicProducer1 again
+        this.core.registerMetric(new SharedMetric(MetricScope.CLASS) {
+            @Subscribe
+            @UsingProducer(CyclicProducer1.class)
+            public void handleData(final MetricState state, final Integer one) {
+
+            }
+
+            @Override
+            public List<MetricResult> getResults(Map<String, MetricState> states, int invalidMembers) {
+                throw new UnsupportedOperationException();
+            }
+        });
+    }
+
+    @Test(expected = MetricPreparationException.class)
+    public void testUsingSelf() throws MetricPreparationException {
+        //Producer using itself, creates implicit cyclic requirement.
+        this.core.registerMetric(new SharedMetric(MetricScope.CLASS) {
+            @Subscribe
+            @UsingProducer(CyclicSelf.class)
+            public void handleData(final MetricState state, final Integer one) {
+
+            }
+
+            @Override
+            public List<MetricResult> getResults(Map<String, MetricState> states, int invalidMembers) {
+                throw new UnsupportedOperationException();
+            }
+        });
+    }
+
     public static class TestProducer extends ProducerMetric {
 
         public TestProducer() {
             super(MetricScope.CLASS, MetricScope.CLASS);
+        }
+
+        @Override
+        public List<Produce> getProduce(Map<String, MetricState> states, int invalidMembers) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Class getProducedClass() {
+            return Object.class;
+        }
+    }
+
+    public static class CyclicProducer1 extends ProducerMetric {
+
+        public CyclicProducer1() {
+            super(MetricScope.CLASS, MetricScope.CLASS);
+        }
+
+        @Subscribe
+        @UsingProducer(CyclicProducer2.class)
+        public void noOp(final MetricState state, final Object o) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<Produce> getProduce(Map<String, MetricState> states, int invalidMembers) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Class getProducedClass() {
+            return Object.class;
+        }
+    }
+
+    public static class CyclicProducer2 extends ProducerMetric {
+
+        public CyclicProducer2() {
+            super(MetricScope.CLASS, MetricScope.CLASS);
+        }
+
+        @Subscribe
+        @UsingProducer(CyclicProducer1.class)
+        public void noOp(final MetricState state, final Object o) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<Produce> getProduce(Map<String, MetricState> states, int invalidMembers) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Class getProducedClass() {
+            return Object.class;
+        }
+    }
+
+    public static class CyclicSelf extends ProducerMetric {
+
+        public CyclicSelf() {
+            super(MetricScope.CLASS, MetricScope.CLASS);
+        }
+
+        @Subscribe
+        @UsingProducer(CyclicSelf.class)
+        public void noOp(final MetricState state, final Object o) {
+            throw new UnsupportedOperationException();
         }
 
         @Override
