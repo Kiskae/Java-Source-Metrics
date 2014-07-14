@@ -71,6 +71,13 @@ public class InvokeMethodInstr {
     }
 
     /**
+     * @return A string representing the EXACT type of the class as BCEL reports it.
+     */
+    public String getExactClassName() {
+        return this.instruction.getReferenceType(this.cp).getSignature();
+    }
+
+    /**
      * @return Name of the invoked method.
      */
     public String getMethodName() {

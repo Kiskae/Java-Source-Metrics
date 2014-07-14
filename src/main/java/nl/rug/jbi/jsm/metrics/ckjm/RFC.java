@@ -51,7 +51,7 @@ public class RFC extends IsolatedMetric {
 
         final String signature = String.format(
                 "%s.%s(%s)",
-                instr.getClassName(),
+                instr.getExactClassName(),
                 instr.getMethodName(),
                 Joiner.on(',').join(instr.getExactArgumentTypes())
         );
