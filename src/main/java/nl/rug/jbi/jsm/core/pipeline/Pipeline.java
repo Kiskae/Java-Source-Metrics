@@ -2,9 +2,12 @@ package nl.rug.jbi.jsm.core.pipeline;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
-import nl.rug.jbi.jsm.bcel.*;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import nl.rug.jbi.jsm.core.calculator.*;
 import nl.rug.jbi.jsm.core.event.Subscribe;
 import nl.rug.jbi.jsm.core.event.UsingProducer;
@@ -15,7 +18,10 @@ import org.apache.logging.log4j.Logger;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -31,36 +37,29 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class Pipeline {
     private final static Logger logger = LogManager.getLogger(Pipeline.class);
 
-    //This set contains all types of data that get produces for the first CLASS frame.
-    private final static Set<Class> BASE_DATA_CLASSES = Sets.newTreeSet(new Comparator<Class>() {
-        @Override
-        public int compare(Class o1, Class o2) {
-            return o1.getName().compareTo(o2.getName());
-        }
-    });
-
-    static {
-        //Register the basic types produced by the BCELClassVisitor
-        registerNewBaseData(JavaClassDefinition.class);
-        registerNewBaseData(MethodDefinition.class);
-        registerNewBaseData(FieldDefinition.class);
-        registerNewBaseData(ExceptionHandlerDefinition.class);
-        registerNewBaseData(FieldAccessInstr.class);
-        registerNewBaseData(InvokeMethodInstr.class);
-        registerNewBaseData(TypeUseInstruction.class);
-        registerNewBaseData(LocalVariableDefinition.class);
-    }
-
     private final Map<MetricScope, HandlerMap> handlerMaps = Maps.newEnumMap(MetricScope.class);
     private final Map<MetricScope, PipelineFrame> frameMap = Maps.newEnumMap(MetricScope.class);
     private final Map<Class<? extends ProducerMetric>, ProducerMetric> registeredProducers = Maps.newHashMap();
 
-    public Pipeline() {
+    /**
+     * Creates a new pipeline-frame execution plan.
+     *
+     * @param defaultDataClasses The set of data available in the first frame of the class scope.
+     */
+    public Pipeline(final Set<Class> defaultDataClasses) {
+        Preconditions.checkNotNull(defaultDataClasses, "The set of default data classes cannot be NULL.");
+        Preconditions.checkArgument(Iterables.all(defaultDataClasses, new Predicate<Class>() {
+            @Override
+            public boolean apply(Class aClass) {
+                return aClass != null;
+            }
+        }), "The set of default data classes cannot contain NULL.");
+
         this.handlerMaps.put(MetricScope.CLASS, new HandlerMap());
         this.handlerMaps.put(MetricScope.PACKAGE, new HandlerMap());
         this.handlerMaps.put(MetricScope.COLLECTION, new HandlerMap());
 
-        this.frameMap.put(MetricScope.CLASS, new PipelineFrame(MetricScope.CLASS, BASE_DATA_CLASSES));
+        this.frameMap.put(MetricScope.CLASS, new PipelineFrame(MetricScope.CLASS, defaultDataClasses));
         this.frameMap.put(MetricScope.PACKAGE, new PipelineFrame(MetricScope.PACKAGE));
         this.frameMap.put(MetricScope.COLLECTION, new PipelineFrame(MetricScope.COLLECTION));
     }
@@ -71,9 +70,11 @@ public class Pipeline {
      * class are created to prevent exceptions related to unknown data-types.
      *
      * @param dataType The data-type to register within the initial CLASS frame.
+     * @deprecated Definition moved to class visitor factory, since the set is tied to it.
      */
+    @Deprecated
     public static void registerNewBaseData(final Class dataType) {
-        Pipeline.BASE_DATA_CLASSES.add(dataType);
+        //NOOP
     }
 
     private Pair<Class, HandlerExecutor> processMethod(final Method listener, final BaseMetric metric)

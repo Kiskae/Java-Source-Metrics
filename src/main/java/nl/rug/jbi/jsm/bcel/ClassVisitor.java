@@ -1,6 +1,7 @@
 package nl.rug.jbi.jsm.bcel;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import nl.rug.jbi.jsm.core.event.EventBus;
 import org.apache.bcel.classfile.*;
 import org.apache.bcel.classfile.Deprecated;
@@ -21,8 +22,17 @@ import org.apache.logging.log4j.Logger;
  * @since 2014-05-28
  */
 public class ClassVisitor extends EmptyVisitor {
+    public final static ImmutableSet<Class> DEFAULT_CLASSES = ImmutableSet.<Class>builder()
+            .add(JavaClassDefinition.class)
+            .add(MethodDefinition.class)
+            .add(FieldDefinition.class)
+            .add(ExceptionHandlerDefinition.class)
+            .add(FieldAccessInstr.class)
+            .add(InvokeMethodInstr.class)
+            .add(TypeUseInstruction.class)
+            .add(LocalVariableDefinition.class)
+            .build();
     private final static Logger logger = LogManager.getLogger(ClassVisitor.class);
-
     private final JavaClass visitedClass;
     private final EventBus eBus;
     private final ConstantPoolGen cp;

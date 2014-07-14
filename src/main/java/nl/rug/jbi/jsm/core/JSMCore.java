@@ -1,5 +1,6 @@
 package nl.rug.jbi.jsm.core;
 
+import com.google.common.base.Preconditions;
 import nl.rug.jbi.jsm.bcel.CompositeBCELClassLoader;
 import nl.rug.jbi.jsm.core.calculator.BaseMetric;
 import nl.rug.jbi.jsm.core.calculator.MetricCollection;
@@ -25,7 +26,7 @@ import static com.google.common.base.Preconditions.checkState;
  * @since 2014-06-01
  */
 public class JSMCore {
-    private final Pipeline pipe = new Pipeline();
+    private final Pipeline pipe;
     private final ClassVisitorFactory cvFactory;
     private volatile boolean running = false;
 
@@ -42,7 +43,10 @@ public class JSMCore {
      * @param cvFactory factory which produced the class visitors that are used during execution.
      */
     public JSMCore(final ClassVisitorFactory cvFactory) {
+        Preconditions.checkNotNull(cvFactory, "Factory cannot be NULL");
+
         this.cvFactory = cvFactory;
+        this.pipe = new Pipeline(this.cvFactory.getDefaultDataClasses());
     }
 
     /**
