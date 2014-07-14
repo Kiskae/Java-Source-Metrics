@@ -51,8 +51,20 @@ public class Bootstrap {
             System.exit(-1);
         }
 
+        Bootstrap.bootstrapJSM(core, args);
+    }
+
+    /**
+     * Parses the input arguments and starts the appropriate frontend.
+     * The core should not be modified after being passed to this method.
+     *
+     * @param core      Execution core with the required metrics already registered.
+     * @param arguments Commandline arguments
+     * @throws IOException If the underlying frontends throw an IOException
+     */
+    public static void bootstrapJSM(final JSMCore core, final String[] arguments) throws IOException {
         final Frontend frontend;
-        if (args.length > 0) {
+        if (arguments.length > 0) {
             //Script Mode
             final Set<String> input = Sets.newHashSet();
             final Set<String> libraries = Sets.newHashSet();
@@ -61,7 +73,7 @@ public class Bootstrap {
 
             Set<String> selectedSet = Sets.newHashSet();
 
-            for (final String arg : args) {
+            for (final String arg : arguments) {
                 if ("--in".equalsIgnoreCase(arg)) {
                     selectedSet = input;
                 } else if ("--lib".equalsIgnoreCase(arg)) {
