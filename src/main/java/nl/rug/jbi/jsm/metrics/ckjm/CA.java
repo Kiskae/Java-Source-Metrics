@@ -97,8 +97,6 @@ public class CA extends SharedMetric {
     public void onFieldAccess(final MetricState state, final FieldAccessInstr instr) {
         //<Class Type>.<Field Type>
         registerCoupling(state, instr.getFieldType());
-
-        //CKJM missed this one
         registerCoupling(state, instr.getClassName());
     }
 
@@ -110,6 +108,7 @@ public class CA extends SharedMetric {
 
     @Subscribe
     public void onMethodInvoke(final MetricState state, final InvokeMethodInstr instr) {
+        //<Return Type> <Class Type>.method(<Arg Types>)
         //Method return type
         registerCoupling(state, instr.getReturnType());
 
@@ -118,7 +117,6 @@ public class CA extends SharedMetric {
             registerCoupling(state, className);
         }
 
-        //CKJM missed this one
         registerCoupling(state, instr.getClassName());
     }
 
