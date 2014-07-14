@@ -1,14 +1,14 @@
 package nl.rug.jbi.jsm.core.execution;
 
 import com.google.common.base.Preconditions;
-import nl.rug.jbi.jsm.bcel.CompositeBCELClassLoader;
 import nl.rug.jbi.jsm.core.calculator.MetricResult;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.pipeline.HandlerMap;
 import nl.rug.jbi.jsm.core.pipeline.Pipeline;
 import nl.rug.jbi.jsm.core.pipeline.PipelineFrame;
 import nl.rug.jbi.jsm.frontend.Frontend;
-import org.apache.bcel.util.ClassLoaderRepository;
+import nl.rug.jbi.jsm.util.CompositeBCELClassLoader;
+import nl.rug.jbi.jsm.util.SoftValueClassLoaderRepository;
 import org.apache.bcel.util.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -53,7 +53,7 @@ public class PipelineExecutor {
             final ClassVisitorFactory cvFactory) {
         this.frontend = frontend;
         this.dataSource = dataSource;
-        this.repo = new ClassLoaderRepository(dataSource);
+        this.repo = new SoftValueClassLoaderRepository(dataSource);
         this.handlerMap = executionPlan.getHandlerMaps();
         this.frameMap = executionPlan.getPipelineFrames();
         this.cvFactory = cvFactory;

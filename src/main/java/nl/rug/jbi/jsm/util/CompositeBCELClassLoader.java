@@ -1,4 +1,4 @@
-package nl.rug.jbi.jsm.bcel;
+package nl.rug.jbi.jsm.util;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;

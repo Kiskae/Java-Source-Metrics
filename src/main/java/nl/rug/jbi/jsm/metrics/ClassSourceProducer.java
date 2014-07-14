@@ -2,7 +2,7 @@ package nl.rug.jbi.jsm.metrics;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
-import nl.rug.jbi.jsm.bcel.CompositeBCELClassLoader;
+import nl.rug.jbi.jsm.util.CompositeBCELClassLoader;
 import nl.rug.jbi.jsm.bcel.JavaClassDefinition;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;
 import nl.rug.jbi.jsm.core.calculator.MetricState;

@@ -1,7 +1,7 @@
 package nl.rug.jbi.jsm.core;
 
 import com.google.common.base.Preconditions;
-import nl.rug.jbi.jsm.bcel.CompositeBCELClassLoader;
+import nl.rug.jbi.jsm.util.CompositeBCELClassLoader;
 import nl.rug.jbi.jsm.core.calculator.BaseMetric;
 import nl.rug.jbi.jsm.core.calculator.MetricCollection;
 import nl.rug.jbi.jsm.core.calculator.MetricScope;

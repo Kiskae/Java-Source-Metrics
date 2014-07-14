@@ -215,6 +215,7 @@ class ControllerThread extends Thread {
         }
 
         executorPool.shutdown();
+        repo.clear();
 
         executionPlan.onFinish();
     }
