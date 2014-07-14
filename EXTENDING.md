@@ -34,13 +34,12 @@ public void <name>(MetricState state, <Produce> obj) {
 
 The second part of the metric definition is the results/produce calculation, this is implemented as an abstract method in each of the metric-type classes. Shared/Producer-Metrics in general shouldn't return null, but an empty List if there are no results. Please refer to the javadocs for more information. Example implementations of metrics can be found in the [nl.rug.jbi.jsm.metrics](src/main/java/nl/rug/jbi/jsm/metrics) package.
 
+If a metric returns results of a different scope than its execution or for multiple scopes, the method *EnumSet<MetricScope> BaseMetric#getResultScopes()* should be overridden to return the set specifying those scopes.
 
 Modifying the Class Visitor
 -----------------
 
 Using a modified class visitor is a three-part process:
 
-1. Create a subclass of the default Class Visitor, if methods are overridden to add more data to broadcast, the super-method needs to be called to ensure the class-visitor completes. Objects can be broadcast using the [EventBus](src/main/java/nl/rug/jbi/jsm/core/event/EventBus.java) object that is available in the class visitor.
-2. Any new base data-types added by the modified class visitor need to be registered using [nl.rug.jbi.jsm.core.pipeline.Pipeline.registerNewBaseData(Class)](src/main/java/nl/rug/jbi/jsm/core/pipeline/Pipeline.java#L75). This needs to happen before any instances of the [Pipeline](src/main/java/nl/rug/jbi/jsm/core/pipeline/Pipeline.java) class are created. (JSMCore creates an instance of Pipeline)
-3. After creating a [PipelineExecutor](src/main/java/nl/rug/jbi/jsm/core/execution/PipelineExecutor.java), invoke the `setClassVisitorFactory(ClassVisitorFactory)` method on the instance using a new Factory for the custom ClassVisitor.
-4. Execute the executor, it will now calculate all the metrics using the new class-visitor as basic data-source.
+1. Create a subclass of the default *ClassVisitor*, if methods are overridden to add more data to broadcast, the super-method needs to be called to ensure the class-visitor completes. Objects can be broadcast using the [EventBus](src/main/java/nl/rug/jbi/jsm/core/event/EventBus.java) object that is available in the class visitor.
+2. Create an implementation of the *ClassVisitorFactory*. First create a method to create and execute the custom class visitor for the given *JavaClass*. Then implement the *getDefaultDataClasses* method to return a set of all data-classes exposed by the class visitor implementation. If the implementation extends the default class visitor, it should be a superset of the *ClassVisitor#DEFAULT_CLASSES* set.
