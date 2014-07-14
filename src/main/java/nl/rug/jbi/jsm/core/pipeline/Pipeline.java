@@ -156,6 +156,10 @@ public class Pipeline {
             }
         }
 
+        if (executors.isEmpty()) {
+            logger.warn("{} has no defined data handlers, this might not be intended.", metric.getClass());
+        }
+
         //Extract a set of data from the list of listeners.
         final Set<Class> usedData = FluentIterable.from(executors)
                 .transform(new Function<Pair<Class, HandlerExecutor>, Class>() {
